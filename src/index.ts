@@ -3,6 +3,8 @@ import yargs from "yargs";
 import _, { noop } from "lodash";
 import { InterfaceDeclaration, SourceFile } from "typescript";
 import { InterfacePrinter } from "./InterfacePrinter";
+import { glob } from "glob";
+import util from "util";
 
 const args = yargs
   .scriptName("martok")
@@ -24,24 +26,28 @@ export type TranspileSingleArgs = {
 
 async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
-  const program = ts.createProgram([args.path], {
+  const getFiles = util.promisify(glob);
+  const files = await getFiles(args.path);
+  const program = ts.createProgram(files, {
     noEmitOnError: true,
     noImplicitAny: true,
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
   });
-  const file = program.getSourceFile(args.path)!;
-
   const decls: string[] = [];
-  for (const node of file.statements) {
-    const printer = new InterfacePrinter(program);
-    switch (node.kind) {
-      case ts.SyntaxKind.InterfaceDeclaration:
-      case ts.SyntaxKind.TypeAliasDeclaration:
-        decls.push(printer.printType(node as InterfaceDeclaration));
-        break;
+  for (const file of files) {
+    const source = program.getSourceFile(file)!;
+    for (const node of source.statements) {
+      const printer = new InterfacePrinter(program);
+      switch (node.kind) {
+        case ts.SyntaxKind.InterfaceDeclaration:
+        case ts.SyntaxKind.TypeAliasDeclaration:
+          decls.push(printer.printType(node as InterfaceDeclaration));
+          break;
+      }
     }
   }
+
   console.log(`package foo // TODO
 
 import kotlinx.serialization.Serializable

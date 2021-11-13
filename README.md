@@ -1,8 +1,8 @@
-# martok
+# Martok
+### Glory to your types!
 
 TODO
 * Specify package
-* Read multiple files
 * Write to proper maven file structure
 * Nested objects
 * enums

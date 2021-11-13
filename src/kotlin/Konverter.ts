@@ -1,7 +1,7 @@
 import { TypescriptProperty } from "../typescript/TypescriptProperty";
 import { Program } from "typescript";
 
-type SupportedType = "string" | "number" | "boolean";
+type SupportedType = "string" | "number" | "boolean" | "any";
 
 export class Konverter {
   private readonly checker = this.program.getTypeChecker();
@@ -21,6 +21,8 @@ export class Konverter {
         return "Double";
       case "boolean":
         return "Boolean";
+      case "any":
+        return "JsonObject";
       default:
         throw new Error(`Unsupported property type: ${type}`);
     }

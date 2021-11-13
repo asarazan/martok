@@ -4,8 +4,3 @@ export interface UserContact {
   gamefaceUserId?: string; /// If nil, UserContact has not signed up
   test: number;
 }
-
-export type SomeType = {
-  foo: string;
-  bar?: number;
-};
