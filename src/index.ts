@@ -5,6 +5,7 @@ import { InterfaceDeclaration, SourceFile } from "typescript";
 import { InterfacePrinter } from "./InterfacePrinter";
 import { glob } from "glob";
 import util from "util";
+import { StandardKotlinImports } from "./kotlin/StandardKotlinImports";
 
 const args = yargs
   .scriptName("martok")
@@ -50,12 +51,14 @@ async function transpile(args: TranspileSingleArgs) {
     }
   }
 
-  console.log(`package ${args.package}
+  console.log(
+    `package ${args.package}
 
-import kotlinx.serialization.Serializable
+${StandardKotlinImports}
 
 ${decls.join("\n\n")}
-`);
+`
+  );
 }
 
 const { argv } = args.command(
