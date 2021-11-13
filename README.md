@@ -11,7 +11,7 @@ converting Typescript schemas into
 schemas. It's the brutal and chaotic rival to 
 [Dukat](https://github.com/Kotlin/dukat).
 
-
+It is still in the extremely early stages of development, and should not be used.
 
 ### SUPPORTS
 * Multiple source files
