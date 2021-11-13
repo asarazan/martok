@@ -22,31 +22,8 @@ export type TranspileSingleArgs = {
   out: string;
 };
 
-export type QualifiedType<T> = {
-  file: SourceFile;
-  type: T;
-};
-
-export type Type = {
-  name: string;
-};
-
-async function fromInterface(
-  file: SourceFile,
-  decl: InterfaceDeclaration
-): Promise<QualifiedType<Type>> {
-  console.log(`Found ${decl.name.text}`);
-  return {
-    file,
-    type: {
-      name: decl.name.text,
-    },
-  };
-}
-
 async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
-  console.log(`pwd: ${process.cwd()}`);
   const program = ts.createProgram([args.path], {
     noEmitOnError: true,
     noImplicitAny: true,
@@ -55,15 +32,22 @@ async function transpile(args: TranspileSingleArgs) {
   });
   const file = program.getSourceFile(args.path)!;
 
-  // Loop through the root AST nodes of the file
-  ts.forEachChild(file, async (node) => {
+  const decls: string[] = [];
+  for (const node of file.statements) {
+    const printer = new InterfacePrinter(program);
     switch (node.kind) {
       case ts.SyntaxKind.InterfaceDeclaration:
-        await new InterfacePrinter(program).print(node as InterfaceDeclaration);
-        // types.push(await fromInterface(file!, node as InterfaceDeclaration));
+      case ts.SyntaxKind.TypeAliasDeclaration:
+        decls.push(printer.printType(node as InterfaceDeclaration));
         break;
     }
-  });
+  }
+  console.log(`package foo // TODO
+
+import kotlinx.serialization.Serializable
+
+${decls.join("\n\n")}
+`);
 }
 
 const { argv } = args.command(

@@ -1,18 +1,18 @@
 import {
-  Identifier,
   InterfaceDeclaration,
-  isOptionalTypeNode,
+  isInterfaceDeclaration,
+  isTypeAliasDeclaration,
+  NodeArray,
   Program,
-  PropertySignature,
+  TypeAliasDeclaration,
   TypeChecker,
+  TypeElement,
+  TypeLiteralNode,
 } from "typescript";
 import _ from "lodash";
 import { PropertyHelper } from "./typescript/PropertyHelper";
-import getPropertyName = PropertyHelper.getPropertyName;
-import getPropertyType = PropertyHelper.getPropertyType;
-import isPropertyOptional = PropertyHelper.isPropertyOptional;
+
 import { Konverter } from "./kotlin/Konverter";
-import createProperty = PropertyHelper.createProperty;
 
 export class InterfacePrinter {
   private readonly checker: TypeChecker;
@@ -20,25 +20,30 @@ export class InterfacePrinter {
     this.checker = this.program.getTypeChecker();
   }
 
-  public async print(decl: InterfaceDeclaration) {
-    console.log(`Found ${decl.name.text}`);
-    const str = `import kotlinx.serialization.Serializable;
-
-@Serializable
+  public printType(decl: InterfaceDeclaration | TypeAliasDeclaration) {
+    return `@Serializable
 data class ${decl.name.text} (
 ${this.getMemberLines(decl)
   .map((value) => `  ${value};`)
   .join("\n")}
-) {}
-`;
-    console.log(str);
+) {}`;
   }
 
-  private getMemberLines(decl: InterfaceDeclaration): string[] {
+  private getMemberLines(
+    decl: InterfaceDeclaration | TypeAliasDeclaration
+  ): string[] {
     const konverter = new Konverter(this.program);
-    return _(decl.members)
+    const helper = new PropertyHelper(this.program);
+    let members: ReadonlyArray<TypeElement> = [];
+    if (isInterfaceDeclaration(decl)) {
+      members = decl.members;
+    } else if (isTypeAliasDeclaration(decl)) {
+      const type = decl.type as TypeLiteralNode;
+      members = type.members;
+    }
+    return _(members)
       .map((value) => {
-        const prop = createProperty(value);
+        const prop = helper.propertyFromElement(value);
         if (!prop) return undefined;
         return konverter.formatProperty(prop);
       })
