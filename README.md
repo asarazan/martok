@@ -1,6 +1,6 @@
 Martok
 ==
-### Glory to your schema!
+## Glory to your schema!
 
 Martok is built for one thing and one thing only: 
 converting typescript schemas into 
