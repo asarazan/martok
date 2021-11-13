@@ -13,6 +13,7 @@ const args = yargs
     type: "string",
     describe: "output file",
   })
+  .default("package", "example", "the kotlin package name")
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -22,6 +23,7 @@ const args = yargs
 export type TranspileSingleArgs = {
   path: string;
   out: string;
+  package: string;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -48,7 +50,7 @@ async function transpile(args: TranspileSingleArgs) {
     }
   }
 
-  console.log(`package foo // TODO
+  console.log(`package ${args.package}
 
 import kotlinx.serialization.Serializable
 

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "try": "ts-node src/index.ts ./types/**/*.d.ts -o ./schema/UserContact.kt",
+    "try": "ts-node src/index.ts ./types/**/*.d.ts -o ./schema/UserContact.kt --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "",
