@@ -2,11 +2,10 @@
 ### Glory to your types!
 
 TODO
-* Write to proper maven file structure
-* Nested objects
+* Write to file system
+* Multi-file Output
+  * Mostly there, just need to track references for imports
 * enums
 * union types
-* code cleanup
-* override field names
 * date types
 * documentation
