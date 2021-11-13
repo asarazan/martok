@@ -1,6 +1,6 @@
 Martok
 ==
-###Glory to your schema!
+### Glory to your schema!
 
 Martok is built for one thing and one thing only: 
 converting typescript schemas into 
@@ -10,7 +10,7 @@ schemas. It's the brutal and chaotic rival to
 
 
 
-###SUPPORTS
+### SUPPORTS
 * Multiple source files
 * Interfaces
 * Types
@@ -20,7 +20,7 @@ schemas. It's the brutal and chaotic rival to
 * Custom package name
 * optional fields
 
-###TODO
+### TODO
 * Arrays
 * Multi-file Output
   * Mostly there, just need to track references for imports
