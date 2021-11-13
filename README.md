@@ -7,4 +7,6 @@ TODO
 * enums
 * union types
 * code cleanup
+* override field names
+* date types
 * documentation

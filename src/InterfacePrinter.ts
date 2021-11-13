@@ -2,7 +2,6 @@ import {
   InterfaceDeclaration,
   isInterfaceDeclaration,
   isTypeAliasDeclaration,
-  NodeArray,
   Program,
   TypeAliasDeclaration,
   TypeChecker,
@@ -10,7 +9,7 @@ import {
   TypeLiteralNode,
 } from "typescript";
 import _ from "lodash";
-import { PropertyHelper } from "./typescript/PropertyHelper";
+import { TsHelper } from "./typescript/TsHelper";
 
 import { Konverter } from "./kotlin/Konverter";
 
@@ -20,20 +19,11 @@ export class InterfacePrinter {
     this.checker = this.program.getTypeChecker();
   }
 
-  public printType(decl: InterfaceDeclaration | TypeAliasDeclaration) {
-    return `@Serializable
-data class ${decl.name.text} (
-${this.getMemberLines(decl)
-  .map((value) => `  ${value};`)
-  .join("\n")}
-) {}`;
-  }
-
   private getMemberLines(
     decl: InterfaceDeclaration | TypeAliasDeclaration
   ): string[] {
     const konverter = new Konverter(this.program);
-    const helper = new PropertyHelper(this.program);
+    const helper = new TsHelper(this.program);
     let members: ReadonlyArray<TypeElement> = [];
     if (isInterfaceDeclaration(decl)) {
       members = decl.members;

@@ -1,11 +1,11 @@
-import * as ts from "typescript";
 import yargs from "yargs";
-import _, { noop } from "lodash";
-import { InterfaceDeclaration, SourceFile } from "typescript";
-import { InterfacePrinter } from "./InterfacePrinter";
+import { noop } from "lodash";
 import { glob } from "glob";
 import util from "util";
-import { StandardKotlinImports } from "./kotlin/StandardKotlinImports";
+import { Martok } from "./martok/Martok";
+import { MartokWriter } from "./martok/MartokWriter";
+import * as fs from "fs";
+import * as path from "path";
 
 const args = yargs
   .scriptName("martok")
@@ -30,35 +30,20 @@ export type TranspileSingleArgs = {
 async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
   const getFiles = util.promisify(glob);
-  const files = await getFiles(args.path);
-  const program = ts.createProgram(files, {
-    noEmitOnError: true,
-    noImplicitAny: true,
-    target: ts.ScriptTarget.ES5,
-    module: ts.ModuleKind.CommonJS,
+  const isDir = (await fs.promises.lstat(args.path)).isDirectory();
+  const files = isDir
+    ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
+    : [args.path];
+  const rootDir = isDir ? args.path : path.dirname(args.path);
+  const martok = new Martok({
+    files,
+    output: args.out,
+    package: args.package,
+    sourceRoot: rootDir,
   });
-  const decls: string[] = [];
-  for (const file of files) {
-    const source = program.getSourceFile(file)!;
-    for (const node of source.statements) {
-      const printer = new InterfacePrinter(program);
-      switch (node.kind) {
-        case ts.SyntaxKind.InterfaceDeclaration:
-        case ts.SyntaxKind.TypeAliasDeclaration:
-          decls.push(printer.printType(node as InterfaceDeclaration));
-          break;
-      }
-    }
-  }
-
-  console.log(
-    `package ${args.package}
-
-${StandardKotlinImports}
-
-${decls.join("\n\n")}
-`
-  );
+  const writer = new MartokWriter();
+  const output = await martok.transpile();
+  writer.writeToConsole(output);
 }
 
 const { argv } = args.command(

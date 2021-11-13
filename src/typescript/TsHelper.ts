@@ -5,23 +5,25 @@ import {
   PropertySignature,
   TypeElement,
 } from "typescript";
-import {
-  PrimitiveType,
-  PrimitiveTypes,
-  PropertyType,
-  TypescriptProperty,
-} from "./TypescriptProperty";
+import { MartokProperty } from "../types/MartokProperty";
 import _ from "lodash";
+import { MartokType } from "../types/MartokType";
+import * as path from "path";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
-export class PropertyHelper {
+export class TsHelper {
   private readonly checker = this.program.getTypeChecker();
 
   public constructor(private readonly program: Program) {}
 
-  public propertyFromElement(
-    value: TypeElement
-  ): TypescriptProperty | undefined {
+  public static getBaseFileName(file: string): string {
+    return _(file.split(path.sep))
+      .last()!
+      .replace(".d.ts", "")
+      .replace(".ts", "");
+  }
+
+  public propertyFromElement(value: TypeElement): MartokProperty | undefined {
     const name = this.getPropertyName(value);
     const type = this.getPropertyType(value);
     const optional = this.isPropertyOptional(value);
@@ -37,7 +39,7 @@ export class PropertyHelper {
     return (value.name as Identifier).escapedText;
   }
 
-  private getPropertyType(value: TypeElement): PropertyType | undefined {
+  private getPropertyType(value: TypeElement): MartokType | undefined {
     const sig = value as PropertySignature;
     const type = sig.type;
     if (!type) return undefined;

@@ -1,4 +1,4 @@
-import { UserContact } from "./UserContact";
+import { UserContact } from "./users/UserContact";
 
 export type OtherType = {
   contact: UserContact;
