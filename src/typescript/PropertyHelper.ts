@@ -1,14 +1,17 @@
-import ts, {
+import {
   __String,
   Identifier,
-  InterfaceDeclaration,
-  isOptionalTypeNode,
   Program,
   PropertySignature,
-  TypeChecker,
   TypeElement,
 } from "typescript";
-import { TypescriptProperty } from "./TypescriptProperty";
+import {
+  PrimitiveType,
+  PrimitiveTypes,
+  PropertyType,
+  TypescriptProperty,
+} from "./TypescriptProperty";
+import _ from "lodash";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export class PropertyHelper {
@@ -34,8 +37,20 @@ export class PropertyHelper {
     return (value.name as Identifier).escapedText;
   }
 
-  private getPropertyType(value: TypeElement): string | undefined {
-    return (value as PropertySignature)?.type?.getText();
+  private getPropertyType(value: TypeElement): PropertyType | undefined {
+    const sig = value as PropertySignature;
+    const type = sig.type;
+    if (!type) return undefined;
+    const name = type.getText();
+    const ttype = this.checker.getTypeFromTypeNode(type);
+    const files = ttype
+      .getSymbol()
+      ?.getDeclarations()
+      ?.map((value1) => value1.getSourceFile());
+    return {
+      name,
+      file: _.first(files),
+    };
   }
 
   private isPropertyOptional(value: TypeElement): boolean {
