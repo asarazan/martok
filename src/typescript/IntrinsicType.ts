@@ -5,12 +5,3 @@ export const INTRINSICS: Record<string, string> = {
   Array: "List",
   any: "JsonObject",
 };
-
-export type IntrinsicType = "string" | "number" | "boolean" | "Array" | "any";
-export const IntrinsicTypes: string[] = [
-  "string",
-  "number",
-  "boolean",
-  "Array",
-  "any",
-];

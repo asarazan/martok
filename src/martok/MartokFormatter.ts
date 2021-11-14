@@ -1,6 +1,6 @@
-import { MartokConfig } from "../martok/Martok";
 import { MartokOutFile } from "./MartokOutFile";
 import { StandardKotlinImports } from "../kotlin/StandardKotlinImports";
+import { MartokConfig } from "./MartokConfig";
 
 export class MartokFormatter {
   public constructor(private readonly config: MartokConfig) {}

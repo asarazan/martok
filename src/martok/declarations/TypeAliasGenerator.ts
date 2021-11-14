@@ -1,11 +1,11 @@
-import { MartokV2 } from "../MartokV2";
+import { Martok } from "../Martok";
 import { MemberBasedGenerator } from "./MemberBasedGenerator";
 import { TypeAliasDeclaration } from "typescript";
 
 export class TypeAliasGenerator {
   private readonly members = new MemberBasedGenerator(this.martok);
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: MartokV2) {}
+  public constructor(private readonly martok: Martok) {}
   public generate(node: TypeAliasDeclaration): string[] {
     const type = this.checker.getTypeFromTypeNode(node.type);
     if (type.isUnion()) {

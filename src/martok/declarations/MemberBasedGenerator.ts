@@ -1,11 +1,11 @@
-import { MartokV2 } from "../MartokV2";
+import { Martok } from "../Martok";
 import { TypeElement } from "typescript";
 import _ from "lodash";
 import { INTRINSICS } from "../../typescript/IntrinsicType";
 
 export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: MartokV2) {}
+  public constructor(private readonly martok: Martok) {}
 
   public generate(name: string, members: ReadonlyArray<TypeElement>): string[] {
     const result: string[] = [];

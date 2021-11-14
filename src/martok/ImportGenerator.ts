@@ -7,11 +7,11 @@ import {
 } from "typescript";
 import * as ts from "typescript";
 import _ from "lodash";
-import { MartokV2 } from "./MartokV2";
+import { Martok } from "./Martok";
 
 export class ImportGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: MartokV2) {}
+  public constructor(private readonly martok: Martok) {}
 
   public generateImports(file: SourceFile): string[] {
     const symbols: ts.Symbol[] = [];
