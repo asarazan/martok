@@ -1,29 +1,22 @@
 import * as ts from "typescript";
-import {
-  ImportDeclaration,
-  isImportDeclaration,
-  isInterfaceDeclaration,
-  isNamedImports,
-  isPropertyDeclaration,
-  isPropertySignature,
-  SourceFile,
-} from "typescript";
+import { SourceFile } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import { MartokConfig } from "../martok/Martok";
 import _ from "lodash";
 import * as path from "path";
 import { TsHelper } from "../typescript/TsHelper";
 import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
+import { ImportGenerator } from "./ImportGenerator";
 
 export class MartokV2 {
-  private readonly program = ts.createProgram(this.config.files, {
+  public readonly program = ts.createProgram(this.config.files, {
     noEmitOnError: true,
     noImplicitAny: true,
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
   });
-  private readonly checker = this.program.getTypeChecker();
-  public constructor(private readonly config: MartokConfig) {}
+  private readonly imports = new ImportGenerator(this);
+  private constructor(public readonly config: MartokConfig) {}
 
   public async generateOutput(): Promise<MartokOutFile[]> {
     return _(this.config.files)
@@ -44,46 +37,15 @@ export class MartokV2 {
         declarations: [],
       },
     };
-    base.text.imports.push(...this.generateImportList(file));
+    base.text.imports.push(...this.imports.generateImportList(file));
     return base;
   }
 
-  private getFilePackage(file: SourceFile): string {
+  public getFilePackage(file: SourceFile): string {
     let relativePath = path.dirname(file.fileName);
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
     }
     return `${this.config.package}${relativePath.replace("/", ".")}`;
   }
-
-  private generateImportList(file: SourceFile): string[] {
-    const symbols: ts.Symbol[] = [];
-    for (const statement of file.statements) {
-      if (!isImportDeclaration(statement)) continue;
-      symbols.push(...this.getSymbolsFromImport(statement));
-    }
-    return symbols.map((value) => {
-      const decl = _.first(value.declarations)!;
-      const file = decl.getSourceFile();
-      const pkg = this.getFilePackage(file);
-      return `import ${pkg}.${value.getEscapedName()}`;
-    });
-  }
-
-  private getSymbolsFromImport(imp: ImportDeclaration): ts.Symbol[] {
-    const result: ts.Symbol[] = [];
-    const bindings = imp.importClause?.namedBindings;
-    if (!bindings) return [];
-    if (isNamedImports(bindings)) {
-      for (const element of bindings.elements) {
-        let symbol = this.checker.getSymbolAtLocation(element.name);
-        if (!symbol) continue;
-        symbol = this.checker.getAliasedSymbol(symbol) ?? symbol;
-        result.push(symbol);
-      }
-    }
-    return result;
-  }
-
-  // private getImportFromSymbol(symbol: ts.Symbol): string {}
 }
