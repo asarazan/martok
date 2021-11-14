@@ -15,6 +15,7 @@ It is still in the extremely early stages of development, and should not be used
 
 ### SUPPORTS
 * Multiple source files
+* Output to multiple files or a single mega-file
 * Interfaces
 * Types
 * string, number, boolean, Arrays, any
@@ -28,7 +29,6 @@ It is still in the extremely early stages of development, and should not be used
 * Enums
 * Complex Unions
 * Intersections
-* Multi-file Output
   * Mostly there, just need to track references for imports
 * kotlinx.datetime
 * documentation
