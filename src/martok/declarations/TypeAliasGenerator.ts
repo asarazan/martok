@@ -1,15 +1,23 @@
 import { Martok } from "../Martok";
 import { MemberBasedGenerator } from "./MemberBasedGenerator";
-import { TypeAliasDeclaration } from "typescript";
+import {
+  isUnionTypeNode,
+  TypeAliasDeclaration,
+  UnionTypeNode,
+} from "typescript";
+import { EnumGenerator } from "./EnumGenerator";
 
 export class TypeAliasGenerator {
   private readonly members = new MemberBasedGenerator(this.martok);
+  private readonly enums = new EnumGenerator(this.martok);
+
   private readonly checker = this.martok.program.getTypeChecker();
+
   public constructor(private readonly martok: Martok) {}
+
   public generate(node: TypeAliasDeclaration): string[] {
-    const type = this.checker.getTypeFromTypeNode(node.type);
-    if (type.isUnion()) {
-      throw new Error("Unions not yet supported");
+    if (isUnionTypeNode(node.type)) {
+      return this.enums.generate(node.name.escapedText!, node.type);
     }
     return this.members.generate(
       node.name.escapedText!,

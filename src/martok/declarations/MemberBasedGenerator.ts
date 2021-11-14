@@ -12,7 +12,7 @@ export class MemberBasedGenerator {
     result.push(`@Serializable
 data class ${name}(
 ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
-) {}
+)
 `);
     return result;
   }
