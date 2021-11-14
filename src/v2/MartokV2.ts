@@ -6,7 +6,8 @@ import _ from "lodash";
 import * as path from "path";
 import { TsHelper } from "../typescript/TsHelper";
 import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
-import { ImportGenerator } from "./ImportGenerator";
+import { ImportGenerator } from "./generators/ImportGenerator";
+import { DeclarationGenerator } from "./generators/DeclarationGenerator";
 
 export class MartokV2 {
   public readonly program = ts.createProgram(this.config.files, {
@@ -16,7 +17,9 @@ export class MartokV2 {
     module: ts.ModuleKind.CommonJS,
   });
   private readonly imports = new ImportGenerator(this);
-  private constructor(public readonly config: MartokConfig) {}
+  private readonly decls = new DeclarationGenerator(this);
+
+  public constructor(public readonly config: MartokConfig) {}
 
   public async generateOutput(): Promise<MartokOutFile[]> {
     return _(this.config.files)
@@ -37,7 +40,8 @@ export class MartokV2 {
         declarations: [],
       },
     };
-    base.text.imports.push(...this.imports.generateImportList(file));
+    base.text.imports.push(...this.imports.generateImports(file));
+    base.text.declarations.push(...this.decls.generateDeclarations(file));
     return base;
   }
 

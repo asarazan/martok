@@ -1,5 +1,6 @@
 export interface Reference1 {
-  baz: boolean;
+  baz?: boolean;
+  ref: Reference2;
 }
 
 export interface Reference2 {
