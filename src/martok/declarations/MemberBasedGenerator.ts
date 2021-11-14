@@ -29,7 +29,7 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
         );
       }
     } else {
-      const symbol = type.getSymbol()!;
+      const symbol = type.aliasSymbol ?? type.getSymbol()!;
       name = symbol.getEscapedName()!;
     }
     const optional = member.questionToken ? "? = null" : "";
