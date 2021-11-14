@@ -6,8 +6,8 @@ import _ from "lodash";
 import * as path from "path";
 import { TsHelper } from "../typescript/TsHelper";
 import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
-import { ImportGenerator } from "./generators/ImportGenerator";
-import { DeclarationGenerator } from "./generators/DeclarationGenerator";
+import { ImportGenerator } from "./ImportGenerator";
+import { DeclarationGenerator } from "./declarations/DeclarationGenerator";
 
 export class MartokV2 {
   public readonly program = ts.createProgram(this.config.files, {

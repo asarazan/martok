@@ -1,17 +1,16 @@
 import { MartokV2 } from "../MartokV2";
-import { InterfaceDeclaration, TypeElement } from "typescript";
+import { TypeElement } from "typescript";
 import _ from "lodash";
 import { INTRINSICS } from "../../typescript/IntrinsicType";
 
-export class InterfaceGenerator {
+export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: MartokV2) {}
 
-  public generate(node: InterfaceDeclaration): string[] {
+  public generate(name: string, members: ReadonlyArray<TypeElement>): string[] {
     const result: string[] = [];
-    const members = node.members;
     result.push(`@Serializable
-data class ${node.name.escapedText}(
+data class ${name}(
 ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
 ) {}
 `);

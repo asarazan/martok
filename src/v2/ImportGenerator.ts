@@ -7,7 +7,7 @@ import {
 } from "typescript";
 import * as ts from "typescript";
 import _ from "lodash";
-import { MartokV2 } from "../MartokV2";
+import { MartokV2 } from "./MartokV2";
 
 export class ImportGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
