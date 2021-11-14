@@ -1,98 +1,80 @@
 import * as ts from "typescript";
-import { MartokOutput } from "../types/MartokOutput";
-import {
-  InterfaceDeclaration,
-  isInterfaceDeclaration,
-  isTypeAliasDeclaration,
-  TypeAliasDeclaration,
-  TypeElement,
-  TypeLiteralNode,
-} from "typescript";
-import { MartokFile } from "../types/MartokFile";
-import { MartokClass } from "../types/MartokClass";
-import { MartokProperty } from "../types/MartokProperty";
-import { TsHelper } from "../typescript/TsHelper";
+import { SourceFile } from "typescript";
+import { MartokOutFile } from "./MartokOutFile";
 import _ from "lodash";
-import * as path from "path";
-
-export type MartokConfig = {
-  package: string;
-  files: string[];
-  output: string;
-  sourceRoot: string;
-};
+import { TsHelper } from "../typescript/TsHelper";
+import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
+import { ImportGenerator } from "./ImportGenerator";
+import { DeclarationGenerator } from "./declarations/DeclarationGenerator";
+import * as fs from "fs";
+import { MartokFormatter } from "./MartokFormatter";
+import path from "path";
+import { MartokConfig } from "./MartokConfig";
 
 export class Martok {
-  private readonly program = ts.createProgram(this.config.files, {
+  public readonly program = ts.createProgram(this.config.files, {
     noEmitOnError: true,
     noImplicitAny: true,
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
   });
-  public readonly checker = this.program.getTypeChecker();
-  private readonly helper = new TsHelper(this.program);
+  private readonly imports = new ImportGenerator(this);
+  private readonly decls = new DeclarationGenerator(this);
+  private readonly formatter = new MartokFormatter(this.config);
 
-  public constructor(private readonly config: MartokConfig) {}
+  public constructor(public readonly config: MartokConfig) {}
 
-  public async transpile(): Promise<MartokOutput> {
-    return {
-      package: this.config.package,
-      files: this.config.files.map((value) => this.processFile(value)),
-    };
-  }
-
-  private processFile(file: string): MartokFile {
-    const source = this.program.getSourceFile(file)!;
-    const classes = [];
-    for (const node of source.statements) {
-      switch (node.kind) {
-        case ts.SyntaxKind.InterfaceDeclaration:
-        case ts.SyntaxKind.TypeAliasDeclaration:
-          classes.push(
-            this.processType(
-              node as InterfaceDeclaration | TypeAliasDeclaration
-            )
-          );
-          break;
+  public async writeKotlinFiles() {
+    const output = await this.generateOutput();
+    const outPath = this.config.output;
+    if (this.config.output.endsWith(".kt")) {
+      const contents = this.formatter.generateMultiFile(output);
+      await fs.promises.writeFile(outPath, contents);
+    } else {
+      for (const file of output) {
+        const relativePath = file.package
+          .slice(this.config.package.length)
+          .replace(".", "/");
+        const dir = `${this.config.output}${relativePath}`;
+        await fs.promises.mkdir(dir, { recursive: true });
+        const content = this.formatter.generateSingleFile(file);
+        await fs.promises.writeFile(`${dir}/${file.name}.kt`, content);
       }
     }
-    const name = TsHelper.getBaseFileName(file);
-    let relativePath = path.dirname(file);
+  }
+
+  public async generateOutput(): Promise<MartokOutFile[]> {
+    return _(this.config.files)
+      .map((value) => this.processFile(this.program.getSourceFile(value)!))
+      .compact()
+      .value();
+  }
+
+  private processFile(file: SourceFile): MartokOutFile {
+    const name = TsHelper.getBaseFileName(file.fileName);
+    const pkg = this.getFilePackage(file);
+    const base: MartokOutFile = {
+      name,
+      package: pkg,
+      text: {
+        package: `package ${pkg}`,
+        imports: [...StandardKotlinImportList],
+        declarations: [],
+      },
+    };
+    const imports = this.imports.generateImports(file);
+    if (imports.length) {
+      base.text.imports.push(null, ...imports); // spacer
+    }
+    base.text.declarations.push(...this.decls.generateDeclarations(file));
+    return base;
+  }
+
+  public getFilePackage(file: SourceFile): string {
+    let relativePath = path.dirname(file.fileName);
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
     }
-    const pkg = `${this.config.package}${relativePath.replace("/", ".")}`;
-
-    return {
-      name,
-      package: pkg,
-      relativePath,
-      classes,
-    };
-  }
-
-  private processType(
-    node: InterfaceDeclaration | TypeAliasDeclaration
-  ): MartokClass {
-    let members: ReadonlyArray<TypeElement> = [];
-    if (isInterfaceDeclaration(node)) {
-      members = node.members;
-    } else if (isTypeAliasDeclaration(node)) {
-      const type = node.type as TypeLiteralNode;
-      members = type.members;
-    }
-    if (!members) {
-      throw new Error(`Cannot read declaration: ${node.name.escapedText}`);
-    }
-    return {
-      name: node.name.escapedText!,
-      properties: _(members.map((value) => this.processProperty(value)))
-        .compact()
-        .value(),
-    };
-  }
-
-  private processProperty(prop: TypeElement): MartokProperty | undefined {
-    return this.helper.propertyFromElement(prop);
+    return `${this.config.package}${relativePath.replace("/", ".")}`;
   }
 }
