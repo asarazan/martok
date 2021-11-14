@@ -3,15 +3,13 @@ import { SourceFile } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import { MartokConfig } from "../martok/Martok";
 import _ from "lodash";
-import * as path from "path";
 import { TsHelper } from "../typescript/TsHelper";
-import {
-  StandardKotlinImportList,
-  StandardKotlinImports,
-} from "../kotlin/StandardKotlinImports";
+import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
 import { ImportGenerator } from "./ImportGenerator";
 import { DeclarationGenerator } from "./declarations/DeclarationGenerator";
 import * as fs from "fs";
+import { MartokFormatter } from "./MartokFormatter";
+import path from "path";
 
 export class MartokV2 {
   public readonly program = ts.createProgram(this.config.files, {
@@ -22,23 +20,27 @@ export class MartokV2 {
   });
   private readonly imports = new ImportGenerator(this);
   private readonly decls = new DeclarationGenerator(this);
+  private readonly formatter = new MartokFormatter(this.config);
 
   public constructor(public readonly config: MartokConfig) {}
 
   public async writeKotlinFiles() {
-    const path = this.config.output;
-    if (!path.endsWith(".kt")) {
-      throw Error("We don't support multi-file yet!");
-    }
     const output = await this.generateOutput();
-    const contents = `package ${this.config.package}
-
-${StandardKotlinImports}
-
-${output.flatMap((value) => value.text.declarations).join("\n")}
-`;
-
-    await fs.promises.writeFile(path, contents);
+    const outPath = this.config.output;
+    if (this.config.output.endsWith(".kt")) {
+      const contents = this.formatter.generateMultiFile(output);
+      await fs.promises.writeFile(outPath, contents);
+    } else {
+      for (const file of output) {
+        const relativePath = file.package
+          .slice(this.config.package.length)
+          .replace(".", "/");
+        const dir = `${this.config.output}${relativePath}`;
+        await fs.promises.mkdir(dir, { recursive: true });
+        const content = this.formatter.generateSingleFile(file);
+        await fs.promises.writeFile(`${dir}/${file.name}.kt`, content);
+      }
+    }
   }
 
   public async generateOutput(): Promise<MartokOutFile[]> {
@@ -56,11 +58,14 @@ ${output.flatMap((value) => value.text.declarations).join("\n")}
       package: pkg,
       text: {
         package: `package ${pkg}`,
-        imports: [...StandardKotlinImportList, null],
+        imports: [...StandardKotlinImportList],
         declarations: [],
       },
     };
-    base.text.imports.push(...this.imports.generateImports(file));
+    const imports = this.imports.generateImports(file);
+    if (imports.length) {
+      base.text.imports.push(null, ...imports); // spacer
+    }
     base.text.declarations.push(...this.decls.generateDeclarations(file));
     return base;
   }
