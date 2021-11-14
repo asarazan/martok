@@ -18,6 +18,7 @@ It is still in the extremely early stages of development, and should not be used
 * Output to multiple files or a single mega-file
 * Interfaces
 * Types
+* String Unions
 * string, number, boolean, Arrays, any
 * Cross-references to other types
 * kotlinx.serializable
@@ -25,7 +26,6 @@ It is still in the extremely early stages of development, and should not be used
 * optional fields
 
 ### TODO
-* String Unions
 * Enums
 * Complex Unions
 * Intersections
