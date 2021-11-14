@@ -4,6 +4,8 @@ export type OtherType = {
   contact: UserContact;
   hi: boolean;
   some: SomeType;
+  boo: string[];
+  other: SomeType[];
 };
 
 export type SomeType = {

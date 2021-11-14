@@ -29,7 +29,7 @@ export class Martok {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
   });
-  private readonly checker = this.program.getTypeChecker();
+  public readonly checker = this.program.getTypeChecker();
   private readonly helper = new TsHelper(this.program);
 
   public constructor(private readonly config: MartokConfig) {}

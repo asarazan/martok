@@ -41,7 +41,7 @@ async function transpile(args: TranspileSingleArgs) {
     package: args.package,
     sourceRoot: rootDir,
   });
-  const writer = new MartokWriter();
+  const writer = new MartokWriter(martok);
   const output = await martok.transpile();
   await writer.writeToFileSystem(output, args.out);
   // writer.writeToConsole(output);

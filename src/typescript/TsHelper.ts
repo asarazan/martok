@@ -1,14 +1,17 @@
-import {
+import ts, {
   __String,
   Identifier,
   Program,
   PropertySignature,
+  Type,
+  TypeChecker,
   TypeElement,
 } from "typescript";
 import { MartokProperty } from "../types/MartokProperty";
 import _ from "lodash";
 import { MartokType } from "../types/MartokType";
 import * as path from "path";
+import { check } from "yargs";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export class TsHelper {
@@ -39,19 +42,26 @@ export class TsHelper {
     return (value.name as Identifier).escapedText;
   }
 
-  private getPropertyType(value: TypeElement): MartokType | undefined {
-    const sig = value as PropertySignature;
-    const type = sig.type;
-    if (!type) return undefined;
-    const name = type.getText();
-    const ttype = this.checker.getTypeFromTypeNode(type);
-    const files = ttype
+  public getPropertyType(value: TypeElement): MartokType | undefined {
+    const ttype = this.checker.getTypeAtLocation(value);
+    return TsHelper.processType(ttype);
+  }
+
+  public static processType(type: Type): MartokType | undefined {
+    const files = type
       .getSymbol()
       ?.getDeclarations()
       ?.map((value1) => value1.getSourceFile());
+    // This is disgusting.
+    const name =
+      (type.aliasSymbol ?? type.getSymbol())?.escapedName ??
+      (type as any).intrinsicName;
+    const file = _.first(files);
     return {
       name,
-      file: _.first(files),
+      file,
+      isIntrinsic: !file || name === "Array",
+      rawType: type,
     };
   }
 

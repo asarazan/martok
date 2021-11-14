@@ -17,14 +17,14 @@ It is still in the extremely early stages of development, and should not be used
 * Multiple source files
 * Interfaces
 * Types
-* string, number, boolean, any
+* string, number, boolean, Arrays, any
 * Cross-references to other types
 * kotlinx.serializable
 * Custom package name
 * optional fields
 
 ### TODO
-* Arrays
+
 * Multi-file Output
   * Mostly there, just need to track references for imports
 * enums

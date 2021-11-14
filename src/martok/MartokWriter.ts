@@ -4,10 +4,15 @@ import { MartokClass } from "../types/MartokClass";
 import { MartokFile } from "../types/MartokFile";
 import { MartokProperty } from "../types/MartokProperty";
 import { MartokType } from "../types/MartokType";
-import { PrimitiveType } from "../typescript/PrimitiveType";
+import { IntrinsicType } from "../typescript/IntrinsicType";
 import * as fs from "fs";
+import { TypeReference } from "typescript";
+import { TsHelper } from "../typescript/TsHelper";
+import { Martok } from "./Martok";
 
 export class MartokWriter {
+  public constructor(private readonly martok: Martok) {}
+
   public writeToConsole(output: MartokOutput) {
     console.log(`${output.package}: Processed ${output.files.length} files...`);
     for (const file of output.files) {
@@ -58,18 +63,31 @@ ${cls.properties.map((value) => `  ${this.formatProperty(value)}`).join("\n")}
     }`;
   }
 
+  private getArrayString(type: MartokType): string {
+    const params = this.martok.checker.getTypeArguments(
+      type.rawType as TypeReference
+    );
+    const t = params[0];
+    const mtype = TsHelper.processType(t);
+    if (!mtype) {
+      return `List<JsonObject>`;
+    }
+    return `List<${this.fromType(mtype)}>`;
+  }
+
   private fromType(type: MartokType): string {
-    if (type.file) {
-      // this means it's not a primitive.
+    if (!type.isIntrinsic) {
       return type.name;
     } else {
-      switch (type.name as PrimitiveType) {
+      switch (type.name as IntrinsicType) {
         case "string":
           return "String";
         case "number":
           return "Double";
         case "boolean":
           return "Boolean";
+        case "Array":
+          return this.getArrayString(type);
         case "any":
           return "JsonObject";
         default:
