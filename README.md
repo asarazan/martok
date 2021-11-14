@@ -29,6 +29,7 @@ It is still in the extremely early stages of development, and should not be used
 * Enums
 * Complex Unions
 * Intersections
+* Interface Inheritance
 * kotlinx.datetime
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 
