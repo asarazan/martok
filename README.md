@@ -24,11 +24,12 @@ It is still in the extremely early stages of development, and should not be used
 * optional fields
 
 ### TODO
-
+* String Unions
+* Enums
+* Complex Unions
+* Intersections
 * Multi-file Output
   * Mostly there, just need to track references for imports
-* enums
-* union types
 * kotlinx.datetime
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 

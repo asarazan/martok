@@ -81,6 +81,9 @@ export class Martok {
       const type = node.type as TypeLiteralNode;
       members = type.members;
     }
+    if (!members) {
+      throw new Error(`Cannot read declaration: ${node.name.escapedText}`);
+    }
     return {
       name: node.name.escapedText!,
       properties: _(members.map((value) => this.processProperty(value)))
