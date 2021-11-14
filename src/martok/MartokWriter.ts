@@ -76,9 +76,9 @@ ${cls.properties.map((value) => `  ${this.formatProperty(value)}`).join("\n")}
   }
 
   private fromType(type: MartokType): string {
-    if (!type.isIntrinsic) {
-      return type.name;
-    } else {
+    if (type.rawType.isUnion()) {
+      return "union";
+    } else if (type.isIntrinsic) {
       switch (type.name as IntrinsicType) {
         case "string":
           return "String";
@@ -93,6 +93,8 @@ ${cls.properties.map((value) => `  ${this.formatProperty(value)}`).join("\n")}
         default:
           throw new Error(`Unsupported property type: ${type}`);
       }
+    } else {
+      return type.name;
     }
   }
 }

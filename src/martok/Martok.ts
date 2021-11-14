@@ -4,9 +4,12 @@ import {
   InterfaceDeclaration,
   isInterfaceDeclaration,
   isTypeAliasDeclaration,
+  isUnionTypeNode,
+  Type,
   TypeAliasDeclaration,
   TypeElement,
   TypeLiteralNode,
+  UnionType,
 } from "typescript";
 import { MartokFile } from "../types/MartokFile";
 import { MartokClass } from "../types/MartokClass";
@@ -44,13 +47,13 @@ export class Martok {
   private processFile(file: string): MartokFile {
     const source = this.program.getSourceFile(file)!;
     const classes = [];
-    for (const node of source.statements) {
-      switch (node.kind) {
+    for (const statement of source.statements) {
+      switch (statement.kind) {
         case ts.SyntaxKind.InterfaceDeclaration:
         case ts.SyntaxKind.TypeAliasDeclaration:
           classes.push(
             this.processType(
-              node as InterfaceDeclaration | TypeAliasDeclaration
+              statement as InterfaceDeclaration | TypeAliasDeclaration
             )
           );
           break;
@@ -72,24 +75,35 @@ export class Martok {
   }
 
   private processType(
-    node: InterfaceDeclaration | TypeAliasDeclaration
+    decl: InterfaceDeclaration | TypeAliasDeclaration
   ): MartokClass {
     let members: ReadonlyArray<TypeElement> = [];
-    if (isInterfaceDeclaration(node)) {
-      members = node.members;
-    } else if (isTypeAliasDeclaration(node)) {
-      const type = node.type as TypeLiteralNode;
-      members = type.members;
+    if (isInterfaceDeclaration(decl)) {
+      members = decl.members;
+    } else if (isTypeAliasDeclaration(decl)) {
+      const type = this.checker.getTypeFromTypeNode(decl.type);
+      if (type.isUnion()) {
+        return this.processUnionType(type);
+      }
+      members = (decl.type as TypeLiteralNode).members;
     }
     if (!members) {
-      throw new Error(`Cannot read declaration: ${node.name.escapedText}`);
+      throw new Error(`Cannot read declaration: ${decl.name.escapedText}`);
     }
     return {
-      name: node.name.escapedText!,
+      name: decl.name.escapedText!,
       properties: _(members.map((value) => this.processProperty(value)))
         .compact()
         .value(),
     };
+  }
+
+  private processUnionType(type: UnionType): MartokClass {
+    for (const subtype of type.types) {
+      if (!subtype.isStringLiteral()) {
+        throw new Error("Only string unions currently supported");
+      }
+    }
   }
 
   private processProperty(prop: TypeElement): MartokProperty | undefined {

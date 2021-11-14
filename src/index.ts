@@ -2,10 +2,11 @@ import yargs from "yargs";
 import { noop } from "lodash";
 import { glob } from "glob";
 import util from "util";
-import { Martok } from "./martok/Martok";
+import { Martok, MartokConfig } from "./martok/Martok";
 import { MartokWriter } from "./martok/MartokWriter";
 import * as fs from "fs";
 import * as path from "path";
+import { MartokV2 } from "./v2/MartokV2";
 
 const args = yargs
   .scriptName("martok")
@@ -35,16 +36,20 @@ async function transpile(args: TranspileSingleArgs) {
     ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
     : [args.path];
   const rootDir = isDir ? args.path : path.dirname(args.path);
-  const martok = new Martok({
+  const config: MartokConfig = {
     files,
     output: args.out,
     package: args.package,
     sourceRoot: rootDir,
-  });
-  const writer = new MartokWriter(martok);
-  const output = await martok.transpile();
-  await writer.writeToFileSystem(output, args.out);
+  };
+  const v2 = new MartokV2(config);
+  const out = await v2.generateOutput();
+  // const martok = new Martok(config);
+  // const writer = new MartokWriter(martok);
+  // const output = await martok.transpile();
+  // await writer.writeToFileSystem(output, args.out);
   // writer.writeToConsole(output);
+  console.log(`Finished`);
 }
 
 const { argv } = args.command(
