@@ -5,9 +5,13 @@ import { MartokConfig } from "../martok/Martok";
 import _ from "lodash";
 import * as path from "path";
 import { TsHelper } from "../typescript/TsHelper";
-import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
+import {
+  StandardKotlinImportList,
+  StandardKotlinImports,
+} from "../kotlin/StandardKotlinImports";
 import { ImportGenerator } from "./ImportGenerator";
 import { DeclarationGenerator } from "./declarations/DeclarationGenerator";
+import * as fs from "fs";
 
 export class MartokV2 {
   public readonly program = ts.createProgram(this.config.files, {
@@ -20,6 +24,22 @@ export class MartokV2 {
   private readonly decls = new DeclarationGenerator(this);
 
   public constructor(public readonly config: MartokConfig) {}
+
+  public async writeKotlinFiles() {
+    const path = this.config.output;
+    if (!path.endsWith(".kt")) {
+      throw Error("We don't support multi-file yet!");
+    }
+    const output = await this.generateOutput();
+    const contents = `package ${this.config.package}
+
+${StandardKotlinImports}
+
+${output.flatMap((value) => value.text.declarations).join("\n")}
+`;
+
+    await fs.promises.writeFile(path, contents);
+  }
 
   public async generateOutput(): Promise<MartokOutFile[]> {
     return _(this.config.files)

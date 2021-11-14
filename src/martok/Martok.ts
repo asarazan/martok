@@ -69,7 +69,6 @@ export class Martok {
     return {
       name,
       package: pkg,
-      relativePath,
       classes,
     };
   }
@@ -81,10 +80,6 @@ export class Martok {
     if (isInterfaceDeclaration(decl)) {
       members = decl.members;
     } else if (isTypeAliasDeclaration(decl)) {
-      const type = this.checker.getTypeFromTypeNode(decl.type);
-      if (type.isUnion()) {
-        return this.processUnionType(type);
-      }
       members = (decl.type as TypeLiteralNode).members;
     }
     if (!members) {
@@ -96,14 +91,6 @@ export class Martok {
         .compact()
         .value(),
     };
-  }
-
-  private processUnionType(type: UnionType): MartokClass {
-    for (const subtype of type.types) {
-      if (!subtype.isStringLiteral()) {
-        throw new Error("Only string unions currently supported");
-      }
-    }
   }
 
   private processProperty(prop: TypeElement): MartokProperty | undefined {

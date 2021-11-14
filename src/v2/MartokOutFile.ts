@@ -1,5 +1,3 @@
-import ts from "typescript";
-
 export type MartokOutFile = {
   name: string;
   package: string;

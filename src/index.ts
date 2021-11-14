@@ -43,7 +43,7 @@ async function transpile(args: TranspileSingleArgs) {
     sourceRoot: rootDir,
   };
   const v2 = new MartokV2(config);
-  const out = await v2.generateOutput();
+  const out = await v2.writeKotlinFiles();
   // const martok = new Martok(config);
   // const writer = new MartokWriter(martok);
   // const output = await martok.transpile();
