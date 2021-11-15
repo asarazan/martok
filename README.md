@@ -13,6 +13,11 @@ schemas. It's the brutal and chaotic rival to
 
 It is still in the extremely early stages of development, and should not be used.
 
+### Installation
+```shell
+npm install -g martok
+```
+
 ### Usage
 ```shell 
 # Martok works with single files, directories, and always infers the right thing to do.
