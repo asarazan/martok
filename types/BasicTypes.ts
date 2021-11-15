@@ -1,5 +1,3 @@
-export type Complex = Complex1 | Complex2;
-
 export type Complex1 = {
   bar: number;
 };

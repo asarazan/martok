@@ -34,8 +34,8 @@ martok ./someDirectory -o ./outputDirectory
 * optional fields
 
 ### TODO
+* In-line types
 * Complex Unions
-* In-line unions
 * Enums
 * kotlinx.datetime
 * documentation
