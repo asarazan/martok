@@ -1,9 +1,7 @@
 import { Martok } from "../Martok";
 import {
   InterfaceDeclaration,
-  isInterfaceDeclaration,
   isPropertySignature,
-  PropertySignature,
   TypeElement,
 } from "typescript";
 import { MemberBasedGenerator } from "./MemberBasedGenerator";
@@ -14,7 +12,7 @@ export class InterfaceGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generate(node: InterfaceDeclaration): string[] {
-    const members: (PropertySignature | TypeElement)[] = [...node.members];
+    const members: TypeElement[] = [...node.members];
     node.heritageClauses
       ?.flatMap((value) => value.types)
       .forEach((value) => {

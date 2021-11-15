@@ -1,12 +1,5 @@
 import { Martok } from "../Martok";
-import {
-  isPropertySignature,
-  isTypeElement,
-  Node,
-  PropertySignature,
-  Type,
-  TypeElement,
-} from "typescript";
+import { TypeElement } from "typescript";
 import _ from "lodash";
 import { INTRINSICS } from "../../typescript/IntrinsicType";
 
@@ -24,7 +17,7 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
     return result;
   }
 
-  private generateMember(node: TypeElement | PropertySignature): string {
+  private generateMember(node: TypeElement): string {
     const type = this.checker.getTypeAtLocation(node);
     let typeName!: string;
     if (_.has(type, "intrinsicName")) {

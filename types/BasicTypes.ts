@@ -1,3 +1,11 @@
+export type TBar = TFoo & {
+  baz: boolean;
+};
+
+export type TFoo = {
+  bar: string;
+};
+
 export interface Bar extends Foo {
   baz: boolean;
 }
@@ -17,11 +25,3 @@ export type Reference = {
   basic?: Basic;
   union: StringUnion;
 };
-
-// export type TFoo = {
-//   bar: string;
-// };
-//
-// export type TBar = TFoo & {
-//   baz: boolean;
-// };
