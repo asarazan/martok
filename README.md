@@ -23,7 +23,7 @@ npm install -g martok
 # Martok works with single files, directories, and always infers the right thing to do.
 martok ./someFile.d.ts -o Schema.kt --package example
 martok ./someDirectory -o BigSchema.kt
-martok ./someDirectory -o ./outputDirectory
+martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 ```
 
 ### SUPPORTS
