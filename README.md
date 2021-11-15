@@ -16,8 +16,8 @@ It is still in the extremely early stages of development, and should not be used
 ### SUPPORTS
 * Multiple source files
 * Output to multiple files or a single mega-file
-* Interfaces
-* Types
+* Interfaces + Inheritance
+* Types + Intersections
 * String Unions
 * string, number, boolean, Arrays, any
 * Cross-references to other types
@@ -26,8 +26,6 @@ It is still in the extremely early stages of development, and should not be used
 * optional fields
 
 ### TODO
-* Interface Inheritance
-* Intersections
 * In-line unions
 * Enums
 * Complex Unions
