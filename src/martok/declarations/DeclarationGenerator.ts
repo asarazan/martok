@@ -16,8 +16,10 @@ export class DeclarationGenerator {
     const result: string[] = [];
     for (const statement of file.statements) {
       if (isInterfaceDeclaration(statement)) {
+        console.log(`-->Statement: ${statement.name.escapedText}...`);
         result.push(...this.interfaces.generate(statement));
       } else if (isTypeAliasDeclaration(statement)) {
+        console.log(`-->Statement: ${statement.name.escapedText}...`);
         result.push(...this.types.generate(statement));
       }
     }

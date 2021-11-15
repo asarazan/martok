@@ -1,5 +1,12 @@
 import { Martok } from "../Martok";
-import { TypeElement } from "typescript";
+import {
+  isPropertySignature,
+  isTypeElement,
+  Node,
+  PropertySignature,
+  Type,
+  TypeElement,
+} from "typescript";
 import _ from "lodash";
 import { INTRINSICS } from "../../typescript/IntrinsicType";
 
@@ -17,22 +24,22 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
     return result;
   }
 
-  private generateMember(member: TypeElement): string {
-    const type = this.checker.getTypeAtLocation(member);
-    let name!: string;
+  private generateMember(node: TypeElement | PropertySignature): string {
+    const type = this.checker.getTypeAtLocation(node);
+    let typeName!: string;
     if (_.has(type, "intrinsicName")) {
-      name = (type as any).intrinsicName;
-      name = INTRINSICS[name];
-      if (!name) {
+      typeName = (type as any).intrinsicName;
+      typeName = INTRINSICS[typeName];
+      if (!typeName) {
         throw new Error(
           `Unsupported Intrinsic: ${(type as any).intrinsicName}`
         );
       }
     } else {
       const symbol = type.aliasSymbol ?? type.getSymbol()!;
-      name = symbol.getEscapedName()!;
+      typeName = symbol.getEscapedName()!;
     }
-    const optional = member.questionToken ? "? = null" : "";
-    return `${member.name?.getText()}: ${name}${optional}`;
+    const optional = node.questionToken ? "? = null" : "";
+    return `${node.name?.getText()}: ${typeName}${optional}`;
   }
 }

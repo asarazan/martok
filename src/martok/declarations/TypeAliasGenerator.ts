@@ -1,10 +1,6 @@
 import { Martok } from "../Martok";
 import { MemberBasedGenerator } from "./MemberBasedGenerator";
-import {
-  isUnionTypeNode,
-  TypeAliasDeclaration,
-  UnionTypeNode,
-} from "typescript";
+import { isUnionTypeNode, TypeAliasDeclaration } from "typescript";
 import { EnumGenerator } from "./EnumGenerator";
 
 export class TypeAliasGenerator {
