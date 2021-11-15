@@ -10,8 +10,8 @@
     "try": "ts-node src/index.ts types/BasicTypes.ts -o ./schema --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "aaron@sarazan.net",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/lodash": "^4.14.176",

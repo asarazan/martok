@@ -13,6 +13,14 @@ schemas. It's the brutal and chaotic rival to
 
 It is still in the extremely early stages of development, and should not be used.
 
+### Usage
+```shell 
+# Martok works with single files, directories, and always infers the right thing to do.
+martok ./someFile.d.ts -o Schema.kt --package example
+martok ./someDirectory -o BigSchema.kt
+martok ./someDirectory -o ./outputDirectory
+```
+
 ### SUPPORTS
 * Multiple source files
 * Output to multiple files or a single mega-file

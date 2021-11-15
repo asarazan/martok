@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import yargs from "yargs";
 import { noop } from "lodash";
 import { glob } from "glob";
