@@ -1,3 +1,13 @@
+export type Complex = Complex1 | Complex2;
+
+export type Complex1 = {
+  bar: number;
+};
+
+export type Complex2 = {
+  baz: string;
+};
+
 export type TBar = TFoo & {
   baz: boolean;
 };

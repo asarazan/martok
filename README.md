@@ -26,9 +26,9 @@ It is still in the extremely early stages of development, and should not be used
 * optional fields
 
 ### TODO
+* Complex Unions
 * In-line unions
 * Enums
-* Complex Unions
 * kotlinx.datetime
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 
