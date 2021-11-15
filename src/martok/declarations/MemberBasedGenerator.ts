@@ -33,6 +33,6 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
       typeName = symbol.getEscapedName()!;
     }
     const optional = node.questionToken ? "? = null" : "";
-    return `${node.name?.getText()}: ${typeName}${optional}`;
+    return `val ${node.name?.getText()}: ${typeName}${optional}`;
   }
 }

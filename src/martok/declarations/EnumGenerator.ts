@@ -15,7 +15,7 @@ export class EnumGenerator {
 enum class ${name}(val value: String) {
 ${this.getEnumDeclarations(node)
   .map((value) => indentString(value, 4))
-  .join(",\n")}
+  .join(",\n")};
 
     companion object : KSerializer<${name}> {
         override val descriptor: SerialDescriptor get() {
@@ -31,7 +31,8 @@ ${this.getDeserializers(node)
             return encoder.encodeString(value.value)
         }
     }
-}`,
+}
+`,
     ];
   }
 
