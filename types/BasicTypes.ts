@@ -1,3 +1,10 @@
+export type Big = {
+  small: {
+    bar: boolean;
+  };
+  foo: string;
+};
+
 export type Complex1 = {
   bar: number;
 };

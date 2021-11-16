@@ -10,7 +10,7 @@ export class MartokFormatter {
 
 ${file.text.imports.join("\n")}
 
-${file.text.declarations.join("\n")}
+${file.text.declarations.join("\n\n")}
 `;
   }
 
@@ -19,7 +19,7 @@ ${file.text.declarations.join("\n")}
 
 ${StandardKotlinImports}
 
-${files.flatMap((value) => value.text.declarations).join("\n")}
+${files.flatMap((value) => value.text.declarations).join("\n\n")}
 `;
   }
 }

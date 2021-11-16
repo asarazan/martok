@@ -1,8 +1,13 @@
 import { Martok } from "../Martok";
 import {
+  Declaration,
+  DeclarationStatement,
   isInterfaceDeclaration,
   isTypeAliasDeclaration,
+  NamedDeclaration,
+  Node,
   SourceFile,
+  Statement,
 } from "typescript";
 import { InterfaceGenerator } from "./InterfaceGenerator";
 import { TypeAliasGenerator } from "./TypeAliasGenerator";
@@ -13,17 +18,17 @@ export class DeclarationGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
-    const result: string[] = [];
-    for (const statement of file.statements) {
-      if (isInterfaceDeclaration(statement)) {
-        console.log(`-->Statement: ${statement.name.escapedText}...`);
-        result.push(...this.interfaces.generate(statement));
-      } else if (isTypeAliasDeclaration(statement)) {
-        console.log(`-->Statement: ${statement.name.escapedText}...`);
-        result.push(...this.types.generate(statement));
-      }
-    }
+    return file.statements.flatMap((value) => this.generateDeclaration(value));
+  }
 
-    return result;
+  public generateDeclaration(node: Statement): string[] {
+    if (isInterfaceDeclaration(node)) {
+      console.log(`-->Statement: ${node.name.escapedText}...`);
+      return this.interfaces.generate(node);
+    } else if (isTypeAliasDeclaration(node)) {
+      console.log(`-->Statement: ${node.name.escapedText}...`);
+      return this.types.generate(node);
+    }
+    throw new Error(`Can't parse statement: ${node.kind}`);
   }
 }

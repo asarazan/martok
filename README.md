@@ -40,13 +40,13 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * Types + Intersections
 * String Unions
 * string, number, boolean, Arrays, any
+* Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
 * Custom package name
 * optional fields
 
 ### TODO
-* In-line types
 * Complex Unions
 * Enums
 * kotlinx.datetime
