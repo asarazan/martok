@@ -1,7 +1,9 @@
 import { Martok } from "../Martok";
 import {
   isPropertySignature,
+  isTypeAliasDeclaration,
   isTypeLiteralNode,
+  isUnionTypeNode,
   TypeElement,
 } from "typescript";
 import _ from "lodash";
@@ -39,7 +41,6 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
 
   private getMemberType(node: TypeElement): string {
     const type = this.checker.getTypeAtLocation(node);
-    const name = this.getMemberName(node);
     let typeName!: string;
     if (_.has(type, "intrinsicName")) {
       typeName = (type as any).intrinsicName;
@@ -49,6 +50,8 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
           `Unsupported Intrinsic: ${(type as any).intrinsicName}`
         );
       }
+    } else if (isPropertySignature(node) && isUnionTypeNode(node.type!)) {
+      typeName = "__type";
     } else {
       const symbol = type.aliasSymbol ?? type.getSymbol()!;
       typeName = symbol.getEscapedName()!;
@@ -70,15 +73,16 @@ ${anonymousTypes
   }
 
   private generateInnerClass(member: TypeElement): string[] {
+    const name = innerClassName(this.getMemberName(member));
     if (isPropertySignature(member)) {
       const type = member.type!;
       if (isTypeLiteralNode(type)) {
-        return this.generate(
-          innerClassName(this.getMemberName(member)),
-          type.members
-        );
+        return this.generate(name, type.members);
+      }
+      if (isUnionTypeNode(type)) {
+        return this.martok.declarations.enums.generate(name, type);
       }
     }
-    throw new Error(`Can't transpile property`);
+    throw new Error(`Can't transpile property ${name}`);
   }
 }

@@ -11,19 +11,19 @@ import {
   TypeAliasDeclaration,
   TypeElement,
 } from "typescript";
-import { EnumGenerator } from "./EnumGenerator";
 
 export class TypeAliasGenerator {
   private readonly members = new MemberBasedGenerator(this.martok);
-  private readonly enums = new EnumGenerator(this.martok);
-
   private readonly checker = this.martok.program.getTypeChecker();
 
   public constructor(private readonly martok: Martok) {}
 
   public generate(node: TypeAliasDeclaration): string[] {
     if (isUnionTypeNode(node.type)) {
-      return this.enums.generate(node.name.escapedText!, node.type);
+      return this.martok.declarations.enums.generate(
+        node.name.escapedText!,
+        node.type
+      );
     }
     const members = this.getMembers(node);
     return this.members.generate(node.name.escapedText!, members);
