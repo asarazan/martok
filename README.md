@@ -47,7 +47,6 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * optional fields
 
 ### TODO
-* Anonymous union types
 * Complex Unions
 * Enums
 * kotlinx.datetime
