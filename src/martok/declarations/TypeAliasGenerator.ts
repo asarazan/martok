@@ -38,6 +38,11 @@ export class TypeAliasGenerator {
       for (const type of types) {
         const ttype = this.checker.getTypeAtLocation(type);
         const symbol = ttype.aliasSymbol ?? ttype.getSymbol();
+        if (!symbol) {
+          throw new Error(
+            `Anonymous intersection types are currently unsupported (${node.name.escapedText})`
+          );
+        }
         const decl = symbol!.declarations![0];
         if (isTypeLiteralNode(decl)) {
           // not sure why we need this...

@@ -31,6 +31,7 @@ export class DeclarationGenerator {
       console.log(`-->Statement: ${node.name.escapedText}...`);
       return this.types.generate(node);
     }
-    throw new Error(`Can't parse statement: ${node.kind}`);
+    // Skipping unrecognized statements, should be fine.
+    return [];
   }
 }
