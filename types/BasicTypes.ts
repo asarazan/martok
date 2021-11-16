@@ -2,6 +2,7 @@ export type Big = {
   small: {
     bar: boolean;
   };
+  str: "foo" | "bar";
   foo: string;
 };
 
