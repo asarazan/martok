@@ -36,10 +36,10 @@ async function transpile(args: TranspileSingleArgs) {
   const files = isDir
     ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
     : [args.path];
-  const rootDir = isDir ? args.path : path.dirname(args.path);
+  const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
   const config: MartokConfig = {
     files,
-    output: args.out,
+    output: path.resolve(args.out),
     package: args.package,
     sourceRoot: rootDir,
   };
