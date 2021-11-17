@@ -18,9 +18,6 @@ export class Martok {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
   });
-  public readonly host = ts.createCompilerHost(
-    this.program.getCompilerOptions()
-  );
 
   public readonly declarations = new DeclarationGenerator(this);
 
