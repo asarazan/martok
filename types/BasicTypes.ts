@@ -1,3 +1,11 @@
+export interface AdminInvite {
+  foo: Complex1 & { id: string };
+}
+
+export type Complex1 = {
+  bar: number;
+};
+
 export type StringUnion = "bar" | "baz";
 
 export type AnonUnion =
@@ -19,10 +27,6 @@ export type Big = {
     bar: boolean;
   };
   foo: string;
-};
-
-export type Complex1 = {
-  bar: number;
 };
 
 export type Complex2 = {

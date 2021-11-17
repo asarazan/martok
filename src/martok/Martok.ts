@@ -76,7 +76,7 @@ export class Martok {
   }
 
   public getFilePackage(file: SourceFile): string {
-    let relativePath = path.dirname(file.fileName);
+    let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
     }
