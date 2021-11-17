@@ -73,8 +73,8 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
   }
 
   private generateInnerClasses(members: ReadonlyArray<TypeElement>): string {
-    const anonymousTypes = members.filter(
-      (value) => this.getMemberType(value) === "__type"
+    const anonymousTypes = members.filter((value) =>
+      this.isAnonymousProperty(value)
     );
     if (!anonymousTypes?.length) return "";
     return `{
@@ -83,6 +83,11 @@ ${anonymousTypes
   .map((value) => indentString(value, 2))
   .join("\n")}
 }`;
+  }
+
+  private isAnonymousProperty(member: TypeElement): boolean {
+    const ttype = this.checker.getTypeAtLocation(member);
+    return !ttype.symbol;
   }
 
   private generateInnerClass(member: TypeElement): string[] {

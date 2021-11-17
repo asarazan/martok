@@ -1,3 +1,7 @@
+export interface AdminInvite {
+  foo: Complex1 & { id: string };
+}
+
 export type StringUnion = "bar" | "baz";
 
 export type AnonUnion =
