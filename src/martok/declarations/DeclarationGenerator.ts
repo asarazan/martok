@@ -1,11 +1,7 @@
 import { Martok } from "../Martok";
 import {
-  Declaration,
-  DeclarationStatement,
   isInterfaceDeclaration,
   isTypeAliasDeclaration,
-  NamedDeclaration,
-  Node,
   SourceFile,
   Statement,
 } from "typescript";

@@ -1,9 +1,17 @@
+export type StringUnion = "bar" | "baz";
+
+export type AnonUnion =
+  | {
+      foo: string;
+    }
+  | {
+      bar: string;
+    };
+
 export type Reference = {
   union: StringUnion;
   basic?: Basic;
 };
-
-export type StringUnion = "bar" | "baz";
 
 export type Big = {
   str: "foo" | "bar";
@@ -21,9 +29,9 @@ export type Complex2 = {
   baz: string;
 };
 
-export type TBar = TFoo & {
-  baz: boolean;
-};
+// export type TBar = TFoo & {
+//   baz: boolean;
+// };
 
 export type TFoo = {
   bar: string;

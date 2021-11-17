@@ -1,6 +1,9 @@
 import { Martok } from "../Martok";
 import {
+  InternalSymbolName,
+  isIntersectionTypeNode,
   isPropertySignature,
+  isStringLiteral,
   isTypeAliasDeclaration,
   isTypeLiteralNode,
   isUnionTypeNode,
@@ -50,10 +53,20 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
           `Unsupported Intrinsic: ${(type as any).intrinsicName}`
         );
       }
-    } else if (isPropertySignature(node) && isUnionTypeNode(node.type!)) {
-      typeName = "__type";
+    } else if (isPropertySignature(node)) {
+      if (isStringLiteral(node.type!)) {
+        typeName = "String";
+      } else if (
+        isUnionTypeNode(node.type!) ||
+        isIntersectionTypeNode(node.type!)
+      ) {
+        typeName = InternalSymbolName.Type;
+      }
     } else {
-      const symbol = type.aliasSymbol ?? type.getSymbol()!;
+      const symbol = type.aliasSymbol ?? type.getSymbol();
+      if (!symbol) {
+        throw new Error(`Cannot find symbol`);
+      }
       typeName = symbol.getEscapedName()!;
     }
     return typeName;
@@ -76,6 +89,7 @@ ${anonymousTypes
     const name = innerClassName(this.getMemberName(member));
     if (isPropertySignature(member)) {
       const type = member.type!;
+      // inner anonymous types
       if (isTypeLiteralNode(type)) {
         return this.generate(name, type.members);
       }
