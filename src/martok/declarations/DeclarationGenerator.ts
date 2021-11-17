@@ -3,27 +3,31 @@ import {
   isInterfaceDeclaration,
   isTypeAliasDeclaration,
   SourceFile,
+  Statement,
 } from "typescript";
 import { InterfaceGenerator } from "./InterfaceGenerator";
 import { TypeAliasGenerator } from "./TypeAliasGenerator";
+import { EnumGenerator } from "./EnumGenerator";
 
 export class DeclarationGenerator {
+  public readonly enums = new EnumGenerator(this.martok);
   private readonly interfaces = new InterfaceGenerator(this.martok);
   private readonly types = new TypeAliasGenerator(this.martok);
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
-    const result: string[] = [];
-    for (const statement of file.statements) {
-      if (isInterfaceDeclaration(statement)) {
-        console.log(`-->Statement: ${statement.name.escapedText}...`);
-        result.push(...this.interfaces.generate(statement));
-      } else if (isTypeAliasDeclaration(statement)) {
-        console.log(`-->Statement: ${statement.name.escapedText}...`);
-        result.push(...this.types.generate(statement));
-      }
-    }
+    return file.statements.flatMap((value) => this.generateDeclaration(value));
+  }
 
-    return result;
+  public generateDeclaration(node: Statement): string[] {
+    if (isInterfaceDeclaration(node)) {
+      console.log(`-->Statement: ${node.name.escapedText}...`);
+      return this.interfaces.generate(node);
+    } else if (isTypeAliasDeclaration(node)) {
+      console.log(`-->Statement: ${node.name.escapedText}...`);
+      return this.types.generate(node);
+    }
+    // Skipping unrecognized statements, should be fine.
+    return [];
   }
 }

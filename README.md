@@ -37,17 +37,17 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * Multiple source files
 * Output to multiple files or a single mega-file
 * Interfaces + Inheritance
-* Types + Intersections
-* String Unions
+* Type Aliases + Intersections + Unions
 * string, number, boolean, Arrays, any
+* Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
 * Custom package name
 * optional fields
 
 ### TODO
-* In-line types
 * Complex Unions
+* Anonymous Intersection Types
 * Enums
 * kotlinx.datetime
 * documentation

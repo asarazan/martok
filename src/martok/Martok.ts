@@ -18,8 +18,10 @@ export class Martok {
     target: ts.ScriptTarget.ES5,
     module: ts.ModuleKind.CommonJS,
   });
+
+  public readonly declarations = new DeclarationGenerator(this);
+
   private readonly imports = new ImportGenerator(this);
-  private readonly decls = new DeclarationGenerator(this);
   private readonly formatter = new MartokFormatter(this.config);
 
   public constructor(public readonly config: MartokConfig) {}
@@ -67,7 +69,9 @@ export class Martok {
     if (imports.length) {
       base.text.imports.push(null, ...imports); // spacer
     }
-    base.text.declarations.push(...this.decls.generateDeclarations(file));
+    base.text.declarations.push(
+      ...this.declarations.generateDeclarations(file)
+    );
     return base;
   }
 
