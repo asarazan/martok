@@ -30,8 +30,7 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
   private generateMember(node: TypeElement): string {
     const name = this.getMemberName(node);
     let typeName = this.getMemberType(node);
-    if (typeName === "__type") {
-      // this *should* mean it's an inner class. Need to check edge cases.
+    if (typeName === InternalSymbolName.Type) {
       typeName = innerClassName(name);
     }
     const optional = node.questionToken ? "? = null" : "";
@@ -73,8 +72,8 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
   }
 
   private generateInnerClasses(members: ReadonlyArray<TypeElement>): string {
-    const anonymousTypes = members.filter((value) =>
-      this.isAnonymousProperty(value)
+    const anonymousTypes = members.filter(
+      (value) => this.getMemberType(value) === InternalSymbolName.Type
     );
     if (!anonymousTypes?.length) return "";
     return `{
@@ -83,11 +82,6 @@ ${anonymousTypes
   .map((value) => indentString(value, 2))
   .join("\n")}
 }`;
-  }
-
-  private isAnonymousProperty(member: TypeElement): boolean {
-    const ttype = this.checker.getTypeAtLocation(member);
-    return !ttype.symbol;
   }
 
   private generateInnerClass(member: TypeElement): string[] {
@@ -100,6 +94,9 @@ ${anonymousTypes
       }
       if (isUnionTypeNode(type)) {
         return this.martok.declarations.enums.generate(name, type);
+      }
+      if (isIntersectionTypeNode(type) || isUnionTypeNode(type)) {
+        return this.martok.declarations.types.generateFromTypeNode(name, type)!;
       }
     }
     throw new Error(`Can't transpile property ${name}`);

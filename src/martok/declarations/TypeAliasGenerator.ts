@@ -4,7 +4,6 @@ import ts, {
   Declaration,
   isIntersectionTypeNode,
   isParenthesizedTypeNode,
-  isStringLiteral,
   isTypeAliasDeclaration,
   isTypeLiteralNode,
   isTypeReferenceNode,
@@ -12,7 +11,6 @@ import ts, {
   SyntaxKind,
   TypeAliasDeclaration,
   TypeElement,
-  TypeLiteralNode,
   TypeNode,
 } from "typescript";
 import { all } from "../../typescript/utils";
@@ -26,11 +24,24 @@ export class TypeAliasGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generate(node: TypeAliasDeclaration): string[] {
-    const type = node.type!;
+    const result = this.generateFromTypeNode(
+      node.name.escapedText.toString(),
+      node.type!
+    );
+    if (result) return result;
+    const members = this.getMembers(node);
+    return this.members.generate(node.name.escapedText!, members);
+  }
+
+  public generateFromTypeNode(
+    name: string,
+    type: TypeNode
+  ): string[] | undefined {
+    if (!name) return undefined;
     if (isTypeReferenceNode(type)) {
-      const ref = this.checker.getTypeAtLocation(node);
+      const ref = this.checker.getTypeFromTypeNode(type);
       const symbol = ref.aliasSymbol ?? ref.getSymbol();
-      return [`typealias ${node.name.escapedText} = ${symbol?.name}`];
+      return [`typealias ${name} = ${symbol?.name}`];
     } else if (isUnionTypeNode(type)) {
       if (
         all(type.types, (value) => {
@@ -38,14 +49,13 @@ export class TypeAliasGenerator {
           return type.isStringLiteral();
         })
       ) {
-        return this.martok.declarations.enums.generate(
-          node.name.escapedText!,
-          type
-        );
+        return this.martok.declarations.enums.generate(name, type);
       }
+    } else if (isIntersectionTypeNode(type)) {
+      const members = this.getMembers(type);
+      return this.members.generate(name, members);
     }
-    const members = this.getMembers(node);
-    return this.members.generate(node.name.escapedText!, members);
+    return undefined;
   }
 
   private getMembers(node: Declaration | TypeNode): ReadonlyArray<TypeElement> {

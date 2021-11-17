@@ -11,8 +11,9 @@ import { EnumGenerator } from "./EnumGenerator";
 
 export class DeclarationGenerator {
   public readonly enums = new EnumGenerator(this.martok);
-  private readonly interfaces = new InterfaceGenerator(this.martok);
-  private readonly types = new TypeAliasGenerator(this.martok);
+  public readonly types = new TypeAliasGenerator(this.martok);
+  public readonly interfaces = new InterfaceGenerator(this.martok);
+
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
