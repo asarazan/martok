@@ -3,18 +3,11 @@ import {
   InternalSymbolName,
   isIntersectionTypeNode,
   isPropertySignature,
-  isStringLiteral,
-  isTypeAliasDeclaration,
   isTypeLiteralNode,
   isUnionTypeNode,
   TypeElement,
 } from "typescript";
-import _ from "lodash";
-import {
-  getIntrinsicType,
-  getMemberType,
-  INTRINSICS,
-} from "../../typescript/IntrinsicType";
+import { getMemberType } from "../../typescript/IntrinsicType";
 import { innerClassName } from "../NameGenerators";
 import indentString from "indent-string";
 
