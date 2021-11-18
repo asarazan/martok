@@ -3,14 +3,11 @@ import {
   InternalSymbolName,
   isIntersectionTypeNode,
   isPropertySignature,
-  isStringLiteral,
-  isTypeAliasDeclaration,
   isTypeLiteralNode,
   isUnionTypeNode,
   TypeElement,
 } from "typescript";
-import _ from "lodash";
-import { INTRINSICS } from "../../typescript/IntrinsicType";
+import { getMemberType } from "../../typescript/IntrinsicType";
 import { innerClassName } from "../NameGenerators";
 import indentString from "indent-string";
 
@@ -42,33 +39,8 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
   }
 
   private getMemberType(node: TypeElement): string {
-    const type = this.checker.getTypeAtLocation(node);
-    let typeName!: string;
-    if (_.has(type, "intrinsicName")) {
-      typeName = (type as any).intrinsicName;
-      typeName = INTRINSICS[typeName];
-      if (!typeName) {
-        throw new Error(
-          `Unsupported Intrinsic: ${(type as any).intrinsicName}`
-        );
-      }
-    } else if (isPropertySignature(node)) {
-      if (isStringLiteral(node.type!)) {
-        typeName = "String";
-      } else if (
-        isUnionTypeNode(node.type!) ||
-        isIntersectionTypeNode(node.type!)
-      ) {
-        typeName = InternalSymbolName.Type;
-      }
-    } else {
-      const symbol = type.aliasSymbol ?? type.getSymbol();
-      if (!symbol) {
-        throw new Error(`Cannot find symbol`);
-      }
-      typeName = symbol.getEscapedName()!;
-    }
-    return typeName;
+    if (!isPropertySignature(node)) throw new Error("Can't find property");
+    return getMemberType(this.checker, node.type!);
   }
 
   private generateInnerClasses(members: ReadonlyArray<TypeElement>): string {

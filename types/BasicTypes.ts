@@ -1,3 +1,7 @@
+export type HasArray = {
+  arr: string[];
+};
+
 export interface AdminInvite {
   foo: Complex1 & { id: string };
 }
