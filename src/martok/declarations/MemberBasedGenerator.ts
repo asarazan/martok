@@ -7,7 +7,7 @@ import {
   isUnionTypeNode,
   TypeElement,
 } from "typescript";
-import { getMemberType } from "../../typescript/IntrinsicType";
+import { getMemberType } from "../../typescript/MemberHelpers";
 import { innerClassName } from "../NameGenerators";
 import indentString from "indent-string";
 
