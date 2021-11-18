@@ -2,6 +2,7 @@ import {
   InternalSymbolName,
   isArrayTypeNode,
   isIntersectionTypeNode,
+  isLiteralTypeNode,
   isNumericLiteral,
   isStringLiteralLike,
   isUnionTypeNode,
@@ -13,15 +14,36 @@ import {
 export function getMemberType(checker: TypeChecker, type: TypeNode): string {
   const intrinsic = getIntrinsicType(checker, type);
   if (intrinsic) return intrinsic;
+
+  const literal = getLiteralType(checker, type);
+  if (literal) return literal;
+
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
     return InternalSymbolName.Type;
   }
+
   const ttype = checker.getTypeFromTypeNode(type);
   const symbol = ttype.aliasSymbol ?? ttype.getSymbol();
   if (!symbol) {
     throw new Error(`Cannot find symbol`);
   }
   return symbol.getEscapedName().toString();
+}
+
+export function getLiteralType(
+  checker: TypeChecker,
+  type: TypeNode
+): string | undefined {
+  if (!isLiteralTypeNode(type)) return undefined;
+  switch (type.literal.kind) {
+    case SyntaxKind.StringLiteral:
+      return "String";
+    case SyntaxKind.TrueKeyword:
+    case SyntaxKind.FalseKeyword:
+      return "Boolean";
+    case SyntaxKind.NumericLiteral:
+      return "Double";
+  }
 }
 
 export function getIntrinsicType(
