@@ -4,14 +4,25 @@ import {
   isIntersectionTypeNode,
   isLiteralTypeNode,
   isNumericLiteral,
+  isPropertySignature,
   isStringLiteralLike,
+  isTypeElement,
   isUnionTypeNode,
   SyntaxKind,
   TypeChecker,
+  TypeElement,
   TypeNode,
 } from "typescript";
 
-export function getMemberType(checker: TypeChecker, type: TypeNode): string {
+export function getMemberType(
+  checker: TypeChecker,
+  type: TypeNode | TypeElement
+): string {
+  if (isTypeElement(type)) {
+    if (!isPropertySignature(type)) throw new Error("Can't find property");
+    type = type.type!;
+  }
+
   const intrinsic = getIntrinsicType(checker, type);
   if (intrinsic) return intrinsic;
 

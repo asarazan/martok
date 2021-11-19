@@ -7,7 +7,7 @@ import {
   isUnionTypeNode,
   TypeElement,
 } from "typescript";
-import { getMemberType } from "../../typescript/IntrinsicType";
+import { getMemberType } from "../../typescript/MemberHelpers";
 import { innerClassName } from "../NameGenerators";
 import indentString from "indent-string";
 
@@ -25,8 +25,8 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
   }
 
   private generateMember(node: TypeElement): string {
-    const name = this.getMemberName(node);
-    let typeName = this.getMemberType(node);
+    const name = node.name!.getText();
+    let typeName = getMemberType(this.checker, node);
     if (typeName === InternalSymbolName.Type) {
       typeName = innerClassName(name);
     }
@@ -34,18 +34,9 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
     return `val ${name}: ${typeName}${optional}`;
   }
 
-  private getMemberName(node: TypeElement): string {
-    return node.name!.getText();
-  }
-
-  private getMemberType(node: TypeElement): string {
-    if (!isPropertySignature(node)) throw new Error("Can't find property");
-    return getMemberType(this.checker, node.type!);
-  }
-
   private generateInnerClasses(members: ReadonlyArray<TypeElement>): string {
     const anonymousTypes = members.filter(
-      (value) => this.getMemberType(value) === InternalSymbolName.Type
+      (value) => getMemberType(this.checker, value) === InternalSymbolName.Type
     );
     if (!anonymousTypes?.length) return "";
     return `{
@@ -57,13 +48,14 @@ ${anonymousTypes
   }
 
   private generateInnerClass(member: TypeElement): string[] {
-    const name = innerClassName(this.getMemberName(member));
+    const name = innerClassName(member.name!.getText());
     if (isPropertySignature(member)) {
       const type = member.type!;
       // inner anonymous types
       if (isTypeLiteralNode(type)) {
         return this.generate(name, type.members);
       }
+      // TODO why is this duplicated below?
       if (isUnionTypeNode(type)) {
         return this.martok.declarations.enums.generate(name, type);
       }

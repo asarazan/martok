@@ -14,6 +14,8 @@ import ts, {
   TypeNode,
 } from "typescript";
 import { all } from "../../typescript/utils";
+import _ from "lodash";
+import { dedupeUnion } from "../../typescript/UnionHelpers";
 
 const QUESTION_TOKEN = ts.factory.createToken(SyntaxKind.QuestionToken);
 
@@ -66,15 +68,18 @@ export class TypeAliasGenerator {
     } else if (isIntersectionTypeNode(node)) {
       return node.types.flatMap((value) => this.getMembers(value));
     } else if (isUnionTypeNode(node)) {
-      return node.types
-        .flatMap((value) => this.getMembers(value))
-        .map((value) => {
-          return {
-            ...value,
-            // Union type is just where everything is optional lmao
-            questionToken: QUESTION_TOKEN,
-          };
-        });
+      return dedupeUnion(
+        this.checker,
+        node.types
+          .flatMap((value) => this.getMembers(value))
+          .map((value) => {
+            return {
+              ...value,
+              // Union type is just where everything is optional lmao
+              questionToken: QUESTION_TOKEN,
+            };
+          })
+      );
     } else if (isTypeReferenceNode(node)) {
       const ref = this.checker.getTypeAtLocation(node);
       const symbol = ref.aliasSymbol ?? ref.getSymbol();
