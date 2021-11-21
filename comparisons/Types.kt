@@ -17,13 +17,13 @@ data class Foo(
 
 @Serializable
 data class Bar(
-    val baz: Double,
-    val bar: String
+    val bar: String,
+    val baz: Double
 )
 
 @Serializable
 data class Baz(
-    val ban: Boolean,
+    val bar: String,
     val baz: Double,
-    val bar: String
+    val ban: Boolean
 )
