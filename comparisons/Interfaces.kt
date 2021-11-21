@@ -14,3 +14,9 @@ import kotlinx.serialization.json.JsonObject
 data class Foo(
     val bar: String
 )
+
+@Serializable
+data class Bar(
+    val bar: String,
+    val baz: Double
+)

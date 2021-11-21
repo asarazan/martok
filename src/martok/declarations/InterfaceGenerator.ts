@@ -12,7 +12,7 @@ export class InterfaceGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generate(node: InterfaceDeclaration): string[] {
-    const members: TypeElement[] = [...node.members];
+    const members: TypeElement[] = [];
     node.heritageClauses
       ?.flatMap((value) => value.types)
       .forEach((value) => {
@@ -25,6 +25,7 @@ export class InterfaceGenerator {
           }
         }
       });
+    members.push(...node.members);
     return this.members.generate(node.name.escapedText!, members);
   }
 }
