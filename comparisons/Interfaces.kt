@@ -10,4 +10,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonObject
 
-
+@Serializable
+data class Foo(
+    val bar: String
+)

@@ -6,6 +6,6 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: "coverage",
   verbose: true,
-  testIgnorePatterns: ["/node_modules/"],
+  testPathIgnorePatterns: ["/node_modules/"],
   roots: ["src"],
 };
