@@ -35,6 +35,31 @@ data class StringUnion(
 }
 
 @Serializable
+data class NumberStringUnion(
+    val foo: Foo
+){
+    @Serializable(with = Foo.Companion::class)
+    enum class Foo(val value: String) {
+        _1_1("1.1"),
+        _2("2");
+        companion object : KSerializer<Foo> {
+            override val descriptor: SerialDescriptor get() {
+                return PrimitiveSerialDescriptor("net.sarazan.martok.NumberStringUnion.Foo", PrimitiveKind.STRING)
+            }
+            override fun deserialize(decoder: Decoder): Foo = when (val value = decoder.decodeString()) {
+                "1.1" -> _1_1
+                "2" -> _2
+                else -> throw IllegalArgumentException("Foo could not parse: $value")
+            }
+            override fun serialize(encoder: Encoder, value: Foo) {
+                return encoder.encodeString(value.value)
+            }
+        }
+    }
+}
+
+
+@Serializable
 data class Nested(
     val foo: Foo
 ){

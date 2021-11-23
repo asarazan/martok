@@ -47,8 +47,7 @@ ${this.getDeserializers(node)
         throw new Error("Only string literal unions are supported");
       }
       const name = type.value;
-      const valName = pascalToSnake(name).toUpperCase();
-      return `${valName}("${name}")`;
+      return `${this.getValName(name)}("${name}")`;
     });
   }
 
@@ -59,8 +58,15 @@ ${this.getDeserializers(node)
         throw new Error("Only string literal unions are supported");
       }
       const name = type.value;
-      const valName = pascalToSnake(name).toUpperCase();
-      return `"${name}" -> ${valName}`;
+      return `"${name}" -> ${this.getValName(name)}`;
     });
+  }
+
+  private getValName(name: string): string {
+    let result = pascalToSnake(name).toUpperCase();
+    if (!isNaN(parseFloat(result))) {
+      result = `_${result.replace(".", "_")}`;
+    }
+    return result;
   }
 }
