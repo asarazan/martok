@@ -16,15 +16,15 @@ data class StringUnion(
 ){
     @Serializable(with = Foo.Companion::class)
     enum class Foo(val value: String) {
-        BAR("bar"),
-        BAZ("baz");
+        BAR_BAR("barBar"),
+        BAZ_BAZ("bazBaz");
         companion object : KSerializer<Foo> {
             override val descriptor: SerialDescriptor get() {
                 return PrimitiveSerialDescriptor("net.sarazan.martok.StringUnion.Foo", PrimitiveKind.STRING)
             }
             override fun deserialize(decoder: Decoder): Foo = when (val value = decoder.decodeString()) {
-                "bar" -> BAR
-                "baz" -> BAZ
+                "barBar" -> BAR_BAR
+                "bazBaz" -> BAZ_BAZ
                 else -> throw IllegalArgumentException("Foo could not parse: $value")
             }
             override fun serialize(encoder: Encoder, value: Foo) {

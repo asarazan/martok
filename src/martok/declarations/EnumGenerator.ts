@@ -1,6 +1,7 @@
 import { Martok } from "../Martok";
 import { UnionTypeNode } from "typescript";
 import _ from "lodash";
+import { pascalToSnake } from "../NameGenerators";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const indentString = require("indent-string");
 
@@ -46,7 +47,8 @@ ${this.getDeserializers(node)
         throw new Error("Only string literal unions are supported");
       }
       const name = type.value;
-      return `${name.toUpperCase()}("${name}")`;
+      const valName = pascalToSnake(name).toUpperCase();
+      return `${valName}("${name}")`;
     });
   }
 
@@ -57,7 +59,8 @@ ${this.getDeserializers(node)
         throw new Error("Only string literal unions are supported");
       }
       const name = type.value;
-      return `"${name}" -> ${name.toUpperCase()}`;
+      const valName = pascalToSnake(name).toUpperCase();
+      return `"${name}" -> ${valName}`;
     });
   }
 }

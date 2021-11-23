@@ -8,8 +8,8 @@ import {
   TypeElement,
 } from "typescript";
 import { getMemberType } from "../../typescript/MemberHelpers";
-import { innerClassName } from "../NameGenerators";
 import indentString from "indent-string";
+import { title } from "../NameGenerators";
 
 export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
@@ -29,7 +29,7 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
     const name = node.name!.getText();
     let typeName = getMemberType(this.checker, node);
     if (typeName === InternalSymbolName.Type) {
-      typeName = innerClassName(name);
+      typeName = title(name);
     }
     const optional = node.questionToken ? "? = null" : "";
     return `val ${name}: ${typeName}${optional}`;
@@ -57,7 +57,7 @@ ${anonymousTypes
   }
 
   private generateInnerClass(member: TypeElement): string[] {
-    const name = innerClassName(member.name!.getText());
+    const name = title(member.name!.getText());
     if (isPropertySignature(member)) {
       const type = member.type!;
       // inner anonymous types
