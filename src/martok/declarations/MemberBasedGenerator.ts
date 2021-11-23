@@ -13,6 +13,7 @@ import indentString from "indent-string";
 
 export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
+  private innerClassNameStack: string[] = [];
   public constructor(private readonly martok: Martok) {}
 
   public generate(name: string, members: ReadonlyArray<TypeElement>): string[] {
@@ -20,7 +21,7 @@ export class MemberBasedGenerator {
     result.push(`@Serializable
 data class ${name}(
 ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
-)${this.generateInnerClasses(members)}`);
+)${this.generateInnerClasses(name, members)}`);
     return result;
   }
 
@@ -34,17 +35,25 @@ ${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
     return `val ${name}: ${typeName}${optional}`;
   }
 
-  private generateInnerClasses(members: ReadonlyArray<TypeElement>): string {
+  private generateInnerClasses(
+    name: string,
+    members: ReadonlyArray<TypeElement>
+  ): string {
     const anonymousTypes = members.filter(
       (value) => getMemberType(this.checker, value) === InternalSymbolName.Type
     );
     if (!anonymousTypes?.length) return "";
-    return `{
+    try {
+      this.innerClassNameStack.push(name);
+      return `{
 ${anonymousTypes
   .flatMap((value) => this.generateInnerClass(value))
   .map((value) => indentString(value, 2))
   .join("\n")}
 }`;
+    } finally {
+      this.innerClassNameStack.pop();
+    }
   }
 
   private generateInnerClass(member: TypeElement): string[] {
@@ -57,7 +66,10 @@ ${anonymousTypes
       }
       // TODO why is this duplicated below?
       if (isUnionTypeNode(type)) {
-        return this.martok.declarations.enums.generate(name, type);
+        return this.martok.declarations.enums.generate(
+          [...this.innerClassNameStack, name],
+          type
+        );
       }
       if (isIntersectionTypeNode(type) || isUnionTypeNode(type)) {
         return this.martok.declarations.types.generateFromTypeNode(name, type)!;

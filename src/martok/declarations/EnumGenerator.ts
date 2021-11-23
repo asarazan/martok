@@ -1,5 +1,6 @@
 import { Martok } from "../Martok";
 import { UnionTypeNode } from "typescript";
+import _ from "lodash";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const indentString = require("indent-string");
 
@@ -8,26 +9,28 @@ export class EnumGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
-  public generate(name: string, node: UnionTypeNode): string[] {
+  public generate(name: string[], node: UnionTypeNode): string[] {
     const pkg = this.martok.getFilePackage(node.getSourceFile());
+    const className = _.last(name);
+    const serialName = `${pkg}.${name.join(".")}`;
     return [
-      `@Serializable(with = ${name}.Companion::class)
-enum class ${name}(val value: String) {
+      `@Serializable(with = ${className}.Companion::class)
+enum class ${className}(val value: String) {
 ${this.getEnumDeclarations(node)
   .map((value) => indentString(value, 4))
   .join(",\n")};
 
-    companion object : KSerializer<${name}> {
+    companion object : KSerializer<${className}> {
         override val descriptor: SerialDescriptor get() {
-            return PrimitiveSerialDescriptor("${pkg}.${name}", PrimitiveKind.STRING)
+            return PrimitiveSerialDescriptor("${serialName}", PrimitiveKind.STRING)
         }
-        override fun deserialize(decoder: Decoder): ${name} = when (val value = decoder.decodeString()) {
+        override fun deserialize(decoder: Decoder): ${className} = when (val value = decoder.decodeString()) {
 ${this.getDeserializers(node)
   .map((value) => indentString(value, 12))
   .join("\n")}
-            else   -> throw IllegalArgumentException("${name} could not parse: $value")
+            else   -> throw IllegalArgumentException("${className} could not parse: $value")
         }
-        override fun serialize(encoder: Encoder, value: ${name}) {
+        override fun serialize(encoder: Encoder, value: ${className}) {
             return encoder.encodeString(value.value)
         }
     }

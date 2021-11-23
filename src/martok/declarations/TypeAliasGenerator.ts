@@ -14,7 +14,6 @@ import ts, {
   TypeNode,
 } from "typescript";
 import { all } from "../../typescript/utils";
-import _ from "lodash";
 import { dedupeUnion } from "../../typescript/UnionHelpers";
 
 const QUESTION_TOKEN = ts.factory.createToken(SyntaxKind.QuestionToken);
@@ -51,7 +50,7 @@ export class TypeAliasGenerator {
           return type.isStringLiteral();
         })
       ) {
-        return this.martok.declarations.enums.generate(name, type);
+        return this.martok.declarations.enums.generate([name], type);
       }
     } else if (isIntersectionTypeNode(type)) {
       const members = this.getMembers(type);
