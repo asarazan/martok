@@ -10,6 +10,7 @@ import * as fs from "fs";
 import { MartokFormatter } from "./MartokFormatter";
 import path from "path";
 import { MartokConfig } from "./MartokConfig";
+import { title } from "./NameGenerators";
 
 export class Martok {
   public readonly program = ts.createProgram(this.config.files, {
@@ -56,7 +57,7 @@ export class Martok {
       const relativePath = file.package
         .slice(this.config.package.length)
         .replace(".", "/");
-      const filename = `${outPath}${relativePath}/${file.name}.kt`;
+      const filename = `${outPath}${relativePath}/${title(file.name)}.kt`;
       result[filename] = this.formatter.generateSingleFile(file);
     }
     return result;
