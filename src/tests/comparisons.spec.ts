@@ -1,5 +1,4 @@
 import { glob } from "glob";
-import * as util from "util";
 import { Martok } from "../martok/Martok";
 import * as path from "path";
 import { title } from "../martok/NameGenerators";
@@ -8,7 +7,7 @@ import * as assert from "assert";
 import { sanitizeComparison } from "./sanitizeComparison";
 
 const PACKAGE = "net.sarazan.martok";
-const ROOT = "./comparisons";
+const ROOT = path.resolve("./comparisons");
 
 describe("File Comparisons", () => {
   const types = glob.sync(`${ROOT}/**/*.d.ts`);

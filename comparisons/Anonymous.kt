@@ -20,7 +20,7 @@ data class StringUnion(
         BAZ("baz");
         companion object : KSerializer<Foo> {
             override val descriptor: SerialDescriptor get() {
-                return PrimitiveSerialDescriptor("net.sarazan.martok.Users/asarazan/personal/martok/comparisons.Foo", PrimitiveKind.STRING)
+                return PrimitiveSerialDescriptor("net.sarazan.martok.StringUnion.Foo", PrimitiveKind.STRING)
             }
             override fun deserialize(decoder: Decoder): Foo = when (val value = decoder.decodeString()) {
                 "bar" -> BAR
@@ -49,7 +49,7 @@ data class Nested(
             TWO("two");
             companion object : KSerializer<Baz> {
                 override val descriptor: SerialDescriptor get() {
-                    return PrimitiveSerialDescriptor("net.sarazan.martok.Users/asarazan/personal/martok/comparisons.Baz", PrimitiveKind.STRING)
+                    return PrimitiveSerialDescriptor("net.sarazan.martok.Nested.Foo.Baz", PrimitiveKind.STRING)
                 }
                 override fun deserialize(decoder: Decoder): Baz = when (val value = decoder.decodeString()) {
                         "one" -> ONE
