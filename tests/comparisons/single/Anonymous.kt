@@ -63,3 +63,10 @@ data class Nested(
         }
     }
 }
+
+@Serializable
+data class SimplePoly(
+    val foo: String? = null,
+    val bar: Double? = null,
+    val baz: Boolean? = null
+)
