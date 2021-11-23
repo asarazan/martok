@@ -6,7 +6,7 @@
   "bin": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "try": "ts-node src/index.ts comparisons/anonymous.d.ts -o ./schema --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
