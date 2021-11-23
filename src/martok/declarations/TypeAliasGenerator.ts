@@ -15,6 +15,7 @@ import ts, {
 } from "typescript";
 import { all } from "../../typescript/utils";
 import { dedupeUnion } from "../../typescript/UnionHelpers";
+import { getMemberType } from "../../typescript/MemberHelpers";
 
 const QUESTION_TOKEN = ts.factory.createToken(SyntaxKind.QuestionToken);
 
@@ -25,12 +26,16 @@ export class TypeAliasGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generate(node: TypeAliasDeclaration): string[] {
+    const name = node.name.escapedText.toString();
     const result = this.generateFromTypeNode(
       node.name.escapedText.toString(),
       node.type!
     );
     if (result) return result;
     const members = this.getMembers(node);
+    if (!members.length) {
+      return [`typealias ${name} = ${getMemberType(this.checker, node.type)}`];
+    }
     return this.members.generate(node.name.escapedText!, members);
   }
 
@@ -85,6 +90,6 @@ export class TypeAliasGenerator {
       const decl = symbol!.declarations![0];
       return this.getMembers(decl);
     }
-    throw new Error(`Unsupported type alias declaration`);
+    return [];
   }
 }

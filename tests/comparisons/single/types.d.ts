@@ -1,3 +1,6 @@
+export type FooLike = Foo;
+export type StringLike = string;
+
 export type Foo = {
   bar: string;
 };

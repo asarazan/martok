@@ -29,9 +29,9 @@ export class Martok {
 
   public async writeKotlinFiles(outPath: string) {
     if (outPath.endsWith(".kt")) {
-      await fs.promises.writeFile(outPath, await this.generateMultiFile());
+      await fs.promises.writeFile(outPath, this.generateMultiFile());
     } else {
-      const files = await this.generateSingleFiles(outPath);
+      const files = this.generateSingleFiles(outPath);
       const promises: Promise<unknown>[] = [];
       for (const file in files) {
         const contents = files[file]!;
@@ -44,14 +44,12 @@ export class Martok {
     }
   }
 
-  public async generateMultiFile(): Promise<string> {
-    return this.formatter.generateMultiFile(await this.generateOutput());
+  public generateMultiFile(): string {
+    return this.formatter.generateMultiFile(this.generateOutput());
   }
 
-  public async generateSingleFiles(
-    outPath: string
-  ): Promise<Record<string, string>> {
-    const output = await this.generateOutput();
+  public generateSingleFiles(outPath: string): Record<string, string> {
+    const output = this.generateOutput();
     const result: Record<string, string> = {};
     for (const file of output) {
       const relativePath = file.package
@@ -63,7 +61,7 @@ export class Martok {
     return result;
   }
 
-  public async generateOutput(): Promise<MartokOutFile[]> {
+  public generateOutput(): MartokOutFile[] {
     return _(this.config.files)
       .map((value) => this.processFile(this.program.getSourceFile(value)!))
       .compact()
@@ -83,7 +81,7 @@ export class Martok {
         declarations: [],
       },
     };
-    const imports = this.imports.generateImports(file);
+    const imports = this.imports.generateImports(file.statements);
     if (imports.length) {
       base.text.imports.push(null, ...imports); // spacer
     }

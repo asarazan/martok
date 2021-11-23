@@ -11,19 +11,6 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
-data class Foo(
-    val bar: String
-)
-
-@Serializable
-data class Bar(
-    val bar: String,
-    val baz: Double
-)
-
-@Serializable
-data class Baz(
-    val bar: String,
-    val baz: Double,
-    val ban: Boolean
+data class Ref1(
+    val foo: String
 )

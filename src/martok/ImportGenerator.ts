@@ -2,8 +2,7 @@ import {
   ImportDeclaration,
   isImportDeclaration,
   isNamedImports,
-  SourceFile,
-  TypeChecker,
+  Statement,
 } from "typescript";
 import * as ts from "typescript";
 import _ from "lodash";
@@ -13,9 +12,9 @@ export class ImportGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: Martok) {}
 
-  public generateImports(file: SourceFile): string[] {
+  public generateImports(statements: ReadonlyArray<Statement>): string[] {
     const symbols: ts.Symbol[] = [];
-    for (const statement of file.statements) {
+    for (const statement of statements) {
       if (!isImportDeclaration(statement)) continue;
       symbols.push(...this.getSymbolsFromImport(statement));
     }
