@@ -1,6 +1,9 @@
 import { Martok } from "../Martok";
 import {
+  Declaration,
+  HeritageClause,
   InterfaceDeclaration,
+  isInterfaceDeclaration,
   isPropertySignature,
   TypeElement,
 } from "typescript";
@@ -12,19 +15,11 @@ export class InterfaceGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generate(node: InterfaceDeclaration): string[] {
-    const members: TypeElement[] = [...node.members];
-    node.heritageClauses
-      ?.flatMap((value) => value.types)
-      .forEach((value) => {
-        const type = this.checker.getTypeAtLocation(value);
-        const props = type.getProperties();
-        for (const prop of props) {
-          const value = prop.valueDeclaration;
-          if (value && isPropertySignature(value)) {
-            members.push(value);
-          }
-        }
-      });
+    const ttype = this.checker.getTypeAtLocation(node);
+    const members = ttype
+      .getProperties()
+      .map((value) => value.valueDeclaration)
+      .filter((value) => value && isPropertySignature(value)) as TypeElement[];
     return this.members.generate(node.name.escapedText!, members);
   }
 }

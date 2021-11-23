@@ -10,6 +10,7 @@ import * as fs from "fs";
 import { MartokFormatter } from "./MartokFormatter";
 import path from "path";
 import { MartokConfig } from "./MartokConfig";
+import { title } from "./NameGenerators";
 
 export class Martok {
   public readonly program = ts.createProgram(this.config.files, {
@@ -26,23 +27,40 @@ export class Martok {
 
   public constructor(public readonly config: MartokConfig) {}
 
-  public async writeKotlinFiles() {
-    const output = await this.generateOutput();
-    const outPath = this.config.output;
-    if (this.config.output.endsWith(".kt")) {
-      const contents = this.formatter.generateMultiFile(output);
-      await fs.promises.writeFile(outPath, contents);
+  public async writeKotlinFiles(outPath: string) {
+    if (outPath.endsWith(".kt")) {
+      await fs.promises.writeFile(outPath, await this.generateMultiFile());
     } else {
-      for (const file of output) {
-        const relativePath = file.package
-          .slice(this.config.package.length)
-          .replace(".", "/");
-        const dir = `${this.config.output}${relativePath}`;
-        await fs.promises.mkdir(dir, { recursive: true });
-        const content = this.formatter.generateSingleFile(file);
-        await fs.promises.writeFile(`${dir}/${file.name}.kt`, content);
+      const files = await this.generateSingleFiles(outPath);
+      const promises: Promise<unknown>[] = [];
+      for (const file in files) {
+        const contents = files[file]!;
+        promises.push(
+          fs.promises.mkdir(path.dirname(file), { recursive: true })
+        );
+        promises.push(fs.promises.writeFile(file, contents));
       }
+      await Promise.allSettled(promises);
     }
+  }
+
+  public async generateMultiFile(): Promise<string> {
+    return this.formatter.generateMultiFile(await this.generateOutput());
+  }
+
+  public async generateSingleFiles(
+    outPath: string
+  ): Promise<Record<string, string>> {
+    const output = await this.generateOutput();
+    const result: Record<string, string> = {};
+    for (const file of output) {
+      const relativePath = file.package
+        .slice(this.config.package.length)
+        .replace(".", "/");
+      const filename = `${outPath}${relativePath}/${title(file.name)}.kt`;
+      result[filename] = this.formatter.generateSingleFile(file);
+    }
+    return result;
   }
 
   public async generateOutput(): Promise<MartokOutFile[]> {

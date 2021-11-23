@@ -39,12 +39,11 @@ async function transpile(args: TranspileSingleArgs) {
   const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
   const config: MartokConfig = {
     files,
-    output: path.resolve(args.out),
     package: args.package,
     sourceRoot: rootDir,
   };
   const martok = new Martok(config);
-  await martok.writeKotlinFiles();
+  await martok.writeKotlinFiles(path.resolve(args.out));
   console.log(`Finished`);
 }
 
