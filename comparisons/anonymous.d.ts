@@ -1,5 +1,5 @@
 export type StringUnion = {
-  foo: "bar" | "baz";
+  foo: "barBar" | "bazBaz";
 };
 
 export type Nested = {
