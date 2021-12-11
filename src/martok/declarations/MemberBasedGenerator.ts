@@ -63,7 +63,7 @@ ${this.generateMembers(members)}
     if (!anonymousTypes?.length) return "";
     try {
       this.innerClassNameStack.push(name);
-      return `{
+      return ` {
 ${anonymousTypes
   .flatMap((value) => this.generateInnerClass(value))
   .map((value) => indentString(value, 2))
