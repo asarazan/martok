@@ -1,3 +1,7 @@
+export type NumberUnion = {
+  foo: 1 | 2;
+};
+
 export type StringUnion = {
   foo: "barBar" | "bazBaz";
 };
