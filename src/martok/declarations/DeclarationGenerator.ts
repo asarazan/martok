@@ -17,13 +17,11 @@ export class DeclarationGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
-  public generateDeclarations(file: SourceFile, pkg: string): string[] {
-    return file.statements.flatMap((value) =>
-      this.generateDeclaration(value, pkg)
-    );
+  public generateDeclarations(file: SourceFile): string[] {
+    return file.statements.flatMap((value) => this.generateDeclaration(value));
   }
 
-  public generateDeclaration(node: Statement, pkg: string): string[] {
+  public generateDeclaration(node: Statement): string[] {
     if (isInterfaceDeclaration(node)) {
       console.log(`-->Statement: ${node.name.escapedText}...`);
       return this.interfaces.generate(node);
