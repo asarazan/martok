@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "try": "ts-node src/index.ts tests/comparisons/single/types.d.ts -o ./schema --package net.sarazan.martok",
+    "try": "ts-node src/index.ts tests/comparisons/special/DateTime.d.ts -o ./schema --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

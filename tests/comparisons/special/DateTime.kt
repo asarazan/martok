@@ -12,11 +12,11 @@ import kotlinx.serialization.json.JsonObject
 
 @Serializable
 data class WithDates(
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer)
-    val utcDate1: Instant,
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer)
-    val isoDate2: Instant,
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer)
-    val fooDate: Instant,
+    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
+    val utcDate1: kotlinx.datetime.Instant,
+    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
+    val isoDate2: kotlinx.datetime.Instant,
+    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
+    val fooDate: kotlinx.datetime.Instant,
     val justAString: String
 )
