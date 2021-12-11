@@ -1,6 +1,6 @@
 export enum Strings {
-  one = "ONE",
-  two = "TWO",
+  one = "one",
+  two = "two",
 }
 
 export enum Ordinals {

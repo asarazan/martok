@@ -1,5 +1,6 @@
 import { Martok } from "../Martok";
 import {
+  isEnumDeclaration,
   isInterfaceDeclaration,
   isTypeAliasDeclaration,
   SourceFile,
@@ -16,17 +17,22 @@ export class DeclarationGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
-  public generateDeclarations(file: SourceFile): string[] {
-    return file.statements.flatMap((value) => this.generateDeclaration(value));
+  public generateDeclarations(file: SourceFile, pkg: string): string[] {
+    return file.statements.flatMap((value) =>
+      this.generateDeclaration(value, pkg)
+    );
   }
 
-  public generateDeclaration(node: Statement): string[] {
+  public generateDeclaration(node: Statement, pkg: string): string[] {
     if (isInterfaceDeclaration(node)) {
       console.log(`-->Statement: ${node.name.escapedText}...`);
       return this.interfaces.generate(node);
     } else if (isTypeAliasDeclaration(node)) {
       console.log(`-->Statement: ${node.name.escapedText}...`);
       return this.types.generate(node);
+    } else if (isEnumDeclaration(node)) {
+      console.log(`-->Statement: ${node.name.escapedText}...`);
+      return this.enums.generate([node.name.escapedText!], node);
     }
     // Skipping unrecognized statements, should be fine.
     return [];

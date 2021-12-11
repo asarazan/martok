@@ -1,15 +1,18 @@
 import { Martok } from "../Martok";
-import { UnionTypeNode } from "typescript";
+import { EnumDeclaration, isEnumDeclaration, UnionTypeNode } from "typescript";
 import _ from "lodash";
 import indentString from "indent-string";
-import { pascalToSnake } from "../NameGenerators";
+import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
 
 export class OrdinalEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
 
   public constructor(private readonly martok: Martok) {}
 
-  public generate(name: string[], node: UnionTypeNode): string[] {
+  public generate(
+    name: string[],
+    node: UnionTypeNode | EnumDeclaration
+  ): string[] {
     const className = _.last(name);
     const pkg = this.martok.getFilePackage(node.getSourceFile());
     const serialName = `${pkg}.${name.join(".")}`;
@@ -39,27 +42,25 @@ ${this.getDeserializers(node)
     ];
   }
 
-  private getEnumDeclarations(node: UnionTypeNode): string[] {
-    return node.types.map((value) => {
-      const type = this.checker.getTypeFromTypeNode(value);
-      if (!type.isNumberLiteral()) {
-        throw new Error("Only string literal unions are supported");
-      }
-      return `${this.getValName(type.value)}(${type.value})`;
+  private getEnumDeclarations(node: UnionTypeNode | EnumDeclaration): string[] {
+    const members = isEnumDeclaration(node) ? node.members : node.types;
+    let lastValue: string | undefined;
+    return members.map((value, index) => {
+      const name = getEnumName(this.checker, value);
+      const val = getEnumValue(this.checker, value, lastValue);
+      lastValue = val;
+      return `${name}(${val})`;
     });
   }
 
-  private getDeserializers(node: UnionTypeNode): string[] {
-    return node.types.map((value) => {
-      const type = this.checker.getTypeFromTypeNode(value);
-      if (!type.isNumberLiteral()) {
-        throw new Error("Only string literal unions are supported");
-      }
-      return `${type.value} -> ${this.getValName(type.value)}`;
+  private getDeserializers(node: UnionTypeNode | EnumDeclaration): string[] {
+    const members = isEnumDeclaration(node) ? node.members : node.types;
+    let lastValue: string | undefined;
+    return members.map((value) => {
+      const name = getEnumName(this.checker, value);
+      const val = getEnumValue(this.checker, value, lastValue);
+      lastValue = val;
+      return `${val} -> ${name}`;
     });
-  }
-
-  private getValName(value: number): string {
-    return `_${value}`;
   }
 }

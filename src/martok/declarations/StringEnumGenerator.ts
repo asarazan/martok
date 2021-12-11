@@ -1,15 +1,18 @@
 import { Martok } from "../Martok";
-import { UnionTypeNode } from "typescript";
+import { EnumDeclaration, isEnumDeclaration, UnionTypeNode } from "typescript";
 import _ from "lodash";
 import indentString from "indent-string";
-import { pascalToSnake } from "../NameGenerators";
+import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
 
 export class StringEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
 
   public constructor(private readonly martok: Martok) {}
 
-  public generate(name: string[], node: UnionTypeNode): string[] {
+  public generate(
+    name: string[],
+    node: UnionTypeNode | EnumDeclaration
+  ): string[] {
     const className = _.last(name);
     return [
       `@Serializable
@@ -22,33 +25,12 @@ ${this.getEnumDeclarations(node)
     ];
   }
 
-  private getEnumDeclarations(node: UnionTypeNode): string[] {
-    return node.types.map((value) => {
-      const type = this.checker.getTypeFromTypeNode(value);
-      if (!type.isStringLiteral()) {
-        throw new Error("Only string literal unions are supported");
-      }
-      const name = type.value;
-      return `@SerialName("${name}") ${this.getValName(name)}`;
+  private getEnumDeclarations(node: UnionTypeNode | EnumDeclaration): string[] {
+    const members = isEnumDeclaration(node) ? node.members : node.types;
+    return members.map((value) => {
+      const name = getEnumName(this.checker, value);
+      const val = getEnumValue(this.checker, value);
+      return `@SerialName("${val}") ${name}`;
     });
-  }
-
-  private getDeserializers(node: UnionTypeNode): string[] {
-    return node.types.map((value) => {
-      const type = this.checker.getTypeFromTypeNode(value);
-      if (!type.isStringLiteral()) {
-        throw new Error("Only string literal unions are supported");
-      }
-      const name = type.value;
-      return `"${name}" -> ${this.getValName(name)}`;
-    });
-  }
-
-  private getValName(name: string): string {
-    let result = pascalToSnake(name).toUpperCase();
-    if (!isNaN(parseFloat(result))) {
-      result = `_${result.replace(".", "_")}`;
-    }
-    return result;
   }
 }

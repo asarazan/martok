@@ -86,7 +86,7 @@ export class Martok {
       base.text.imports.push(null, ...imports); // spacer
     }
     base.text.declarations.push(
-      ...this.declarations.generateDeclarations(file)
+      ...this.declarations.generateDeclarations(file, pkg)
     );
     return base;
   }
