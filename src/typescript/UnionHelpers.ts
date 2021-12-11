@@ -1,6 +1,8 @@
 import { TypeChecker, TypeElement, TypeNode } from "typescript";
 import { getMemberType } from "./MemberHelpers";
 
+export const ErrorDiscriminate = `Can't have fully discriminated unions/intersections yet...`;
+
 export function dedupeUnion(
   checker: TypeChecker,
   types: ReadonlyArray<TypeElement>
@@ -14,9 +16,7 @@ export function dedupeUnion(
       return true;
     }
     if (getMemberType(checker, existing) !== type) {
-      throw new Error(
-        `Can't have fully discriminated unions/intersections yet...`
-      );
+      throw new Error(ErrorDiscriminate);
     }
     return false;
   });
