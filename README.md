@@ -12,7 +12,7 @@ It is still in the extremely early stages of development, and should not be used
 
 ### Why Kotlin? Why Typescript?
 We're a huge believer in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
-but also accept the reality of Node's dominance on the backend. This creates a schema pipeline from your
+but also accept the increasing prevalence of Node on the backend. Martok creates a schema pipeline from your
 Typescript backend to your Kotlin data layer on Android & iOS.
 
 ### Why Not QuickType?
