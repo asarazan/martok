@@ -1,13 +1,13 @@
 {
   "name": "martok",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "",
   "main": "dist/src/index.js",
   "bin": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "try": "ts-node src/index.ts tests/comparisons/single/types.d.ts -o ./schema --package net.sarazan.martok",
+    "try": "ts-node src/index.ts tests/comparisons/special/DateTime.d.ts -o ./schema --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

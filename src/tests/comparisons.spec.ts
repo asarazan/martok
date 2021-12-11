@@ -3,10 +3,11 @@ import { Martok } from "../martok/Martok";
 import * as path from "path";
 import { title } from "../martok/NameGenerators";
 import * as fs from "fs";
-import * as assert from "assert";
 import { sanitizeComparison } from "./sanitizeComparison";
-import _, { values } from "lodash";
+import _ from "lodash";
 import * as util from "util";
+import { StandardDatePattern } from "../typescript/Patterns";
+import { ErrorDiscriminate } from "../typescript/UnionHelpers";
 
 const PACKAGE = "net.sarazan.martok";
 const ROOT = path.resolve("./tests/comparisons");
@@ -57,6 +58,46 @@ describe("Multi File Comparisons", () => {
         );
         expect(out[filename]).toEqual(contents);
       }
+    });
+  }
+});
+
+describe("Special Comparisons", () => {
+  const root = `${ROOT}/special`;
+  {
+    const filename = `${root}/DateTime.d.ts`;
+    const compare = `${path.dirname(filename)}/${title(
+      path.basename(filename, ".d.ts")
+    )}.kt`;
+    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+        options: {
+          dates: {
+            framework: "kotlinx.datetime",
+            namePattern: StandardDatePattern,
+          },
+        },
+      });
+      const out = sanitizeComparison(martok.generateMultiFile());
+      const contents = sanitizeComparison(
+        await fs.promises.readFile(compare, "utf-8")
+      );
+      expect(out).toEqual(contents);
+    });
+  }
+
+  {
+    const filename = `${root}/ErrorDiscriminated.d.ts`;
+    it(path.basename(filename), async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+      });
+      expect(() => martok.generateMultiFile()).toThrow(ErrorDiscriminate);
     });
   }
 });

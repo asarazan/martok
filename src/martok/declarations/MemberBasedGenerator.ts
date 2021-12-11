@@ -10,6 +10,7 @@ import {
 import { getMemberType } from "../../typescript/MemberHelpers";
 import indentString from "indent-string";
 import { title } from "../NameGenerators";
+import _ from "lodash";
 
 export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
@@ -20,19 +21,36 @@ export class MemberBasedGenerator {
     const result: string[] = [];
     result.push(`@Serializable
 data class ${name}(
-${members.map((value) => `  ${this.generateMember(value)}`).join(",\n")}
+${this.generateMembers(members)}
 )${this.generateInnerClasses(name, members)}`);
     return result;
   }
 
-  private generateMember(node: TypeElement): string {
+  private generateMembers(members: ReadonlyArray<TypeElement>): string {
+    function formatMember(member: string[]): string {
+      return member.map((value) => `  ${value}`).join("\n");
+    }
+    return `${members
+      .map((value) => formatMember(this.generateMember(value)))
+      .join(",\n")}`;
+  }
+
+  private generateMember(node: TypeElement): string[] {
     const name = node.name!.getText();
     let typeName = getMemberType(this.checker, node);
+    let annotation: string | undefined;
     if (typeName === InternalSymbolName.Type) {
       typeName = title(name);
     }
+    if (this.martok.config.options?.dates?.namePattern?.exec(name)?.length) {
+      typeName = "kotlinx.datetime.Instant";
+      annotation =
+        "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
+    }
+
     const optional = node.questionToken ? "? = null" : "";
-    return `val ${name}: ${typeName}${optional}`;
+    const result = `val ${name}: ${typeName}${optional}`;
+    return _.compact([annotation, result]);
   }
 
   private generateInnerClasses(

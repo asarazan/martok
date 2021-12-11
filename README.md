@@ -31,6 +31,7 @@ npm install -g martok
 martok ./someFile.d.ts -o Schema.kt --package example
 martok ./someDirectory -o BigSchema.kt
 martok ./someDirectory -o ./outputDirectory # produce lots of little files.
+martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts]
 ```
 
 ### SUPPORTS
@@ -42,6 +43,7 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
+* kotlinx.datetime
 * Custom package name
 * optional fields
 
@@ -49,6 +51,5 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * Complex Unions
 * Anonymous Intersection Types
 * Enums
-* kotlinx.datetime
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 
