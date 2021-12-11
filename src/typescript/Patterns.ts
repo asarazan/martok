@@ -1,7 +1,7 @@
 /**
  * Conventions suck, but if you want an easy way to identify date strings in your schemas, this is a pretty good one.
- * The transpiler will recognize numbers as epoch timestamps, and strings as ISO timestamps.
- * Enable this functionality with {TODO}
+ * The transpiler will currently recognize ISO timestamp strings. Epoch numbers are still TODO
+ * Enable this functionality with the -d flag.
  * @match utcFoo;
  * @match isoBar;
  * @match bazDate;
