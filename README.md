@@ -45,11 +45,11 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * kotlinx.serializable
 * kotlinx.datetime
 * Custom package name
+* Enums
 * optional fields
 
 ### TODO
 * Complex Unions
 * Anonymous Intersection Types
-* Enums
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 
