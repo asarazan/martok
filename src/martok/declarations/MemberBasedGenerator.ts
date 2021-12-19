@@ -11,31 +11,39 @@ import { getMemberType } from "../../typescript/MemberHelpers";
 import indentString from "indent-string";
 import { title } from "../NameGenerators";
 import _ from "lodash";
+import { all } from "../../typescript/utils";
 
 export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
   private innerClassNameStack: string[] = [];
   public constructor(private readonly martok: Martok) {}
 
-  public generate(name: string, members: ReadonlyArray<TypeElement>): string[] {
+  public generate(
+    name: string,
+    members: ReadonlyArray<TypeElement>,
+    forceOptional = false
+  ): string[] {
     const result: string[] = [];
     result.push(`@Serializable
 data class ${name}(
-${this.generateMembers(members)}
+${this.generateMembers(members, forceOptional)}
 )${this.generateInnerClasses(name, members)}`);
     return result;
   }
 
-  private generateMembers(members: ReadonlyArray<TypeElement>): string {
+  private generateMembers(
+    members: ReadonlyArray<TypeElement>,
+    forceOptional: boolean
+  ): string {
     function formatMember(member: string[]): string {
       return member.map((value) => `  ${value}`).join("\n");
     }
     return `${members
-      .map((value) => formatMember(this.generateMember(value)))
+      .map((value) => formatMember(this.generateMember(value, forceOptional)))
       .join(",\n")}`;
   }
 
-  private generateMember(node: TypeElement): string[] {
+  private generateMember(node: TypeElement, forceOptional: boolean): string[] {
     const name = node.name!.getText();
     let typeName = getMemberType(this.checker, node);
     let annotation: string | undefined;
@@ -48,7 +56,7 @@ ${this.generateMembers(members)}
         "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
     }
 
-    const optional = node.questionToken ? "? = null" : "";
+    const optional = forceOptional || node.questionToken ? "? = null" : "";
     const result = `val ${name}: ${typeName}${optional}`;
     return _.compact([annotation, result]);
   }
@@ -82,16 +90,20 @@ ${anonymousTypes
       if (isTypeLiteralNode(type)) {
         return this.generate(name, type.members);
       }
-      // TODO why is this duplicated below?
       if (isUnionTypeNode(type)) {
-        return this.martok.declarations.enums.generate(
-          [...this.innerClassNameStack, name],
-          type
-        );
+        if (
+          all(type.types, (value) => {
+            const type = this.checker.getTypeFromTypeNode(value);
+            return type.isStringLiteral() || type.isNumberLiteral();
+          })
+        ) {
+          return this.martok.declarations.enums.generate(
+            [...this.innerClassNameStack, name],
+            type
+          );
+        }
       }
-      if (isIntersectionTypeNode(type) || isUnionTypeNode(type)) {
-        return this.martok.declarations.types.generateFromTypeNode(name, type)!;
-      }
+      return this.martok.declarations.types.generateFromTypeNode(name, type)!;
     }
     throw new Error(`Can't transpile property ${name}`);
   }
