@@ -49,6 +49,6 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * optional fields
 
 ### TODO
-* Fully discriminated unions
+* Fully discriminated/disagreeing unions
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 
