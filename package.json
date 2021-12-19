@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "try": "ts-node src/index.ts tests/comparisons/single/anonymous.d.ts -o ./schema --package net.sarazan.martok",
+    "try": "ts-node src/index.ts tests/comparisons/single/complex.d.ts -o ./schema --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

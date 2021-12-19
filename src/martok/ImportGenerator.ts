@@ -32,8 +32,7 @@ export class ImportGenerator {
     if (!bindings) return [];
     if (isNamedImports(bindings)) {
       for (const element of bindings.elements) {
-        let symbol = this.checker.getSymbolAtLocation(element.name);
-        if (!symbol) continue;
+        let symbol = this.checker.getSymbolAtLocation(element.name)!;
         symbol = this.checker.getAliasedSymbol(symbol) ?? symbol;
         result.push(symbol);
       }

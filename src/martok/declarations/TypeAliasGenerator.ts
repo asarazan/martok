@@ -48,18 +48,21 @@ export class TypeAliasGenerator {
       const ref = this.checker.getTypeFromTypeNode(type);
       const symbol = ref.aliasSymbol ?? ref.getSymbol();
       return [`typealias ${name} = ${symbol?.name}`];
-    } else if (isUnionTypeNode(type)) {
-      if (
-        all(type.types, (value) => {
+    } else {
+      const isUnion = isUnionTypeNode(type);
+      if (isUnion) {
+        const canBeEnum = all(type.types, (value) => {
           const type = this.checker.getTypeFromTypeNode(value);
           return type.isStringLiteral();
-        })
-      ) {
-        return this.martok.declarations.enums.generate([name], type);
+        });
+        if (canBeEnum) {
+          return this.martok.declarations.enums.generate([name], type);
+        }
       }
-    } else if (isIntersectionTypeNode(type)) {
-      const members = this.getMembers(type);
-      return this.members.generate(name, members);
+      if (isUnion || isIntersectionTypeNode(type)) {
+        const members = this.getMembers(type);
+        return this.members.generate(name, members, isUnion);
+      }
     }
     return undefined;
   }
