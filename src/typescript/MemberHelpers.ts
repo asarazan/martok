@@ -1,18 +1,27 @@
 import {
+  Declaration,
+  factory,
   InternalSymbolName,
   isArrayTypeNode,
   isIntersectionTypeNode,
   isLiteralTypeNode,
   isNumericLiteral,
+  isParenthesizedTypeNode,
   isPropertySignature,
   isStringLiteralLike,
+  isTypeAliasDeclaration,
   isTypeElement,
+  isTypeLiteralNode,
+  isTypeReferenceNode,
   isUnionTypeNode,
   SyntaxKind,
   TypeChecker,
   TypeElement,
   TypeNode,
 } from "typescript";
+import { dedupeUnion } from "./UnionHelpers";
+
+const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
 export function getMemberType(
   checker: TypeChecker,
@@ -72,4 +81,41 @@ export function getIntrinsicType(
     return `List<${param}>`;
   }
   if (type.kind === SyntaxKind.AnyKeyword) return "JsonObject";
+}
+
+/**
+ * @throws TaggedUnionError
+ * @param node
+ * @param checker
+ */
+export function getMembers(
+  node: Declaration | TypeNode,
+  checker: TypeChecker
+): ReadonlyArray<TypeElement> {
+  if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
+    return getMembers(node.type, checker);
+  } else if (isTypeLiteralNode(node)) {
+    return node.members;
+  } else if (isIntersectionTypeNode(node)) {
+    return node.types.flatMap((value) => getMembers(value, checker));
+  } else if (isUnionTypeNode(node)) {
+    return dedupeUnion(
+      checker,
+      node.types
+        .flatMap((value) => getMembers(value, checker))
+        .map((value) => {
+          return {
+            ...value,
+            // Union type is just where everything is optional lmao
+            questionToken: QUESTION_TOKEN,
+          };
+        })
+    );
+  } else if (isTypeReferenceNode(node)) {
+    const ref = checker.getTypeAtLocation(node);
+    const symbol = ref.aliasSymbol ?? ref.getSymbol();
+    const decl = symbol!.declarations![0];
+    return getMembers(decl, checker);
+  }
+  return [];
 }

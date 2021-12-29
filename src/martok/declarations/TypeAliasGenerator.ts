@@ -1,23 +1,16 @@
 import { Martok } from "../Martok";
 import { MemberBasedGenerator } from "./MemberBasedGenerator";
-import ts, {
-  Declaration,
+import {
   isIntersectionTypeNode,
-  isParenthesizedTypeNode,
-  isTypeAliasDeclaration,
-  isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
-  SyntaxKind,
   TypeAliasDeclaration,
-  TypeElement,
   TypeNode,
+  UnionTypeNode,
 } from "typescript";
 import { all } from "../../typescript/utils";
-import { dedupeUnion } from "../../typescript/UnionHelpers";
-import { getMemberType } from "../../typescript/MemberHelpers";
-
-const QUESTION_TOKEN = ts.factory.createToken(SyntaxKind.QuestionToken);
+import { getMembers, getMemberType } from "../../typescript/MemberHelpers";
+import { TaggedUnionError } from "../../errors/TaggedUnionError";
 
 export class TypeAliasGenerator {
   private readonly members = new MemberBasedGenerator(this.martok);
@@ -32,11 +25,23 @@ export class TypeAliasGenerator {
       node.type!
     );
     if (result) return result;
-    const members = this.getMembers(node);
-    if (!members.length) {
-      return [`typealias ${name} = ${getMemberType(this.checker, node.type)}`];
+    try {
+      const members = getMembers(node, this.checker);
+      if (!members.length) {
+        return [
+          `typealias ${name} = ${getMemberType(this.checker, node.type)}`,
+        ];
+      }
+      return this.members.generate(node.name.escapedText!, members);
+    } catch (e: unknown) {
+      if (e instanceof TaggedUnionError) {
+        return this.martok.declarations.taggedUnions.generate(
+          node.type as UnionTypeNode
+        );
+      } else {
+        throw e;
+      }
     }
-    return this.members.generate(node.name.escapedText!, members);
   }
 
   public generateFromTypeNode(
@@ -60,39 +65,20 @@ export class TypeAliasGenerator {
         }
       }
       if (isUnion || isIntersectionTypeNode(type)) {
-        const members = this.getMembers(type);
-        return this.members.generate(name, members, isUnion);
+        try {
+          const members = getMembers(type, this.checker);
+          return this.members.generate(name, members, isUnion);
+        } catch (e: unknown) {
+          if (e instanceof TaggedUnionError) {
+            return this.martok.declarations.taggedUnions.generate(
+              type as UnionTypeNode
+            );
+          } else {
+            throw e;
+          }
+        }
       }
     }
     return undefined;
-  }
-
-  private getMembers(node: Declaration | TypeNode): ReadonlyArray<TypeElement> {
-    if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
-      return this.getMembers(node.type);
-    } else if (isTypeLiteralNode(node)) {
-      return node.members;
-    } else if (isIntersectionTypeNode(node)) {
-      return node.types.flatMap((value) => this.getMembers(value));
-    } else if (isUnionTypeNode(node)) {
-      return dedupeUnion(
-        this.checker,
-        node.types
-          .flatMap((value) => this.getMembers(value))
-          .map((value) => {
-            return {
-              ...value,
-              // Union type is just where everything is optional lmao
-              questionToken: QUESTION_TOKEN,
-            };
-          })
-      );
-    } else if (isTypeReferenceNode(node)) {
-      const ref = this.checker.getTypeAtLocation(node);
-      const symbol = ref.aliasSymbol ?? ref.getSymbol();
-      const decl = symbol!.declarations![0];
-      return this.getMembers(decl);
-    }
-    return [];
   }
 }

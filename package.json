@@ -1,13 +1,13 @@
 {
   "name": "martok",
-  "version": "0.8.0",
+  "version": "0.7.2",
   "description": "",
   "main": "dist/src/index.js",
   "bin": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "try": "ts-node src/index.ts tests/comparisons/single/complex.d.ts -o ./schema --package net.sarazan.martok",
+    "try": "ts-node src/index.ts tests/comparisons/single/hateful.d.ts -o ./schema/martok --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

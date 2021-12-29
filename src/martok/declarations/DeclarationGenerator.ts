@@ -9,11 +9,13 @@ import {
 import { InterfaceGenerator } from "./InterfaceGenerator";
 import { TypeAliasGenerator } from "./TypeAliasGenerator";
 import { EnumGenerator } from "./EnumGenerator";
+import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 
 export class DeclarationGenerator {
   public readonly enums = new EnumGenerator(this.martok);
   public readonly types = new TypeAliasGenerator(this.martok);
   public readonly interfaces = new InterfaceGenerator(this.martok);
+  public readonly taggedUnions = new TaggedUnionGenerator(this.martok);
 
   public constructor(private readonly martok: Martok) {}
 

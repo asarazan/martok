@@ -1,8 +1,14 @@
 import { TypeChecker, TypeElement, TypeNode } from "typescript";
 import { getMemberType } from "./MemberHelpers";
+import { TaggedUnionError } from "../errors/TaggedUnionError";
 
 export const ErrorDiscriminate = `Can't have fully discriminated unions/intersections yet...`;
 
+/**
+ * @throws TaggedUnionError
+ * @param checker
+ * @param types
+ */
 export function dedupeUnion(
   checker: TypeChecker,
   types: ReadonlyArray<TypeElement>
@@ -16,7 +22,7 @@ export function dedupeUnion(
       return true;
     }
     if (getMemberType(checker, existing) !== type) {
-      throw new Error(ErrorDiscriminate);
+      throw new TaggedUnionError();
     }
     return false;
   });
