@@ -2,6 +2,19 @@ import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { KlassPrinter } from "../../kotlin/KlassPrinter";
 
+const compare = `@Serializable
+class Foob(
+  private val foo: Foo?
+) {
+  override Hallo: Double
+  @Serializable
+  class Barb(
+    whatever: Hi
+  )
+  // statement goes here
+}
+`;
+
 describe("Basic Kotlin Formatting", () => {
   it("Utilizes all formatting correctly.", () => {
     const k = new Klass("net.sarazan.martok", "Foob")
@@ -31,6 +44,6 @@ describe("Basic Kotlin Formatting", () => {
       )
       .addStatements(`// statement goes here`);
     const print = new KlassPrinter().print(k);
-    console.log(print);
+    expect(print).toEqual(compare);
   });
 });
