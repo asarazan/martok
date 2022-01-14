@@ -1,7 +1,6 @@
 import { Martok } from "../Martok";
 import {
   InternalSymbolName,
-  isIntersectionTypeNode,
   isPropertySignature,
   isTypeLiteralNode,
   isUnionTypeNode,
@@ -13,6 +12,11 @@ import { title } from "../NameGenerators";
 import _ from "lodash";
 import { all } from "../../typescript/utils";
 
+export type MemberOptions = {
+  optional?: boolean;
+  abstract?: boolean;
+};
+
 export class MemberBasedGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
   private innerClassNameStack: string[] = [];
@@ -21,29 +25,32 @@ export class MemberBasedGenerator {
   public generate(
     name: string,
     members: ReadonlyArray<TypeElement>,
-    forceOptional = false
+    options?: MemberOptions
   ): string[] {
     const result: string[] = [];
+    const serializer = "";
+    const header = this.classHeader(name, serializer, options);
     result.push(`@Serializable
 data class ${name}(
-${this.generateMembers(members, forceOptional)}
+${this.generateMembers(members, options)}
 )${this.generateInnerClasses(name, members)}`);
     return result;
   }
 
-  private generateMembers(
+  public generateMembers(
     members: ReadonlyArray<TypeElement>,
-    forceOptional: boolean
+    options?: MemberOptions
   ): string {
-    function formatMember(member: string[]): string {
-      return member.map((value) => `  ${value}`).join("\n");
-    }
     return `${members
-      .map((value) => formatMember(this.generateMember(value, forceOptional)))
+      .map((value) => this.formatMember(this.generateMember(value, options)))
       .join(",\n")}`;
   }
 
-  private generateMember(node: TypeElement, forceOptional: boolean): string[] {
+  public formatMember(member: string[]): string {
+    return member.map((value) => `  ${value}`).join("\n");
+  }
+
+  public generateMember(node: TypeElement, options?: MemberOptions): string[] {
     const name = node.name!.getText();
     let typeName = getMemberType(this.checker, node);
     let annotation: string | undefined;
@@ -56,12 +63,14 @@ ${this.generateMembers(members, forceOptional)}
         "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
     }
 
-    const optional = forceOptional || node.questionToken ? "? = null" : "";
-    const result = `val ${name}: ${typeName}${optional}`;
+    const optional = options?.optional || node.questionToken ? "? = null" : "";
+    const result = `${
+      options?.abstract ? "abstract " : ""
+    }val ${name}: ${typeName}${optional}`;
     return _.compact([annotation, result]);
   }
 
-  private generateInnerClasses(
+  public generateInnerClasses(
     name: string,
     members: ReadonlyArray<TypeElement>
   ): string {
@@ -106,5 +115,21 @@ ${anonymousTypes
       return this.martok.declarations.types.generateFromTypeNode(name, type)!;
     }
     throw new Error(`Can't transpile property ${name}`);
+  }
+
+  private classAnnotation(serializer?: string): string {
+    let result = `@Serializable`;
+    if (serializer?.length) result = `${result}(with = ${serializer})`;
+    return result;
+  }
+
+  private classHeader(
+    name: string,
+    serializer?: string,
+    options?: MemberOptions
+  ): string {
+    const annotation = this.classAnnotation(serializer);
+    const modifier = options?.abstract ? "abstract" : "data";
+    return `${annotation}\n${modifier} class ${name}`;
   }
 }

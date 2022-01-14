@@ -25,23 +25,11 @@ export class TypeAliasGenerator {
       node.type!
     );
     if (result) return result;
-    try {
-      const members = getMembers(node, this.checker);
-      if (!members.length) {
-        return [
-          `typealias ${name} = ${getMemberType(this.checker, node.type)}`,
-        ];
-      }
-      return this.members.generate(node.name.escapedText!, members);
-    } catch (e: unknown) {
-      if (e instanceof TaggedUnionError) {
-        return this.martok.declarations.taggedUnions.generate(
-          node.type as UnionTypeNode
-        );
-      } else {
-        throw e;
-      }
+    const members = getMembers(node, this.checker);
+    if (!members.length) {
+      return [`typealias ${name} = ${getMemberType(this.checker, node.type)}`];
     }
+    return this.members.generate(node.name.escapedText!, members);
   }
 
   public generateFromTypeNode(
@@ -65,18 +53,8 @@ export class TypeAliasGenerator {
         }
       }
       if (isUnion || isIntersectionTypeNode(type)) {
-        try {
-          const members = getMembers(type, this.checker);
-          return this.members.generate(name, members, isUnion);
-        } catch (e: unknown) {
-          if (e instanceof TaggedUnionError) {
-            return this.martok.declarations.taggedUnions.generate(
-              type as UnionTypeNode
-            );
-          } else {
-            throw e;
-          }
-        }
+        const members = getMembers(type, this.checker);
+        return this.members.generate(name, members, { optional: isUnion });
       }
     }
     return undefined;

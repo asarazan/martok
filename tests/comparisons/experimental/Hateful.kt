@@ -10,7 +10,7 @@ abstract class Hateful {
     abstract val type: String
 
     @Serializable
-    data class HatefulState1(
+    data class HatefulType1(
         override val id: String,
         override val foo: String?,
         override val type: String,
@@ -18,7 +18,7 @@ abstract class Hateful {
     ) : Hateful()
 
     @Serializable
-    data class HatefulState2(
+    data class HatefulType2(
         override val id: String,
         override val foo: String?,
         override val type: String,
@@ -29,12 +29,11 @@ abstract class Hateful {
         override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("type1") -> HatefulState1.serializer()
-            JsonPrimitive("type2") -> HatefulState2.serializer()
+            JsonPrimitive("type1") -> HatefulType1.serializer()
+            JsonPrimitive("type2") -> HatefulType2.serializer()
             else -> throw IllegalArgumentException("Unexpected gameType: $type")
         }
     }
-
 }
 
 @Serializable
