@@ -22,23 +22,14 @@ export class DeclarationGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
-    const statements = file.statements.flatMap((value) =>
-      this.generateDeclaration(value)
-    );
-    const parted = _.partition(
-      statements,
-      (value) => typeof value === "string"
-    );
-    const result = [...parted[0], ...parted[1]];
-    return result.map((value) =>
-      typeof value === "string" ? value : this.printer.print(value)
-    );
+    return file.statements.map((value) => this.generateDeclaration(value));
   }
 
-  private generateDeclaration(node: Statement): Klass | string {
+  private generateDeclaration(node: Statement): string {
     if (!KlassGenerator.isSupportedDeclaration(node)) {
       throw new Error(`Can't handle type ${node.kind}`);
     }
-    return this.klasses.generate(node);
+    const value = this.klasses.generate(node);
+    return typeof value === "string" ? value : this.printer.print(value);
   }
 }
