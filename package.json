@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "try": "ts-node src/index.ts tests/comparisons/single/hateful.d.ts -o ./schema/martok --package net.sarazan.martok",
+    "try": "ts-node src/index.ts tests/comparisons/experimental/hateful.d.ts -o ./schema/martok --package net.sarazan.martok",
+    "klass": "ts-node src/index.ts tests/comparisons/single/types.d.ts -o ./schema/martok --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

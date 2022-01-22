@@ -15,6 +15,8 @@ export namespace kotlin {
   export type ConstructorParameter = FunctionParameter & {
     visibility?: Visibility;
     mutability?: Mutability;
+    annotation?: string;
+    abstract?: boolean;
   };
 
   export type MemberDeclaration = ConstructorParameter;

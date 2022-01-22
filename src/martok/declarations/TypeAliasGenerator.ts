@@ -10,7 +10,6 @@ import {
 } from "typescript";
 import { all } from "../../typescript/utils";
 import { getMembers, getMemberType } from "../../typescript/MemberHelpers";
-import { TaggedUnionError } from "../../errors/TaggedUnionError";
 
 export class TypeAliasGenerator {
   private readonly members = new MemberBasedGenerator(this.martok);

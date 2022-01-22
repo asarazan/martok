@@ -10,8 +10,7 @@ export class MartokFormatter {
 
 ${file.text.imports.join("\n")}
 
-${file.text.declarations.join("\n\n")}
-`;
+${file.text.declarations.join("\n")}`;
   }
 
   public generateMultiFile(files: MartokOutFile[]): string {
@@ -19,7 +18,6 @@ ${file.text.declarations.join("\n\n")}
 
 ${StandardKotlinImports}
 
-${files.flatMap((value) => value.text.declarations).join("\n\n")}
-`;
+${files.flatMap((value) => value.text.declarations).join("\n")}`;
   }
 }

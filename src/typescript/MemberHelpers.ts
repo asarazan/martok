@@ -3,6 +3,7 @@ import {
   factory,
   InternalSymbolName,
   isArrayTypeNode,
+  isInterfaceDeclaration,
   isIntersectionTypeNode,
   isLiteralTypeNode,
   isNumericLiteral,
@@ -92,7 +93,13 @@ export function getMembers(
   node: Declaration | TypeNode,
   checker: TypeChecker
 ): ReadonlyArray<TypeElement> {
-  if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
+  if (isInterfaceDeclaration(node)) {
+    const ttype = checker.getTypeAtLocation(node);
+    return ttype
+      .getProperties()
+      .map((value) => value.valueDeclaration)
+      .filter((value) => value && isPropertySignature(value)) as TypeElement[];
+  } else if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
     return getMembers(node.type, checker);
   } else if (isTypeLiteralNode(node)) {
     return node.members;

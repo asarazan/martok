@@ -1,15 +1,14 @@
 import { Martok } from "../Martok";
-import {
-  isEnumDeclaration,
-  isInterfaceDeclaration,
-  isTypeAliasDeclaration,
-  SourceFile,
-  Statement,
-} from "typescript";
+import { SourceFile, Statement } from "typescript";
 import { InterfaceGenerator } from "./InterfaceGenerator";
 import { TypeAliasGenerator } from "./TypeAliasGenerator";
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
+import { KlassGenerator } from "./KlassGenerator";
+import _, { values } from "lodash";
+import { KlassPrinter } from "../../kotlin/KlassPrinter";
+import { kotlin } from "../../kotlin/Klass";
+import Klass = kotlin.Klass;
 
 export class DeclarationGenerator {
   public readonly enums = new EnumGenerator(this.martok);
@@ -17,24 +16,29 @@ export class DeclarationGenerator {
   public readonly interfaces = new InterfaceGenerator(this.martok);
   public readonly taggedUnions = new TaggedUnionGenerator(this.martok);
 
+  public readonly klasses = new KlassGenerator(this.martok);
+  public readonly printer = new KlassPrinter();
+
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
-    return file.statements.flatMap((value) => this.generateDeclaration(value));
+    const statements = file.statements.flatMap((value) =>
+      this.generateDeclaration(value)
+    );
+    const parted = _.partition(
+      statements,
+      (value) => typeof value === "string"
+    );
+    const result = [...parted[0], ...parted[1]];
+    return result.map((value) =>
+      typeof value === "string" ? value : this.printer.print(value)
+    );
   }
 
-  public generateDeclaration(node: Statement): string[] {
-    if (isInterfaceDeclaration(node)) {
-      console.log(`-->Statement: ${node.name.escapedText}...`);
-      return this.interfaces.generate(node);
-    } else if (isTypeAliasDeclaration(node)) {
-      console.log(`-->Statement: ${node.name.escapedText}...`);
-      return this.types.generate(node);
-    } else if (isEnumDeclaration(node)) {
-      console.log(`-->Statement: ${node.name.escapedText}...`);
-      return this.enums.generate([node.name.escapedText!], node);
+  private generateDeclaration(node: Statement): Klass | string {
+    if (!KlassGenerator.isSupportedDeclaration(node)) {
+      throw new Error(`Can't handle type ${node.kind}`);
     }
-    // Skipping unrecognized statements, should be fine.
-    return [];
+    return this.klasses.generate(node);
   }
 }

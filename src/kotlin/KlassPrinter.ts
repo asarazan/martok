@@ -94,6 +94,12 @@ export class KlassPrinter {
     defaultMutability?: Mutability
   ): string {
     const result = [];
+    if (param.annotation) {
+      result.push(`${param.annotation} `);
+    }
+    if (param.abstract) {
+      result.push(`abstract `);
+    }
     if (param.visibility) {
       result.push(`${param.visibility} `);
     }

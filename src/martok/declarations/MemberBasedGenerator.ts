@@ -15,6 +15,7 @@ import { all } from "../../typescript/utils";
 export type MemberOptions = {
   optional?: boolean;
   abstract?: boolean;
+  forceName?: string;
 };
 
 export class MemberBasedGenerator {
