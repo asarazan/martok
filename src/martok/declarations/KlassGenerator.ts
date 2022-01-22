@@ -92,13 +92,15 @@ export class KlassGenerator {
       annotation =
         "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
     }
+    const nullable = options?.optional || !!node.questionToken;
     return {
       name,
       type,
       annotation,
       mutability: "val",
-      nullable: options?.optional || !!node.questionToken,
+      nullable,
       abstract: options?.abstract,
+      defaultValue: nullable ? "null" : undefined,
     };
   }
 

@@ -10,6 +10,7 @@ export namespace kotlin {
     name: string;
     type: string;
     nullable?: boolean;
+    defaultValue?: string;
   };
 
   export type ConstructorParameter = FunctionParameter & {

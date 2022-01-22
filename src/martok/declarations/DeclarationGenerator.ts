@@ -22,12 +22,15 @@ export class DeclarationGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
-    return file.statements.map((value) => this.generateDeclaration(value));
+    return _.compact(
+      file.statements.map((value) => this.generateDeclaration(value))
+    );
   }
 
-  private generateDeclaration(node: Statement): string {
+  private generateDeclaration(node: Statement): string | undefined {
     if (!KlassGenerator.isSupportedDeclaration(node)) {
-      throw new Error(`Can't handle type ${node.kind}`);
+      // throw new Error(`Can't handle type ${node.kind}`);
+      return undefined;
     }
     const value = this.klasses.generate(node);
     return typeof value === "string" ? value : this.printer.print(value);

@@ -76,8 +76,14 @@ export class KlassPrinter {
     join = ","
   ) {
     statements.forEach((value, index) => {
-      this.indent(indent, result);
-      result.push(value);
+      const lines = value.split("\n");
+      lines.forEach((line, lineIndex) => {
+        this.indent(indent, result);
+        result.push(line);
+        if (lines.length > 1 && lineIndex < lines.length - 1) {
+          result.push("\n");
+        }
+      });
       if (index < statements.length - 1) result.push(join);
     });
   }
@@ -94,8 +100,13 @@ export class KlassPrinter {
     defaultMutability?: Mutability
   ): string {
     const result = [];
-    if (param.annotation) {
-      result.push(`${param.annotation} `);
+    if (param.annotation?.length) {
+      result.push(`${param.annotation}`);
+      if (param.annotation.length > 32) {
+        result.push("\n");
+      } else {
+        result.push(" ");
+      }
     }
     if (param.abstract) {
       result.push(`abstract `);
@@ -109,6 +120,9 @@ export class KlassPrinter {
     result.push(`${param.name}: ${param.type}`);
     if (param.nullable) {
       result.push("?");
+    }
+    if (param.defaultValue) {
+      result.push(` = ${param.defaultValue}`);
     }
     return result.join("");
   }
