@@ -5,6 +5,7 @@ import indentString from "indent-string";
 import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
+import EnumValue = kotlin.EnumValue;
 
 export class OrdinalEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
@@ -55,18 +56,42 @@ ${this.getDeserializers(node)
         name: "value",
         type: "Int",
       })
-      .addStatements(...this.getEnumDeclarations(node))
-      .addStatements("TODO: serializer");
+      .addEnumValues(...this.getEnumValues(node))
+      .addInternalClasses(this.getSerializerKlass(name, "TODO"));
   }
 
-  private getEnumDeclarations(node: UnionTypeNode | EnumDeclaration): string[] {
+  private getEnumDeclarations(
+    node: UnionTypeNode | EnumDeclaration,
+    suffixes = false
+  ): string[] {
     const members = isEnumDeclaration(node) ? node.members : node.types;
     let lastValue: string | undefined;
     return members.map((value, index) => {
       const name = getEnumName(this.checker, value);
       const val = getEnumValue(this.checker, value, lastValue);
       lastValue = val;
-      return `${name}(${val})`;
+      let suffix = "";
+      if (suffixes) {
+        suffix = index >= members.length - 1 ? ";" : ",";
+      }
+      return `${name}(${val})${suffix}`;
+    });
+  }
+  private getEnumValues(node: UnionTypeNode | EnumDeclaration): EnumValue[] {
+    const members = isEnumDeclaration(node) ? node.members : node.types;
+    let lastValue: string | undefined;
+    return members.map((value) => {
+      const name = getEnumName(this.checker, value);
+      const val = getEnumValue(this.checker, value, lastValue);
+      lastValue = val;
+      return {
+        name,
+        args: [
+          {
+            name: val,
+          },
+        ],
+      };
     });
   }
 
@@ -79,5 +104,20 @@ ${this.getDeserializers(node)
       lastValue = val;
       return `${val} -> ${name}`;
     });
+  }
+
+  private getSerializerKlass(className: string, serialName: string): Klass {
+    return new Klass("", className)
+      .addModifier("companion")
+      .setKlassType("object")
+      .setExtends({
+        name: `KSerializer<${className}>`,
+      })
+      .addMembers({
+        visibility: "override",
+        name: "descriptor",
+        type: "SerialDescriptor",
+        value: `PrimitiveSerialDescriptor("${serialName}", PrimitiveKind.INT)`,
+      });
   }
 }

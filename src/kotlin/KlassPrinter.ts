@@ -19,7 +19,7 @@ export class KlassPrinter {
     for (const mod of klass.modifiers) {
       result.push(`${mod} `);
     }
-    result.push(`class ${klass.name}`);
+    result.push(`${klass.klassType} ${klass.name}`);
 
     // Primary Constructor
     if (klass.ctor.length) {
@@ -39,12 +39,28 @@ export class KlassPrinter {
 
     // Internal stuff
     if (
+      klass.enumValues.length ||
       klass.members.length ||
       klass.internalClasses.length ||
       klass.statements.length
     ) {
       result.push(" {\n");
       indent++;
+      if (klass.enumValues?.length) {
+        this.push(
+          result,
+          klass.enumValues.map((value) => {
+            const annotation = value.annotation ? `${value.annotation} ` : "";
+            const args = value.args?.length
+              ? `(${value.args.map((value1) => value1.name).join(", ")})`
+              : "";
+            return `${annotation}${value.name}${args}`;
+          }),
+          indent,
+          ",\n"
+        );
+        result.push(";\n");
+      }
       if (klass.members?.length) {
         this.push(
           result,
@@ -124,8 +140,8 @@ export class KlassPrinter {
     if (param.nullable) {
       result.push("?");
     }
-    if (param.defaultValue) {
-      result.push(` = ${param.defaultValue}`);
+    if (param.value) {
+      result.push(` = ${param.value}`);
     }
     return result.join("");
   }

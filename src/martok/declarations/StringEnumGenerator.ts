@@ -6,6 +6,7 @@ import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { joinArray } from "../../typescript/utils";
+import EnumValue = kotlin.EnumValue;
 
 export class StringEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
@@ -35,7 +36,7 @@ ${this.getEnumDeclarations(node)
     return new Klass("", name)
       .setAnnotation("@Serializable")
       .addModifier("enum")
-      .addStatements(...this.getEnumDeclarations(node, true));
+      .addEnumValues(...this.getEnumValues(node));
   }
 
   private getEnumDeclarations(
@@ -51,6 +52,18 @@ ${this.getEnumDeclarations(node)
         suffix = index >= members.length - 1 ? ";" : ",";
       }
       return `@SerialName("${val}") ${name}${suffix}`;
+    });
+  }
+
+  private getEnumValues(node: UnionTypeNode | EnumDeclaration): EnumValue[] {
+    const members = isEnumDeclaration(node) ? node.members : node.types;
+    return members.map((value, index) => {
+      const name = getEnumName(this.checker, value);
+      const val = getEnumValue(this.checker, value);
+      return {
+        annotation: `@SerialName("${val}")`,
+        name,
+      };
     });
   }
 }

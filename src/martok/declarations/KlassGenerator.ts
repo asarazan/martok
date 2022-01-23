@@ -107,7 +107,7 @@ export class KlassGenerator {
       mutability: "val",
       nullable,
       abstract: options?.abstract,
-      defaultValue: nullable ? "null" : undefined,
+      value: nullable ? "null" : undefined,
     };
   }
 

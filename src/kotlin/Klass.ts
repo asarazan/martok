@@ -4,13 +4,20 @@ import _ from "lodash";
 export namespace kotlin {
   export type Visibility = "private" | "public" | "override";
   export type Mutability = "val" | "var";
-  export type KlassModifier = "abstract" | "data" | "enum";
+  export type KlassType = "class" | "object";
+  export type KlassModifier = "abstract" | "data" | "enum" | "companion";
+
+  export type EnumValue = {
+    annotation?: string;
+    name: string;
+    args?: FunctionArgument[];
+  };
 
   export type FunctionParameter = {
     name: string;
     type: string;
     nullable?: boolean;
-    defaultValue?: string;
+    value?: string;
   };
 
   export type ConstructorParameter = FunctionParameter & {
@@ -36,11 +43,13 @@ export namespace kotlin {
     public name: string;
 
     public annotation: string | undefined;
+    public klassType: KlassType = "class";
     public modifiers: KlassModifier[] = [];
 
     public ctor: ConstructorParameter[] = [];
     public extends: FunctionInvocation | undefined;
 
+    public enumValues: EnumValue[] = [];
     public members: MemberDeclaration[] = [];
     public internalClasses: Klass[] = [];
     public statements: string[] = [];
@@ -48,6 +57,11 @@ export namespace kotlin {
     public constructor(pkg: string, name: string) {
       this.pkg = pkg;
       this.name = name;
+    }
+
+    public setKlassType(type: KlassType): this {
+      this.klassType = type;
+      return this;
     }
 
     public setAnnotation(annotation: string | undefined): this {
@@ -77,6 +91,16 @@ export namespace kotlin {
 
     public setExtends(ex: FunctionInvocation | undefined): this {
       this.extends = ex;
+      return this;
+    }
+
+    public addEnumValues(...values: EnumValue[]): this {
+      this.enumValues.push(...values);
+      return this;
+    }
+
+    public setEnumValues(...values: EnumValue[]): this {
+      this.enumValues = values;
       return this;
     }
 
