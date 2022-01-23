@@ -52,15 +52,16 @@ export class KlassGenerator {
       let name: string;
       if (KlassGenerator.isSupportedDeclaration(node)) {
         name = node.name.escapedText.toString();
-        this.martok.pushNameScope(name);
-        const alias = this.generateTypeAlias(node);
-        if (alias) return alias;
       } else {
         name = options!.forceName!;
-        this.martok.pushNameScope(name);
-        if (this.enums.canGenerate(node)) {
-          return this.enums.generateKlass(name, node);
-        }
+      }
+      this.martok.pushNameScope(name);
+
+      const alias = this.generateTypeAlias(node);
+      if (alias) return alias;
+
+      if (this.enums.canGenerate(node)) {
+        return this.enums.generateKlass(name, node);
       }
 
       const members = getMembers(node, this.checker);

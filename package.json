@@ -12,6 +12,7 @@
     "single" : "rm -rf ./schema/martok/single && ts-node src/index.ts tests/comparisons/single -o ./schema/martok/single --package net.sarazan.martok",
     "multi" : "rm -rf ./schema/martok/multi && ts-node src/index.ts tests/comparisons/multi -o ./schema/martok/multi --package net.sarazan.martok",
     "special" : "rm -rf ./schema/martok/special && ts-node src/index.ts tests/comparisons/special/DateTime.d.ts -o ./schema/martok/special --package net.sarazan.martok --datePattern standard",
+    "enum": "ts-node src/index.ts tests/comparisons/single/enums.d.ts -o ./schema/martok/single --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

@@ -84,11 +84,11 @@ export class Martok {
 
   public pushNameScope(scope: string) {
     this.nameScope.push(scope);
-    console.log(`>`, this.nameScope);
+    // console.log(`>`, this.nameScope);
   }
   public popNameScope(): string {
     const result = this.nameScope.pop()!;
-    console.log(`>`, this.nameScope);
+    // console.log(`>`, this.nameScope);
     return result;
   }
 

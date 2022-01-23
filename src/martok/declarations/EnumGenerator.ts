@@ -22,14 +22,14 @@ export class EnumGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
-  public canGenerate(type: TypeNode): type is UnionTypeNode {
+  public canGenerate(type: Node): type is UnionTypeNode | EnumDeclaration {
     if (isUnionTypeNode(type)) {
       return all(type.types, (value) => {
         const type = this.checker.getTypeFromTypeNode(value);
         return type.isStringLiteral() || type.isNumberLiteral();
       });
     }
-    return false;
+    return !!isEnumDeclaration(type);
   }
 
   public generate(
