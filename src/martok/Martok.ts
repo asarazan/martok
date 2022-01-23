@@ -11,6 +11,11 @@ import { MartokFormatter } from "./MartokFormatter";
 import path from "path";
 import { MartokConfig } from "./MartokConfig";
 import { title } from "./NameGenerators";
+import { AsyncLocalStorage } from "async_hooks";
+
+type MartokState = {
+  nameScope: string[];
+};
 
 export class Martok {
   public readonly program = ts.createProgram(this.config.files, {
@@ -21,7 +26,11 @@ export class Martok {
   });
 
   public readonly declarations = new DeclarationGenerator(this);
+  public get nameScope(): string[] {
+    return this.storage.getStore()!.nameScope;
+  }
 
+  private readonly storage = new AsyncLocalStorage<MartokState>();
   private readonly imports = new ImportGenerator(this);
   private readonly formatter = new MartokFormatter(this.config);
 
@@ -62,16 +71,32 @@ export class Martok {
   }
 
   public generateOutput(): MartokOutFile[] {
-    return _(this.config.files)
-      .map((value) => this.processFile(this.program.getSourceFile(value)!))
-      .compact()
-      .value();
+    const state: MartokState = {
+      nameScope: [],
+    };
+    return this.storage.run(state, () =>
+      _(this.config.files)
+        .map((value) => this.processFile(this.program.getSourceFile(value)!))
+        .compact()
+        .value()
+    );
+  }
+
+  public pushNameScope(scope: string) {
+    this.nameScope.push(scope);
+    console.log(`>`, this.nameScope);
+  }
+  public popNameScope(): string {
+    const result = this.nameScope.pop()!;
+    console.log(`>`, this.nameScope);
+    return result;
   }
 
   private processFile(file: SourceFile): MartokOutFile {
     // console.log(`Process File: ${file.fileName}...`);
     const name = TsHelper.getBaseFileName(file.fileName);
     const pkg = this.getFilePackage(file);
+    this.pushNameScope(pkg);
     const base: MartokOutFile = {
       name,
       package: pkg,
@@ -88,6 +113,7 @@ export class Martok {
     base.text.declarations.push(
       ...this.declarations.generateDeclarations(file)
     );
+    this.popNameScope();
     return base;
   }
 

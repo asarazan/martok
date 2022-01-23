@@ -22,8 +22,7 @@ data class NumberUnion(
         _2(2);
 
         companion object : KSerializer<Foo> {
-            override val descriptor: SerialDescriptor =
-                PrimitiveSerialDescriptor("net.sarazan.martok.NumberUnion.Foo", PrimitiveKind.INT)
+            override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("net.sarazan.martok.NumberUnion.Foo", PrimitiveKind.INT)
 
             override fun deserialize(decoder: Decoder) = when (val value = decoder.decodeInt()) {
                 1      -> _1

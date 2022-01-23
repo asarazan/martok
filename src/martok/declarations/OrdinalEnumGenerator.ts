@@ -49,7 +49,8 @@ ${this.getDeserializers(node)
     name: string,
     node: UnionTypeNode | EnumDeclaration
   ): Klass {
-    return new Klass("", name)
+    const fqn = this.martok.nameScope.join(`.`);
+    return new Klass(undefined, name)
       .setAnnotation(`@Serializable(with = ${name}.Companion::class)`)
       .addModifier("enum")
       .addCtorArgs({
@@ -58,7 +59,7 @@ ${this.getDeserializers(node)
         mutability: "val",
       })
       .addEnumValues(...this.getEnumValues(node))
-      .addInternalClasses(this.getSerializerKlass(name, "TODO"));
+      .addInternalClasses(this.getSerializerKlass(name, fqn, node));
   }
 
   private getEnumDeclarations(
@@ -107,7 +108,11 @@ ${this.getDeserializers(node)
     });
   }
 
-  private getSerializerKlass(className: string, serialName: string): Klass {
+  private getSerializerKlass(
+    className: string,
+    serialName: string,
+    node: UnionTypeNode | EnumDeclaration
+  ): Klass {
     return new Klass()
       .addModifier("companion")
       .setKlassType("object")
@@ -119,6 +124,13 @@ ${this.getDeserializers(node)
         name: "descriptor",
         type: "SerialDescriptor",
         value: `PrimitiveSerialDescriptor("${serialName}", PrimitiveKind.INT)`,
-      });
+      })
+      .addStatements(`override fun deserialize(decoder: Decoder) = when (val value = decoder.decodeInt()) {
+${this.getDeserializers(node).join("\n")}
+            else   -> throw IllegalArgumentException("${className} could not parse: $value")
+        }
+        override fun serialize(encoder: Encoder, value: ${className}) {
+            return encoder.encodeInt(value.value)
+        }`);
   }
 }

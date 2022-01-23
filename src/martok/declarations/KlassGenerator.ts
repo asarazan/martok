@@ -48,28 +48,34 @@ export class KlassGenerator {
     node: SupportedDeclaration | TypeNode,
     options?: MemberOptions
   ): Klass | string {
-    let name: string;
-    if (KlassGenerator.isSupportedDeclaration(node)) {
-      name = node.name.escapedText.toString();
-      const alias = this.generateTypeAlias(node);
-      if (alias) return alias;
-    } else {
-      name = options!.forceName!;
-      if (this.enums.canGenerate(node)) {
-        return this.enums.generateKlass(name, node);
+    try {
+      let name: string;
+      if (KlassGenerator.isSupportedDeclaration(node)) {
+        name = node.name.escapedText.toString();
+        this.martok.pushNameScope(name);
+        const alias = this.generateTypeAlias(node);
+        if (alias) return alias;
+      } else {
+        name = options!.forceName!;
+        this.martok.pushNameScope(name);
+        if (this.enums.canGenerate(node)) {
+          return this.enums.generateKlass(name, node);
+        }
       }
-    }
 
-    const members = getMembers(node, this.checker);
-    return new Klass("", name)
-      .setAnnotation("@Serializable")
-      .addModifier("data")
-      .addCtorArgs(
-        ...members.map((value) => {
-          return this.generateCtorArg(value, options);
-        })
-      )
-      .addInternalClasses(...this.generateInnerKlasses(members));
+      const members = getMembers(node, this.checker);
+      return new Klass("", name)
+        .setAnnotation("@Serializable")
+        .addModifier("data")
+        .addCtorArgs(
+          ...members.map((value) => {
+            return this.generateCtorArg(value, options);
+          })
+        )
+        .addInternalClasses(...this.generateInnerKlasses(members));
+    } finally {
+      this.martok.popNameScope();
+    }
   }
 
   public generateProperty(
