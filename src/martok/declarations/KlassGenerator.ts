@@ -21,6 +21,7 @@ import Klass = kotlin.Klass;
 import { getMembers, getMemberType } from "../../typescript/MemberHelpers";
 import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
+import { EnumGenerator } from "./EnumGenerator";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -28,6 +29,8 @@ export type SupportedDeclaration =
   | EnumDeclaration;
 
 export class KlassGenerator {
+  public readonly enums = new EnumGenerator(this.martok);
+
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: Martok) {}
 
@@ -52,7 +55,11 @@ export class KlassGenerator {
       if (alias) return alias;
     } else {
       name = options!.forceName!;
+      if (this.enums.canGenerate(node)) {
+        return this.enums.generateKlass(name, node);
+      }
     }
+
     const members = getMembers(node, this.checker);
     return new Klass("", name)
       .setAnnotation("@Serializable")

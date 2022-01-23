@@ -3,6 +3,8 @@ import { EnumDeclaration, isEnumDeclaration, UnionTypeNode } from "typescript";
 import _ from "lodash";
 import indentString from "indent-string";
 import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
+import { kotlin } from "../../kotlin/Klass";
+import Klass = kotlin.Klass;
 
 export class OrdinalEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
@@ -40,6 +42,21 @@ ${this.getDeserializers(node)
 }
 `,
     ];
+  }
+
+  public generateKlass(
+    name: string,
+    node: UnionTypeNode | EnumDeclaration
+  ): Klass {
+    return new Klass("", name)
+      .setAnnotation(`@Serializable(with = ${name}.Companion::class)`)
+      .addModifier("enum")
+      .addCtorArgs({
+        name: "value",
+        type: "Int",
+      })
+      .addStatements(...this.getEnumDeclarations(node))
+      .addStatements("TODO: serializer");
   }
 
   private getEnumDeclarations(node: UnionTypeNode | EnumDeclaration): string[] {

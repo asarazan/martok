@@ -4,7 +4,7 @@ import _ from "lodash";
 export namespace kotlin {
   export type Visibility = "private" | "public" | "override";
   export type Mutability = "val" | "var";
-  export type KlassModifier = "abstract" | "data";
+  export type KlassModifier = "abstract" | "data" | "enum";
 
   export type FunctionParameter = {
     name: string;

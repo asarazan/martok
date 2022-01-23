@@ -3,6 +3,9 @@ import { EnumDeclaration, isEnumDeclaration, UnionTypeNode } from "typescript";
 import _ from "lodash";
 import indentString from "indent-string";
 import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
+import { kotlin } from "../../kotlin/Klass";
+import Klass = kotlin.Klass;
+import { joinArray } from "../../typescript/utils";
 
 export class StringEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
@@ -25,12 +28,29 @@ ${this.getEnumDeclarations(node)
     ];
   }
 
-  private getEnumDeclarations(node: UnionTypeNode | EnumDeclaration): string[] {
+  public generateKlass(
+    name: string,
+    node: UnionTypeNode | EnumDeclaration
+  ): Klass {
+    return new Klass("", name)
+      .setAnnotation("@Serializable")
+      .addModifier("enum")
+      .addStatements(...this.getEnumDeclarations(node, true));
+  }
+
+  private getEnumDeclarations(
+    node: UnionTypeNode | EnumDeclaration,
+    suffixes = false
+  ): string[] {
     const members = isEnumDeclaration(node) ? node.members : node.types;
-    return members.map((value) => {
+    return members.map((value, index) => {
       const name = getEnumName(this.checker, value);
       const val = getEnumValue(this.checker, value);
-      return `@SerialName("${val}") ${name}`;
+      let suffix = "";
+      if (suffixes) {
+        suffix = index >= members.length - 1 ? ";" : ",";
+      }
+      return `@SerialName("${val}") ${name}${suffix}`;
     });
   }
 }

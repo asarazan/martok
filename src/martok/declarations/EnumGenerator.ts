@@ -3,11 +3,16 @@ import {
   EnumDeclaration,
   isEnumDeclaration,
   isStringLiteral,
+  isUnionTypeNode,
+  Node,
+  TypeNode,
   UnionTypeNode,
 } from "typescript";
 import { StringEnumGenerator } from "./StringEnumGenerator";
 import { OrdinalEnumGenerator } from "./OrdinalEnumGenerator";
 import { all } from "../../typescript/utils";
+import { kotlin } from "../../kotlin/Klass";
+import Klass = kotlin.Klass;
 
 export class EnumGenerator {
   private readonly strings = new StringEnumGenerator(this.martok);
@@ -17,12 +22,30 @@ export class EnumGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
+  public canGenerate(type: TypeNode): type is UnionTypeNode {
+    if (isUnionTypeNode(type)) {
+      return all(type.types, (value) => {
+        const type = this.checker.getTypeFromTypeNode(value);
+        return type.isStringLiteral() || type.isNumberLiteral();
+      });
+    }
+    return false;
+  }
+
   public generate(
     name: string[],
     node: UnionTypeNode | EnumDeclaration
   ): string[] {
     const generator = this.isStringEnum(node) ? this.strings : this.ordinals;
     return generator.generate(name, node);
+  }
+
+  public generateKlass(
+    name: string,
+    node: UnionTypeNode | EnumDeclaration
+  ): Klass {
+    const generator = this.isStringEnum(node) ? this.strings : this.ordinals;
+    return generator.generateKlass(name, node);
   }
 
   private isStringEnum(node: UnionTypeNode | EnumDeclaration): boolean {

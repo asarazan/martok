@@ -69,7 +69,7 @@ export class Martok {
   }
 
   private processFile(file: SourceFile): MartokOutFile {
-    console.log(`Process File: ${file.fileName}...`);
+    // console.log(`Process File: ${file.fileName}...`);
     const name = TsHelper.getBaseFileName(file.fileName);
     const pkg = this.getFilePackage(file);
     const base: MartokOutFile = {

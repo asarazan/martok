@@ -60,9 +60,12 @@ export class KlassPrinter {
           result.push("\n\n");
         }
       });
-      this.push(result, klass.statements, indent, "\n\n");
+      if (klass.statements.length) {
+        this.push(result, klass.statements, indent, "\n");
+        result.push("\n");
+      }
       indent--;
-      result.push("\n}");
+      this.push(result, ["}"], indent);
     }
     result.push("\n");
 
