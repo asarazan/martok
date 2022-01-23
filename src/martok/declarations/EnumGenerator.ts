@@ -5,7 +5,6 @@ import {
   isStringLiteral,
   isUnionTypeNode,
   Node,
-  TypeNode,
   UnionTypeNode,
 } from "typescript";
 import { StringEnumGenerator } from "./StringEnumGenerator";
@@ -32,20 +31,9 @@ export class EnumGenerator {
     return !!isEnumDeclaration(type);
   }
 
-  public generate(
-    name: string[],
-    node: UnionTypeNode | EnumDeclaration
-  ): string[] {
+  public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
     const generator = this.isStringEnum(node) ? this.strings : this.ordinals;
     return generator.generate(name, node);
-  }
-
-  public generateKlass(
-    name: string,
-    node: UnionTypeNode | EnumDeclaration
-  ): Klass {
-    const generator = this.isStringEnum(node) ? this.strings : this.ordinals;
-    return generator.generateKlass(name, node);
   }
 
   private isStringEnum(node: UnionTypeNode | EnumDeclaration): boolean {

@@ -13,9 +13,7 @@ import {
   TypeAliasDeclaration,
   TypeElement,
   TypeNode,
-  TypeReferenceNode,
 } from "typescript";
-import { MemberOptions } from "./MemberBasedGenerator";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { getMembers, getMemberType } from "../../typescript/MemberHelpers";
@@ -27,6 +25,12 @@ export type SupportedDeclaration =
   | TypeAliasDeclaration
   | InterfaceDeclaration
   | EnumDeclaration;
+
+export type MemberOptions = {
+  optional?: boolean;
+  abstract?: boolean;
+  forceName?: string;
+};
 
 export class KlassGenerator {
   public readonly enums = new EnumGenerator(this.martok);
@@ -61,7 +65,7 @@ export class KlassGenerator {
       if (alias) return alias;
 
       if (this.enums.canGenerate(node)) {
-        return this.enums.generateKlass(name, node);
+        return this.enums.generate(name, node);
       }
 
       const members = getMembers(node, this.checker);
