@@ -15,7 +15,9 @@ data class NumberUnion(
     val foo: Foo
 ) {
     @Serializable(with = Foo.Companion::class)
-    enum class Foo(val value: Int) {
+    enum class Foo(
+        val value: Int
+    ) {
         _1(1),
         _2(2);
 
@@ -43,7 +45,7 @@ data class StringUnion(
     @Serializable
     enum class Foo {
         @SerialName("barBar") BAR_BAR,
-        @SerialName("bazBaz") BAZ_BAZ
+        @SerialName("bazBaz") BAZ_BAZ;
     }
 }
 
@@ -54,7 +56,7 @@ data class NumberStringUnion(
     @Serializable
     enum class Foo {
         @SerialName("1.1") _1_1,
-        @SerialName("2") _2
+        @SerialName("2") _2;
     }
 }
 
@@ -71,7 +73,7 @@ data class Nested(
         @Serializable
         enum class Baz {
             @SerialName("one") ONE,
-            @SerialName("two") TWO
+            @SerialName("two") TWO;
         }
     }
 }

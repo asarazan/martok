@@ -39,8 +39,8 @@ export namespace kotlin {
   };
 
   export class Klass {
-    public pkg: string;
-    public name: string;
+    public pkg?: string;
+    public name?: string;
 
     public annotation: string | undefined;
     public klassType: KlassType = "class";
@@ -54,7 +54,7 @@ export namespace kotlin {
     public internalClasses: Klass[] = [];
     public statements: string[] = [];
 
-    public constructor(pkg: string, name: string) {
+    public constructor(pkg?: string, name?: string) {
       this.pkg = pkg;
       this.name = name;
     }

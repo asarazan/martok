@@ -19,11 +19,13 @@ export class KlassPrinter {
     for (const mod of klass.modifiers) {
       result.push(`${mod} `);
     }
-    result.push(`${klass.klassType} ${klass.name}`);
+    result.push(`${klass.klassType}`);
+    if (klass.name?.length) result.push(` ${klass.name}`);
 
     // Primary Constructor
     if (klass.ctor.length) {
-      result.push("(\n");
+      result.push("(");
+      result.push("\n");
       indent++;
       this.push(
         result,
@@ -35,6 +37,15 @@ export class KlassPrinter {
       result.push("\n");
       this.indent(indent, result);
       result.push(")");
+    }
+
+    if (klass.extends) {
+      result.push(` : ${klass.extends.name}`);
+      if (klass.extends.args?.length) {
+        result.push(
+          `(${klass.extends.args.map((value) => value.name).join(", ")})`
+        );
+      }
     }
 
     // Internal stuff
@@ -64,7 +75,7 @@ export class KlassPrinter {
       if (klass.members?.length) {
         this.push(
           result,
-          klass.members.map((value) => this.printParameter(value)),
+          klass.members.map((value) => this.printParameter(value, "val")),
           indent,
           "\n"
         );

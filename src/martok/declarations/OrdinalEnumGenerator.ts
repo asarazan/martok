@@ -55,6 +55,7 @@ ${this.getDeserializers(node)
       .addCtorArgs({
         name: "value",
         type: "Int",
+        mutability: "val",
       })
       .addEnumValues(...this.getEnumValues(node))
       .addInternalClasses(this.getSerializerKlass(name, "TODO"));
@@ -107,7 +108,7 @@ ${this.getDeserializers(node)
   }
 
   private getSerializerKlass(className: string, serialName: string): Klass {
-    return new Klass("", className)
+    return new Klass()
       .addModifier("companion")
       .setKlassType("object")
       .setExtends({
