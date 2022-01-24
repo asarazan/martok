@@ -15,12 +15,8 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
 @Serializable
-data class Intersections(
-    val foo: Foo
-) {
-    @Serializable
-    data class Foo(
-        val bar: String,
-        val baz: String
-    )
-}
+data class SimpleUnion(
+    val foo: String? = null,
+    val bar: Double? = null,
+    val baz: Boolean? = null
+)

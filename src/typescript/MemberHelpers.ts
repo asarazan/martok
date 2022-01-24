@@ -1,18 +1,28 @@
 import {
+  Declaration,
+  factory,
   InternalSymbolName,
   isArrayTypeNode,
+  isInterfaceDeclaration,
   isIntersectionTypeNode,
   isLiteralTypeNode,
   isNumericLiteral,
+  isParenthesizedTypeNode,
   isPropertySignature,
   isStringLiteralLike,
+  isTypeAliasDeclaration,
   isTypeElement,
+  isTypeLiteralNode,
+  isTypeReferenceNode,
   isUnionTypeNode,
   SyntaxKind,
   TypeChecker,
   TypeElement,
   TypeNode,
 } from "typescript";
+import { dedupeUnion } from "./UnionHelpers";
+
+const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
 export function getMemberType(
   checker: TypeChecker,
@@ -72,4 +82,54 @@ export function getIntrinsicType(
     return `List<${param}>`;
   }
   if (type.kind === SyntaxKind.AnyKeyword) return "JsonObject";
+}
+
+/**
+ * @throws TaggedUnionError
+ * @param node
+ * @param checker
+ * @param isTaggedUnion
+ */
+export function getMembers(
+  node: Declaration | TypeNode,
+  checker: TypeChecker,
+  isTaggedUnion = false
+): ReadonlyArray<TypeElement> {
+  if (isInterfaceDeclaration(node)) {
+    const ttype = checker.getTypeAtLocation(node);
+    return ttype
+      .getProperties()
+      .map((value) => value.valueDeclaration)
+      .filter((value) => value && isPropertySignature(value)) as TypeElement[];
+  } else if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
+    return getMembers(node.type, checker, isTaggedUnion);
+  } else if (isTypeLiteralNode(node)) {
+    return node.members;
+  } else if (isIntersectionTypeNode(node)) {
+    return node.types.flatMap((value) =>
+      getMembers(value, checker, isTaggedUnion)
+    );
+  } else if (isUnionTypeNode(node)) {
+    return dedupeUnion(
+      checker,
+      node.types
+        .flatMap((value) => getMembers(value, checker, isTaggedUnion))
+        .map((value) => {
+          return isTaggedUnion
+            ? value
+            : {
+                ...value,
+                // Union type is just where everything is optional lmao
+                questionToken: QUESTION_TOKEN,
+              };
+        }),
+      isTaggedUnion
+    );
+  } else if (isTypeReferenceNode(node)) {
+    const ref = checker.getTypeAtLocation(node);
+    const symbol = ref.aliasSymbol ?? ref.getSymbol();
+    const decl = symbol!.declarations![0];
+    return getMembers(decl, checker, isTaggedUnion);
+  }
+  return [];
 }

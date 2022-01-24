@@ -1,13 +1,16 @@
 {
   "name": "martok",
-  "version": "0.8.0",
+  "version": "0.7.2",
   "description": "",
   "main": "dist/src/index.js",
   "bin": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "try": "ts-node src/index.ts tests/comparisons/single/complex.d.ts -o ./schema --package net.sarazan.martok",
+    "anonymous": "ts-node src/index.ts tests/comparisons/single/anonymous.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "simpleUnion": "ts-node src/index.ts tests/comparisons/single/simpleUnion.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "types": "ts-node src/index.ts tests/comparisons/single/types.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "hateful": "ts-node src/index.ts tests/comparisons/single/tagged.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

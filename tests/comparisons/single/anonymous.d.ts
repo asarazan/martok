@@ -16,13 +16,3 @@ export type Nested = {
     baz: "one" | "two";
   };
 };
-
-export type SimplePoly =
-  | {
-      foo: string;
-      bar: number;
-    }
-  | {
-      foo: string;
-      baz: boolean;
-    };

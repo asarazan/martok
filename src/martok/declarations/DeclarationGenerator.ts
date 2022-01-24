@@ -1,38 +1,27 @@
 import { Martok } from "../Martok";
-import {
-  isEnumDeclaration,
-  isInterfaceDeclaration,
-  isTypeAliasDeclaration,
-  SourceFile,
-  Statement,
-} from "typescript";
-import { InterfaceGenerator } from "./InterfaceGenerator";
-import { TypeAliasGenerator } from "./TypeAliasGenerator";
-import { EnumGenerator } from "./EnumGenerator";
+import { SourceFile, Statement } from "typescript";
+import { KlassGenerator } from "./KlassGenerator";
+import _ from "lodash";
+import { KlassPrinter } from "../../kotlin/KlassPrinter";
 
 export class DeclarationGenerator {
-  public readonly enums = new EnumGenerator(this.martok);
-  public readonly types = new TypeAliasGenerator(this.martok);
-  public readonly interfaces = new InterfaceGenerator(this.martok);
+  public readonly klasses = new KlassGenerator(this.martok);
+  public readonly printer = new KlassPrinter();
 
   public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): string[] {
-    return file.statements.flatMap((value) => this.generateDeclaration(value));
+    return _.compact(
+      file.statements.map((value) => this.generateDeclaration(value))
+    );
   }
 
-  public generateDeclaration(node: Statement): string[] {
-    if (isInterfaceDeclaration(node)) {
-      console.log(`-->Statement: ${node.name.escapedText}...`);
-      return this.interfaces.generate(node);
-    } else if (isTypeAliasDeclaration(node)) {
-      console.log(`-->Statement: ${node.name.escapedText}...`);
-      return this.types.generate(node);
-    } else if (isEnumDeclaration(node)) {
-      console.log(`-->Statement: ${node.name.escapedText}...`);
-      return this.enums.generate([node.name.escapedText!], node);
+  private generateDeclaration(node: Statement): string | undefined {
+    if (!KlassGenerator.isSupportedDeclaration(node)) {
+      // throw new Error(`Can't handle type ${node.kind}`);
+      return undefined;
     }
-    // Skipping unrecognized statements, should be fine.
-    return [];
+    const value = this.klasses.generate(node);
+    return typeof value === "string" ? value : this.printer.print(value);
   }
 }

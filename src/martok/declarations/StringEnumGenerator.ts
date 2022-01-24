@@ -1,36 +1,31 @@
 import { Martok } from "../Martok";
 import { EnumDeclaration, isEnumDeclaration, UnionTypeNode } from "typescript";
-import _ from "lodash";
-import indentString from "indent-string";
 import { getEnumName, getEnumValue } from "../../typescript/EnumHelpers";
+import { kotlin } from "../../kotlin/Klass";
+import Klass = kotlin.Klass;
+import EnumValue = kotlin.EnumValue;
 
 export class StringEnumGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
 
   public constructor(private readonly martok: Martok) {}
 
-  public generate(
-    name: string[],
-    node: UnionTypeNode | EnumDeclaration
-  ): string[] {
-    const className = _.last(name);
-    return [
-      `@Serializable
-enum class ${className} {
-${this.getEnumDeclarations(node)
-  .map((value) => indentString(value, 4))
-  .join(",\n")}
-}
-`,
-    ];
+  public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
+    return new Klass(name)
+      .setAnnotation("@Serializable")
+      .addModifier("enum")
+      .addEnumValues(...this.getEnumValues(node));
   }
 
-  private getEnumDeclarations(node: UnionTypeNode | EnumDeclaration): string[] {
+  private getEnumValues(node: UnionTypeNode | EnumDeclaration): EnumValue[] {
     const members = isEnumDeclaration(node) ? node.members : node.types;
-    return members.map((value) => {
+    return members.map((value, index) => {
       const name = getEnumName(this.checker, value);
       const val = getEnumValue(this.checker, value);
-      return `@SerialName("${val}") ${name}`;
+      return {
+        annotation: `@SerialName("${val}")`,
+        name,
+      };
     });
   }
 }

@@ -8,22 +8,27 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 
 @Serializable
 enum class Strings {
     @SerialName("one") ONE,
-    @SerialName("two") TWO
+    @SerialName("two") TWO;
 }
 
 @Serializable(with = Ordinals.Companion::class)
-enum class Ordinals(val value: Int) {
+enum class Ordinals(
+    val value: Int
+) {
     ZERO(0),
     ONE(1);
 
     companion object : KSerializer<Ordinals> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("net.sarazan.martok.Ordinals", PrimitiveKind.INT)
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("net.sarazan.martok.Ordinals", PrimitiveKind.INT)
 
         override fun deserialize(decoder: Decoder) = when (val value = decoder.decodeInt()) {
             0      -> ZERO
@@ -38,14 +43,15 @@ enum class Ordinals(val value: Int) {
 }
 
 @Serializable(with = Numbers.Companion::class)
-enum class Numbers(val value: Int) {
+enum class Numbers(
+    val value: Int
+) {
     ONE(1),
     TWO(2),
     THREE(3);
 
     companion object : KSerializer<Numbers> {
-        override val descriptor: SerialDescriptor =
-            PrimitiveSerialDescriptor("net.sarazan.martok.Numbers", PrimitiveKind.INT)
+        override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("net.sarazan.martok.Numbers", PrimitiveKind.INT)
 
         override fun deserialize(decoder: Decoder) = when (val value = decoder.decodeInt()) {
             1      -> ONE
