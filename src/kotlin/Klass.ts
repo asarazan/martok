@@ -5,7 +5,12 @@ export namespace kotlin {
   export type Visibility = "private" | "public" | "override";
   export type Mutability = "val" | "var";
   export type KlassType = "class" | "object";
-  export type KlassModifier = "abstract" | "data" | "enum" | "companion";
+  export type KlassModifier =
+    | "abstract"
+    | "data"
+    | "enum"
+    | "companion"
+    | "sealed";
 
   export type EnumValue = {
     annotation?: string;
@@ -39,7 +44,6 @@ export namespace kotlin {
   };
 
   export class Klass {
-    public pkg?: string;
     public name?: string;
 
     public annotation: string | undefined;
@@ -54,8 +58,7 @@ export namespace kotlin {
     public internalClasses: Klass[] = [];
     public statements: string[] = [];
 
-    public constructor(pkg?: string, name?: string) {
-      this.pkg = pkg;
+    public constructor(name?: string) {
       this.name = name;
     }
 

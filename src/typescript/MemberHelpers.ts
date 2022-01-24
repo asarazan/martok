@@ -20,7 +20,7 @@ import {
   TypeElement,
   TypeNode,
 } from "typescript";
-import { dedupeUnion } from "./UnionHelpers";
+import { dedupeUnion, TaggedUnionBehavior } from "./UnionHelpers";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -88,10 +88,12 @@ export function getIntrinsicType(
  * @throws TaggedUnionError
  * @param node
  * @param checker
+ * @param taggedUnionBehavior
  */
 export function getMembers(
   node: Declaration | TypeNode,
-  checker: TypeChecker
+  checker: TypeChecker,
+  taggedUnionBehavior: TaggedUnionBehavior = "throw"
 ): ReadonlyArray<TypeElement> {
   if (isInterfaceDeclaration(node)) {
     const ttype = checker.getTypeAtLocation(node);
@@ -100,29 +102,32 @@ export function getMembers(
       .map((value) => value.valueDeclaration)
       .filter((value) => value && isPropertySignature(value)) as TypeElement[];
   } else if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
-    return getMembers(node.type, checker);
+    return getMembers(node.type, checker, taggedUnionBehavior);
   } else if (isTypeLiteralNode(node)) {
     return node.members;
   } else if (isIntersectionTypeNode(node)) {
-    return node.types.flatMap((value) => getMembers(value, checker));
+    return node.types.flatMap((value) =>
+      getMembers(value, checker, taggedUnionBehavior)
+    );
   } else if (isUnionTypeNode(node)) {
     return dedupeUnion(
       checker,
       node.types
-        .flatMap((value) => getMembers(value, checker))
+        .flatMap((value) => getMembers(value, checker, taggedUnionBehavior))
         .map((value) => {
           return {
             ...value,
             // Union type is just where everything is optional lmao
             questionToken: QUESTION_TOKEN,
           };
-        })
+        }),
+      taggedUnionBehavior
     );
   } else if (isTypeReferenceNode(node)) {
     const ref = checker.getTypeAtLocation(node);
     const symbol = ref.aliasSymbol ?? ref.getSymbol();
     const decl = symbol!.declarations![0];
-    return getMembers(decl, checker);
+    return getMembers(decl, checker, taggedUnionBehavior);
   }
   return [];
 }

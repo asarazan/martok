@@ -41,11 +41,9 @@ export class KlassPrinter {
 
     if (klass.extends) {
       result.push(` : ${klass.extends.name}`);
-      if (klass.extends.args?.length) {
-        result.push(
-          `(${klass.extends.args.map((value) => value.name).join(", ")})`
-        );
-      }
+      result.push(
+        `(${klass.extends?.args?.map((value) => value.name).join(", ") ?? ""})`
+      );
     }
 
     // Internal stuff

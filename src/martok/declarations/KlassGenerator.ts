@@ -20,6 +20,7 @@ import { getMembers, getMemberType } from "../../typescript/MemberHelpers";
 import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
+import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -30,10 +31,12 @@ export type MemberOptions = {
   optional?: boolean;
   abstract?: boolean;
   forceName?: string;
+  extendSealed?: Klass;
 };
 
 export class KlassGenerator {
   public readonly enums = new EnumGenerator(this.martok);
+  public readonly tagged = new TaggedUnionGenerator(this.martok);
 
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: Martok) {}
@@ -53,31 +56,53 @@ export class KlassGenerator {
     options?: MemberOptions
   ): Klass | string {
     try {
-      let name: string;
-      if (KlassGenerator.isSupportedDeclaration(node)) {
-        name = node.name.escapedText.toString();
-      } else {
-        name = options!.forceName!;
+      let name = options?.forceName;
+      if (!name && KlassGenerator.isSupportedDeclaration(node)) {
+        name = node.name.escapedText.toString()!;
+      }
+      if (!name) {
+        throw new Error("Can't determine name");
       }
       this.martok.pushNameScope(name);
 
-      const alias = this.generateTypeAlias(node);
-      if (alias) return alias;
+      const asTagged = this.tagged.generateKlass(name, node);
+      if (asTagged) return asTagged;
 
       if (this.enums.canGenerate(node)) {
         return this.enums.generate(name, node);
       }
 
+      const alias = this.generateTypeAlias(node);
+      if (alias) return alias;
+
       const members = getMembers(node, this.checker);
-      return new Klass("", name)
+      const ctor = members.map((value) => {
+        return this.generateMemberOrCtorArg(value, options);
+      });
+      const result = new Klass(name)
         .setAnnotation("@Serializable")
         .addModifier("data")
-        .addCtorArgs(
-          ...members.map((value) => {
-            return this.generateCtorArg(value, options);
-          })
-        )
         .addInternalClasses(...this.generateInnerKlasses(members));
+      if (options?.extendSealed) {
+        result.setExtends({
+          name: options.extendSealed.name!,
+        });
+        result.addCtorArgs(
+          ...options.extendSealed.members
+            .filter(
+              (value) => !ctor.find((value1) => value1.name === value.name)
+            )
+            .map((value) => {
+              return {
+                ...value,
+                visibility: "override",
+                abstract: false,
+              } as ConstructorParameter;
+            })
+        );
+      }
+      result.addCtorArgs(...ctor);
+      return result;
     } finally {
       this.martok.popNameScope();
     }
@@ -95,7 +120,7 @@ export class KlassGenerator {
     }) as Klass;
   }
 
-  private generateCtorArg(
+  public generateMemberOrCtorArg(
     node: TypeElement,
     options?: MemberOptions
   ): ConstructorParameter {
@@ -111,6 +136,9 @@ export class KlassGenerator {
         "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
     }
     const nullable = options?.optional || !!node.questionToken;
+    const override =
+      options?.extendSealed &&
+      options.extendSealed.members.find((value) => value.name === name);
     return {
       name,
       type,
@@ -118,11 +146,12 @@ export class KlassGenerator {
       mutability: "val",
       nullable,
       abstract: options?.abstract,
-      value: nullable ? "null" : undefined,
+      value: nullable && !options?.abstract ? "null" : undefined,
+      visibility: override ? "override" : undefined,
     };
   }
 
-  private generateInnerKlasses(members: ReadonlyArray<TypeElement>): Klass[] {
+  public generateInnerKlasses(members: ReadonlyArray<TypeElement>): Klass[] {
     const anonymousTypes = members.filter(
       (value) => getMemberType(this.checker, value) === InternalSymbolName.Type
     );

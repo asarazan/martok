@@ -12,7 +12,7 @@ export class OrdinalEnumGenerator {
 
   public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
     const fqn = this.martok.nameScope.join(`.`);
-    return new Klass(undefined, name)
+    return new Klass(name)
       .setAnnotation(`@Serializable(with = ${name}.Companion::class)`)
       .addModifier("enum")
       .addCtorArgs({

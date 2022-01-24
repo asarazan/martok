@@ -11,7 +11,7 @@ export class StringEnumGenerator {
   public constructor(private readonly martok: Martok) {}
 
   public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
-    return new Klass("", name)
+    return new Klass(name)
       .setAnnotation("@Serializable")
       .addModifier("enum")
       .addEnumValues(...this.getEnumValues(node));

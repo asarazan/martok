@@ -17,7 +17,7 @@ class Foob(
 
 describe("Basic Kotlin Formatting", () => {
   it("Utilizes all formatting correctly.", () => {
-    const k = new Klass("net.sarazan.martok", "Foob")
+    const k = new Klass("Foob")
       .setAnnotation("@Serializable")
       .addCtorArgs({
         name: "foo",
@@ -35,12 +35,10 @@ describe("Basic Kotlin Formatting", () => {
         type: "Double",
       })
       .addInternalClasses(
-        new Klass("net.sarazan.martok", "Barb")
-          .setAnnotation("@Serializable")
-          .addCtorArgs({
-            name: "whatever",
-            type: "Hi",
-          })
+        new Klass("Barb").setAnnotation("@Serializable").addCtorArgs({
+          name: "whatever",
+          type: "Hi",
+        })
       )
       .addStatements(`// statement goes here`);
     const print = new KlassPrinter().print(k);

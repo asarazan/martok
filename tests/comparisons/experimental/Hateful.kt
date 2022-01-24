@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
 @Serializable(with = Hateful.UnionSerializer::class)
-abstract class Hateful {
+abstract sealed class Hateful {
     abstract val id: String
     abstract val foo: String?
     abstract val type: String
