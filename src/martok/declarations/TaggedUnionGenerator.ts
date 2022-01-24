@@ -44,13 +44,12 @@ export class TaggedUnionGenerator {
       return undefined;
     }
 
-    const members = [...getMembers(node, this.checker, "ignore")];
+    const members = [...getMembers(node, this.checker, true)];
     const union = node.type.types[1].type;
     const tag = this.getTag(union);
     if (!tag) return undefined;
     const result = new Klass(name)
       .setAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
-      .addModifier("abstract")
       .addModifier("sealed")
       .addMembers(
         ...members.map((value) => {
@@ -60,11 +59,11 @@ export class TaggedUnionGenerator {
           );
         })
       )
-      .addMembers({
-        name: tag.name,
-        type: "String",
-        abstract: true,
-      })
+      // .addMembers({
+      //   name: tag.name,
+      //   type: "String",
+      //   abstract: true,
+      // })
       .addInternalClasses(
         ...this.martok.declarations.klasses.generateInnerKlasses(members)
       );
@@ -142,7 +141,6 @@ export class TaggedUnionGenerator {
     ) {
 ${indentString(tagMapping.join("\n"), 8)}
         else -> throw IllegalArgumentException("Unexpected type: $type")
-    }
 }`)
     );
     return result;

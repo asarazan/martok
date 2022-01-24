@@ -20,7 +20,7 @@ import {
   TypeElement,
   TypeNode,
 } from "typescript";
-import { dedupeUnion, TaggedUnionBehavior } from "./UnionHelpers";
+import { dedupeUnion } from "./UnionHelpers";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -88,12 +88,12 @@ export function getIntrinsicType(
  * @throws TaggedUnionError
  * @param node
  * @param checker
- * @param taggedUnionBehavior
+ * @param isTaggedUnion
  */
 export function getMembers(
   node: Declaration | TypeNode,
   checker: TypeChecker,
-  taggedUnionBehavior: TaggedUnionBehavior = "throw"
+  isTaggedUnion = false
 ): ReadonlyArray<TypeElement> {
   if (isInterfaceDeclaration(node)) {
     const ttype = checker.getTypeAtLocation(node);
@@ -102,32 +102,34 @@ export function getMembers(
       .map((value) => value.valueDeclaration)
       .filter((value) => value && isPropertySignature(value)) as TypeElement[];
   } else if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
-    return getMembers(node.type, checker, taggedUnionBehavior);
+    return getMembers(node.type, checker, isTaggedUnion);
   } else if (isTypeLiteralNode(node)) {
     return node.members;
   } else if (isIntersectionTypeNode(node)) {
     return node.types.flatMap((value) =>
-      getMembers(value, checker, taggedUnionBehavior)
+      getMembers(value, checker, isTaggedUnion)
     );
   } else if (isUnionTypeNode(node)) {
     return dedupeUnion(
       checker,
       node.types
-        .flatMap((value) => getMembers(value, checker, taggedUnionBehavior))
+        .flatMap((value) => getMembers(value, checker, isTaggedUnion))
         .map((value) => {
-          return {
-            ...value,
-            // Union type is just where everything is optional lmao
-            questionToken: QUESTION_TOKEN,
-          };
+          return isTaggedUnion
+            ? value
+            : {
+                ...value,
+                // Union type is just where everything is optional lmao
+                questionToken: QUESTION_TOKEN,
+              };
         }),
-      taggedUnionBehavior
+      isTaggedUnion
     );
   } else if (isTypeReferenceNode(node)) {
     const ref = checker.getTypeAtLocation(node);
     const symbol = ref.aliasSymbol ?? ref.getSymbol();
     const decl = symbol!.declarations![0];
-    return getMembers(decl, checker, taggedUnionBehavior);
+    return getMembers(decl, checker, isTaggedUnion);
   }
   return [];
 }

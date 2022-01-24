@@ -52,6 +52,7 @@ export namespace kotlin {
 
     public ctor: ConstructorParameter[] = [];
     public extends: FunctionInvocation | undefined;
+    public implements: string[] = [];
 
     public enumValues: EnumValue[] = [];
     public members: MemberDeclaration[] = [];
@@ -94,6 +95,16 @@ export namespace kotlin {
 
     public setExtends(ex: FunctionInvocation | undefined): this {
       this.extends = ex;
+      return this;
+    }
+
+    public addImplements(...interfaces: string[]): this {
+      this.implements.push(...interfaces);
+      return this;
+    }
+
+    public setImplements(...interfaces: string[]): this {
+      this.implements = interfaces;
       return this;
     }
 

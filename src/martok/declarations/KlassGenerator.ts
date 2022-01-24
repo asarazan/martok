@@ -173,11 +173,10 @@ export class KlassGenerator {
     if (isTypeAliasDeclaration(node)) {
       const name = node.name.escapedText.toString();
       const members = getMembers(node, this.checker);
+      const type = getMemberType(this.checker, node.type);
+      if (type === InternalSymbolName.Type) return undefined; // TODO improve this.
       if (!members.length) {
-        return `typealias ${name} = ${getMemberType(
-          this.checker,
-          node.type
-        )}\n`;
+        return `typealias ${name} = ${type}\n`;
       }
       if (isTypeReferenceNode(node.type)) {
         const ref = this.checker.getTypeFromTypeNode(node.type);

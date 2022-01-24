@@ -1,4 +1,4 @@
-export type Hateful = {
+export type Tagged = {
   id: string;
   foo?: string;
 } & (
@@ -19,5 +19,5 @@ export type State1 = {
 
 export type State2 = {
   foo: boolean;
-  bar: Date;
+  bar: string;
 };

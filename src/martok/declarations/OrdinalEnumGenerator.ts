@@ -61,9 +61,7 @@ export class OrdinalEnumGenerator {
     return new Klass()
       .addModifier("companion")
       .setKlassType("object")
-      .setExtends({
-        name: `KSerializer<${className}>`,
-      })
+      .addImplements(`KSerializer<${className}>`)
       .addMembers({
         visibility: "override",
         name: "descriptor",

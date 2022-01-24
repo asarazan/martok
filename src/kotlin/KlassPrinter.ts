@@ -46,6 +46,15 @@ export class KlassPrinter {
       );
     }
 
+    if (klass.implements.length) {
+      if (klass.extends) {
+        result.push(", ");
+      } else {
+        result.push(" : ");
+      }
+      result.push(klass.implements.join(", "));
+    }
+
     // Internal stuff
     if (
       klass.enumValues.length ||

@@ -4,25 +4,33 @@ import { TaggedUnionError } from "../errors/TaggedUnionError";
 import { all } from "./utils";
 
 export const ErrorDiscriminate = `Can't have fully discriminated unions/intersections yet...`;
-export type TaggedUnionBehavior = "throw" | "ignore";
 
 /**
  * @throws TaggedUnionError
  * @param checker
  * @param types
- * @param taggedUnionBehavior
+ * @param isTaggedUnion
  */
 export function dedupeUnion(
   checker: TypeChecker,
   types: ReadonlyArray<TypeElement>,
-  taggedUnionBehavior: TaggedUnionBehavior = "throw"
+  isTaggedUnion: boolean
 ): ReadonlyArray<TypeElement> {
+  const seen = new Set<string>();
   return types.filter((value) => {
     const compatible = all(types, (value1) => {
       return typesAreCompatible(value, value1, checker);
     });
-    if (!compatible && taggedUnionBehavior === "throw") {
-      throw new TaggedUnionError();
+    if (!compatible) {
+      if (!isTaggedUnion) {
+        throw new TaggedUnionError();
+      }
+    } else {
+      const name = value.name!.getText();
+      if (!seen.has(name)) {
+        seen.add(name);
+        return true;
+      }
     }
     return false;
   });
