@@ -21,22 +21,33 @@ import {
   TypeNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
+import _ from "lodash";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
+export type MemberTypeOptions = {
+  /**
+   * @default true
+   */
+  followReferences?: boolean;
+};
+
 export function getMemberType(
   checker: TypeChecker,
-  type: TypeNode | TypeElement
+  type: TypeNode | TypeElement,
+  options?: MemberTypeOptions
 ): string {
   if (isTypeElement(type)) {
     if (!isPropertySignature(type)) throw new Error("Can't find property");
     type = type.type!;
   }
 
-  const intrinsic = getIntrinsicType(checker, type);
-  if (intrinsic) return intrinsic;
+  if (options?.followReferences === false && isTypeReferenceNode(type)) {
+    const ref = type.typeName.getText();
+    if (ref) return ref;
+  }
 
-  const literal = getLiteralType(checker, type);
+  const literal = getLiteralLikeType(checker, type);
   if (literal) return literal;
 
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
@@ -65,6 +76,29 @@ export function getLiteralType(
     case SyntaxKind.NumericLiteral:
       return "Double";
   }
+}
+
+export function getReferencedLiteralType(
+  checker: TypeChecker,
+  type: TypeNode
+): string | undefined {
+  if (!isTypeReferenceNode(type)) return undefined;
+  const ttype = checker.getTypeFromTypeNode(type);
+  if (!ttype) return undefined;
+  if (ttype.isStringLiteral()) return "String";
+  if (ttype.isNumberLiteral()) return "Double";
+  return undefined;
+}
+
+export function getLiteralLikeType(
+  checker: TypeChecker,
+  type: TypeNode
+): string | undefined {
+  return (
+    getIntrinsicType(checker, type) ??
+    getLiteralType(checker, type) ??
+    getReferencedLiteralType(checker, type)
+  );
 }
 
 export function getIntrinsicType(
@@ -128,8 +162,10 @@ export function getMembers(
   } else if (isTypeReferenceNode(node)) {
     const ref = checker.getTypeAtLocation(node);
     const symbol = ref.aliasSymbol ?? ref.getSymbol();
-    const decl = symbol!.declarations![0];
-    return getMembers(decl, checker, isTaggedUnion);
+    if (symbol) {
+      const decl = symbol!.declarations![0];
+      return getMembers(decl, checker, isTaggedUnion);
+    }
   }
   return [];
 }

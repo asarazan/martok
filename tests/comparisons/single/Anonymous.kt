@@ -47,8 +47,8 @@ data class StringUnion(
 ) {
     @Serializable
     enum class Foo {
-        @SerialName("barBar") BAR_BAR,
-        @SerialName("bazBaz") BAZ_BAZ;
+        @SerialName("barBar") barBar,
+        @SerialName("bazBaz") bazBaz;
     }
 }
 
@@ -75,8 +75,8 @@ data class Nested(
     ) {
         @Serializable
         enum class Baz {
-            @SerialName("one") ONE,
-            @SerialName("two") TWO;
+            @SerialName("one") one,
+            @SerialName("two") two;
         }
     }
 }

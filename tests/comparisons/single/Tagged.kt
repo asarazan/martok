@@ -14,6 +14,16 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+typealias Type1 = String
+
+typealias Type2 = String
+
+@Serializable
+enum class Types {
+    @SerialName("type 1") type_1,
+    @SerialName("type 2") type_2;
+}
+
 @Serializable(with = Tagged.UnionSerializer::class)
 sealed class Tagged {
     abstract val id: String
@@ -24,7 +34,7 @@ sealed class Tagged {
     data class Tagged1(
         override val id: String,
         override val foo: String?,
-        override val type: String,
+        override val type: Type1,
         val state: State1
     ) : Tagged()
 
@@ -32,7 +42,7 @@ sealed class Tagged {
     data class Tagged2(
         override val id: String,
         override val foo: String?,
-        override val type: String,
+        override val type: Type2,
         val state: State2
     ) : Tagged()
 
@@ -40,8 +50,8 @@ sealed class Tagged {
         override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("type1") -> Tagged1.serializer()
-            JsonPrimitive("type2") -> Tagged2.serializer()
+            JsonPrimitive("type 1") -> Tagged1.serializer()
+            JsonPrimitive("type 2") -> Tagged2.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
         }
     }

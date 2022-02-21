@@ -10,7 +10,8 @@
     "anonymous": "ts-node src/index.ts tests/comparisons/single/anonymous.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "simpleUnion": "ts-node src/index.ts tests/comparisons/single/simpleUnion.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "types": "ts-node src/index.ts tests/comparisons/single/types.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "hateful": "ts-node src/index.ts tests/comparisons/single/tagged.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "tagged": "ts-node src/index.ts tests/comparisons/single/tagged.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "literal": "ts-node src/index.ts tests/comparisons/single/stringLiteral.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
