@@ -21,6 +21,7 @@ import {
   TypeNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
+import _ from "lodash";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -33,14 +34,8 @@ export function getMemberType(
     type = type.type!;
   }
 
-  const intrinsic = getIntrinsicType(checker, type);
+  const intrinsic = getIntrinsicLikeType(checker, type);
   if (intrinsic) return intrinsic;
-
-  const literal = getLiteralType(checker, type);
-  if (literal) return literal;
-
-  const refLiteral = getReferencedLiteralType(checker, type);
-  if (refLiteral) return refLiteral;
 
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
     return InternalSymbolName.Type;
@@ -80,6 +75,25 @@ export function getReferencedLiteralType(
   if (ttype.isStringLiteral()) return "String";
   if (ttype.isNumberLiteral()) return "Double";
   return undefined;
+}
+
+export function getIntrinsicLikeType(
+  checker: TypeChecker,
+  type: TypeNode
+): string | undefined {
+  if (isUnionTypeNode(type)) {
+    const subs = _.uniq(
+      type.types.map((value) => getIntrinsicLikeType(checker, value))
+    );
+    if (subs.length === 1) {
+      return subs[0];
+    }
+  }
+  return (
+    getIntrinsicType(checker, type) ??
+    getLiteralType(checker, type) ??
+    getReferencedLiteralType(checker, type)
+  );
 }
 
 export function getIntrinsicType(
