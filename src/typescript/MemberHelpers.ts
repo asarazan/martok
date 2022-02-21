@@ -25,17 +25,30 @@ import _ from "lodash";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
+export type MemberTypeOptions = {
+  /**
+   * @default true
+   */
+  resolveLiterals?: boolean;
+};
+
 export function getMemberType(
   checker: TypeChecker,
-  type: TypeNode | TypeElement
+  type: TypeNode | TypeElement,
+  options?: MemberTypeOptions
 ): string {
   if (isTypeElement(type)) {
     if (!isPropertySignature(type)) throw new Error("Can't find property");
     type = type.type!;
   }
 
-  const intrinsic = getIntrinsicLikeType(checker, type);
-  if (intrinsic) return intrinsic;
+  if (options?.resolveLiterals === false && isTypeReferenceNode(type)) {
+    const ref = type.typeName.getText();
+    if (ref) return ref;
+  }
+
+  const literal = getLiteralLikeType(checker, type);
+  if (literal) return literal;
 
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
     return InternalSymbolName.Type;
@@ -77,13 +90,13 @@ export function getReferencedLiteralType(
   return undefined;
 }
 
-export function getIntrinsicLikeType(
+export function getLiteralLikeType(
   checker: TypeChecker,
   type: TypeNode
 ): string | undefined {
   if (isUnionTypeNode(type)) {
     const subs = _.uniq(
-      type.types.map((value) => getIntrinsicLikeType(checker, value))
+      type.types.map((value) => getLiteralLikeType(checker, value))
     );
     if (subs.length === 1) {
       return subs[0];

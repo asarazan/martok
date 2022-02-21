@@ -125,7 +125,7 @@ export class KlassGenerator {
     options?: MemberOptions
   ): ConstructorParameter {
     const name = node.name!.getText();
-    let type = getMemberType(this.checker, node);
+    let type = getMemberType(this.checker, node, { resolveLiterals: false });
     if (type === InternalSymbolName.Type) {
       type = title(name);
     }
