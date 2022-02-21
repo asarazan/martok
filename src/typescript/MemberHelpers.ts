@@ -29,7 +29,7 @@ export type MemberTypeOptions = {
   /**
    * @default true
    */
-  resolveLiterals?: boolean;
+  followReferences?: boolean;
 };
 
 export function getMemberType(
@@ -42,7 +42,7 @@ export function getMemberType(
     type = type.type!;
   }
 
-  if (options?.resolveLiterals === false && isTypeReferenceNode(type)) {
+  if (options?.followReferences === false && isTypeReferenceNode(type)) {
     const ref = type.typeName.getText();
     if (ref) return ref;
   }
