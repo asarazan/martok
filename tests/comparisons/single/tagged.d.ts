@@ -1,13 +1,17 @@
+export type Type1 = "type 1";
+export type Type2 = "type 2";
+export type Types = Type1 | Type2;
+
 export type Tagged = {
   id: string;
   foo?: string;
 } & (
   | {
-      type: "type1";
+      type: Type1;
       state: State1;
     }
   | {
-      type: "type2";
+      type: Type2;
       state: State2;
     }
 );

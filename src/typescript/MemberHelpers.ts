@@ -39,6 +39,9 @@ export function getMemberType(
   const literal = getLiteralType(checker, type);
   if (literal) return literal;
 
+  const refLiteral = getReferencedLiteralType(checker, type);
+  if (refLiteral) return refLiteral;
+
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
     return InternalSymbolName.Type;
   }
@@ -65,6 +68,18 @@ export function getLiteralType(
     case SyntaxKind.NumericLiteral:
       return "Double";
   }
+}
+
+export function getReferencedLiteralType(
+  checker: TypeChecker,
+  type: TypeNode
+): string | undefined {
+  if (!isTypeReferenceNode(type)) return undefined;
+  const ttype = checker.getTypeFromTypeNode(type);
+  if (!ttype) return undefined;
+  if (ttype.isStringLiteral()) return "String";
+  if (ttype.isNumberLiteral()) return "Double";
+  return undefined;
 }
 
 export function getIntrinsicType(
@@ -128,8 +143,10 @@ export function getMembers(
   } else if (isTypeReferenceNode(node)) {
     const ref = checker.getTypeAtLocation(node);
     const symbol = ref.aliasSymbol ?? ref.getSymbol();
-    const decl = symbol!.declarations![0];
-    return getMembers(decl, checker, isTaggedUnion);
+    if (symbol) {
+      const decl = symbol.declarations![0];
+      return getMembers(decl, checker, isTaggedUnion);
+    }
   }
   return [];
 }
