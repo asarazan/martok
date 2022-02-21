@@ -84,16 +84,16 @@ export class Martok {
 
   public pushNameScope(scope: string) {
     this.nameScope.push(scope);
-    // console.log(`>`, this.nameScope);
+    console.log(`>`, this.nameScope);
   }
   public popNameScope(): string {
     const result = this.nameScope.pop()!;
-    // console.log(`>`, this.nameScope);
+    console.log(`>`, this.nameScope);
     return result;
   }
 
   private processFile(file: SourceFile): MartokOutFile {
-    // console.log(`Process File: ${file.fileName}...`);
+    console.log(`Process File: ${file.fileName}...`);
     const name = TsHelper.getBaseFileName(file.fileName);
     const pkg = this.getFilePackage(file);
     this.pushNameScope(pkg);
