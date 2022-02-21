@@ -94,15 +94,6 @@ export function getLiteralLikeType(
   checker: TypeChecker,
   type: TypeNode
 ): string | undefined {
-  // TODO this breaks enum generation.
-  // if (isUnionTypeNode(type)) {
-  //   const subs = _.uniq(
-  //     type.types.map((value) => getLiteralLikeType(checker, value))
-  //   );
-  //   if (subs.length === 1) {
-  //     return subs[0];
-  //   }
-  // }
   return (
     getIntrinsicType(checker, type) ??
     getLiteralType(checker, type) ??

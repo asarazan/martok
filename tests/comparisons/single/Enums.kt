@@ -24,15 +24,15 @@ enum class Strings {
 enum class Ordinals(
     val value: Int
 ) {
-    ZERO(0),
-    ONE(1);
+    zero(0),
+    one(1);
 
     companion object : KSerializer<Ordinals> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("net.sarazan.martok.Ordinals", PrimitiveKind.INT)
 
         override fun deserialize(decoder: Decoder) = when (val value = decoder.decodeInt()) {
-            0      -> ZERO
-            1      -> ONE
+            0      -> zero
+            1      -> one
             else   -> throw IllegalArgumentException("Ordinals could not parse: $value")
         }
 
@@ -46,17 +46,17 @@ enum class Ordinals(
 enum class Numbers(
     val value: Int
 ) {
-    ONE(1),
-    TWO(2),
-    THREE(3);
+    one(1),
+    two(2),
+    three(3);
 
     companion object : KSerializer<Numbers> {
         override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("net.sarazan.martok.Numbers", PrimitiveKind.INT)
 
         override fun deserialize(decoder: Decoder) = when (val value = decoder.decodeInt()) {
-            1      -> ONE
-            2      -> TWO
-            3      -> THREE
+            1      -> one
+            2      -> two
+            3      -> three
             else   -> throw IllegalArgumentException("Numbers could not parse: $value")
         }
 
