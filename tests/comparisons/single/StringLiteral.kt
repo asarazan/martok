@@ -16,12 +16,17 @@ import kotlinx.serialization.json.jsonObject
 
 typealias Type1 = String
 typealias Type2 = String
-typealias Types = String
+
+@Serializable
+enum class Types {
+    @SerialName("type 1") type_1,
+    @SerialName("type 2") type_2;
+}
 
 @Serializable
 data class Tagged(
     val id: String,
     val type1: Type1,
     val type2: Type2,
-    val types: Types,
+    val types: Types
 )

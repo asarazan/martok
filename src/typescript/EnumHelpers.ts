@@ -7,7 +7,7 @@ import {
   TypeChecker,
   TypeNode,
 } from "typescript";
-import { pascalToSnake } from "../martok/NameGenerators";
+import { pascalToSnake, title } from "../martok/NameGenerators";
 
 export function getEnumName(
   checker: TypeChecker,
@@ -56,9 +56,13 @@ export function getEnumValue(
 }
 
 function getValName(name: string): string {
-  let result = pascalToSnake(name).toUpperCase();
+  // TODO this should all probably be considered more thoroughly.
+  let result = name;
+  // let result = title(name);
+  // let result = pascalToSnake(name).toUpperCase();
   if (!isNaN(parseFloat(result))) {
     result = `_${result.replace(".", "_")}`;
   }
+  result = result.replace(/\s/g, "_");
   return result;
 }

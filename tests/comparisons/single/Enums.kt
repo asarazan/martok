@@ -16,8 +16,8 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable
 enum class Strings {
-    @SerialName("one") ONE,
-    @SerialName("two") TWO;
+    @SerialName("one") one,
+    @SerialName("two") two;
 }
 
 @Serializable(with = Ordinals.Companion::class)

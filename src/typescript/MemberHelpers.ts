@@ -94,14 +94,15 @@ export function getLiteralLikeType(
   checker: TypeChecker,
   type: TypeNode
 ): string | undefined {
-  if (isUnionTypeNode(type)) {
-    const subs = _.uniq(
-      type.types.map((value) => getLiteralLikeType(checker, value))
-    );
-    if (subs.length === 1) {
-      return subs[0];
-    }
-  }
+  // TODO this breaks enum generation.
+  // if (isUnionTypeNode(type)) {
+  //   const subs = _.uniq(
+  //     type.types.map((value) => getLiteralLikeType(checker, value))
+  //   );
+  //   if (subs.length === 1) {
+  //     return subs[0];
+  //   }
+  // }
   return (
     getIntrinsicType(checker, type) ??
     getLiteralType(checker, type) ??
@@ -171,7 +172,7 @@ export function getMembers(
     const ref = checker.getTypeAtLocation(node);
     const symbol = ref.aliasSymbol ?? ref.getSymbol();
     if (symbol) {
-      const decl = symbol.declarations![0];
+      const decl = symbol!.declarations![0];
       return getMembers(decl, checker, isTaggedUnion);
     }
   }

@@ -72,8 +72,13 @@ export class KlassGenerator {
         return this.enums.generate(name, node);
       }
 
-      const alias = this.generateTypeAlias(node);
-      if (alias) return alias;
+      if (isTypeAliasDeclaration(node)) {
+        if (this.enums.canGenerate(node.type)) {
+          return this.enums.generate(name, node.type);
+        }
+        const alias = this.generateTypeAlias(node);
+        if (alias) return alias;
+      }
 
       const members = getMembers(node, this.checker);
       const ctor = members.map((value) => {
