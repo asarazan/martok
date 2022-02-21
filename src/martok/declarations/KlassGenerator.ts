@@ -16,7 +16,11 @@ import {
 } from "typescript";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
-import { getMembers, getMemberType } from "../../typescript/MemberHelpers";
+import {
+  getMembers,
+  getMemberType,
+  MemberTypeOptions,
+} from "../../typescript/MemberHelpers";
 import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
@@ -32,7 +36,7 @@ export type MemberOptions = {
   abstract?: boolean;
   forceName?: string;
   extendSealed?: Klass;
-};
+} & MemberTypeOptions;
 
 export class KlassGenerator {
   public readonly enums = new EnumGenerator(this.martok);
@@ -130,7 +134,9 @@ export class KlassGenerator {
     options?: MemberOptions
   ): ConstructorParameter {
     const name = node.name!.getText();
-    let type = getMemberType(this.checker, node, { followReferences: false });
+    let type = getMemberType(this.checker, node, {
+      followReferences: options?.followReferences ?? false,
+    });
     if (type === InternalSymbolName.Type) {
       type = title(name);
     }

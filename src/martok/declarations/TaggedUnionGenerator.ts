@@ -7,7 +7,9 @@ import {
   isPropertySignature,
   isTypeAliasDeclaration,
   isTypeLiteralNode,
+  isTypeReferenceNode,
   isUnionTypeNode,
+  PropertySignature,
   TypeElement,
   TypeNode,
   UnionTypeNode,
@@ -55,7 +57,7 @@ export class TaggedUnionGenerator {
         ...members.map((value) => {
           return this.martok.declarations.klasses.generateMemberOrCtorArg(
             value,
-            { abstract: true }
+            { abstract: true, followReferences: true }
           );
         })
       )
@@ -77,16 +79,11 @@ export class TaggedUnionGenerator {
     const [type1, ...others] = node.types;
     if (!isTypeLiteralNode(type1)) return undefined;
     outer: for (const prop1 of type1.members) {
-      if (!prop1.name) continue;
-      if (!isPropertySignature(prop1)) continue;
-      const propType = prop1.type;
-      if (!propType) continue;
-      if (!isLiteralTypeNode(propType)) continue;
-      if (!isLiteralExpression(propType.literal)) continue;
-
+      const name = prop1.name?.getText();
+      if (!name) continue;
+      const k = this.getTagValue(prop1);
       // We've found a candidate for our tag discriminator.
-      const name = prop1.name.getText();
-      const k = propType.literal.text;
+      if (!k) continue;
       const result: TagMappings = {
         name,
         mappings: {
@@ -98,20 +95,30 @@ export class TaggedUnionGenerator {
       for (const type2 of others) {
         if (!isTypeLiteralNode(type2)) continue outer;
         const prop2 = type2.members.find(
-          (value) => value.name?.getText() === prop1.name.getText()
+          (value) => value.name?.getText() === name
         );
         if (!prop2?.name) continue outer;
-        if (!isPropertySignature(prop2)) continue outer;
-        const propType2 = prop2.type;
-        if (!propType2) continue outer;
-        if (!isLiteralTypeNode(propType2)) continue outer;
-        if (!isLiteralExpression(propType2.literal)) continue outer;
-        const k2 = propType2.literal.text;
+        const k2 = this.getTagValue(prop2);
+        if (!k2) continue outer;
         result.mappings[k2] = type2;
       }
       return result;
     }
     return undefined;
+  }
+
+  private getTagValue(prop: TypeElement): string | undefined {
+    if (!isPropertySignature(prop)) return undefined;
+    const propType = prop.type;
+    if (!propType) return undefined;
+    if (isTypeReferenceNode(propType)) {
+      const ref = this.checker.getTypeFromTypeNode(propType);
+      if (!ref.isStringLiteral()) return undefined;
+      return ref.value;
+    }
+    if (!isLiteralTypeNode(propType)) return undefined;
+    if (!isLiteralExpression(propType.literal)) return undefined;
+    return propType.literal.text;
   }
 
   private generateSerializerAndFriends(
