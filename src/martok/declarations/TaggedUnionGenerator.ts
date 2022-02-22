@@ -34,17 +34,11 @@ export class TaggedUnionGenerator {
     name: string,
     node: SupportedDeclaration | TypeNode
   ): Klass | undefined {
-    if (
-      !(
-        isTypeAliasDeclaration(node) &&
-        isIntersectionTypeNode(node.type) &&
-        isTypeLiteralNode(node.type.types[0]) &&
-        isParenthesizedTypeNode(node.type.types[1]) &&
-        isUnionTypeNode(node.type.types[1].type)
-      )
-    ) {
-      return undefined;
-    }
+    if (!isTypeAliasDeclaration(node)) return undefined;
+    if (!isIntersectionTypeNode(node.type)) return undefined;
+    if (!isTypeLiteralNode(node.type.types[0])) return undefined;
+    if (!isParenthesizedTypeNode(node.type.types[1])) return undefined;
+    if (!isUnionTypeNode(node.type.types[1].type)) return undefined;
 
     const members = [...getMembers(node, this.checker, true)];
     const union = node.type.types[1].type;
@@ -61,11 +55,6 @@ export class TaggedUnionGenerator {
           );
         })
       )
-      // .addMembers({
-      //   name: tag.name,
-      //   type: "String",
-      //   abstract: true,
-      // })
       .addInternalClasses(
         ...this.martok.declarations.klasses.generateInnerKlasses(members)
       );

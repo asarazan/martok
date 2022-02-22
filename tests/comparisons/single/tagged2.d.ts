@@ -1,35 +1,24 @@
-export type SongQuizName = "songQuiz";
-export type PictionaryName = "pictionary";
+export type HasId = { id: string };
 
-export type GameType = SongQuizName | PictionaryName;
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type GameSessionState = {};
-
-export type BaseGameSession = {
+export type IntersectionFirst = {
   id: string;
-  callSessionId: string;
-  principalUserId: string; /// User who starts the game
-  gameState: "started" | "ended";
-  startDateTime: string;
-  endDateTime?: string;
-  gameType: GameType;
-  specificGameSessionState?: GameSessionState;
-};
+} & (
+  | {
+      type: "foo";
+      foo: string;
+    }
+  | {
+      type: "bar";
+      bar: string;
+    }
+);
 
-export type PictionarySessionState = {
-  foo2: "Pictionary";
-} & GameSessionState;
-
-export type SongQuizSessionState = {
-  foo1: "Song Quiz";
-} & GameSessionState;
-
-export type SongQuizGameSession = {
-  gameType: SongQuizName;
-  specificGameSessionState?: SongQuizSessionState;
-} & BaseGameSession;
-
-export type PictionaryGameSession = {
-  gameType: PictionaryName;
-  specificGameSessionState?: PictionarySessionState;
-} & BaseGameSession;
+export type UnionFirst =
+  | ({
+      type: "foo";
+      foo: string;
+    } & HasId)
+  | ({
+      type: "bar";
+      bar: string;
+    } & HasId);
