@@ -14,6 +14,11 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+@Serializable
+data class HasId(
+    val id: String
+)
+
 @Serializable(with = IntersectionFirst.UnionSerializer::class)
 sealed class IntersectionFirst {
     abstract val id: String
@@ -51,15 +56,15 @@ sealed class UnionFirst {
     @Serializable
     data class UnionFirst1(
         override val type: String,
-        val id: String,
-        val foo: String
+        val foo: String,
+        val id: String
     ) : UnionFirst()
 
     @Serializable
     data class UnionFirst2(
         override val type: String,
-        val id: String,
-        val bar: String
+        val bar: String,
+        val id: String
     ) : UnionFirst()
 
     object UnionSerializer : JsonContentPolymorphicSerializer<UnionFirst>(UnionFirst::class) {

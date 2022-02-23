@@ -39,19 +39,17 @@ export class TaggedUnionGenerator {
     const type = node.type;
     if (!(isIntersectionTypeNode(type) || isUnionTypeNode(type)))
       return undefined;
-    let type1 = type.types[0];
-    let type2 = type.types[1];
-    if (isParenthesizedTypeNode(type1)) type1 = type1.type;
-    if (isParenthesizedTypeNode(type2)) type2 = type2.type;
-    const members1 = getMembers(type1, this.checker, false);
-    const members2 = getMembers(type2, this.checker, false);
-    // if (!isTypeLiteralNode(type1)) return undefined;
-    // if (!isUnionTypeNode(type2)) return undefined;
-
-    members.push(...getMembers(type1, this.checker, true));
-
-    // TODO remove tag if exists at top level.
-    const union = [type, type1, type2].find((value) =>
+    const types = type.types.map((value) => {
+      if (isParenthesizedTypeNode(value)) return value.type;
+      return value;
+    });
+    for (const type of types) {
+      if (isTypeLiteralNode(type)) {
+        members.push(...type.members);
+      }
+    }
+    // members.push(...getMembers(type, this.checker, true));
+    const union = [type, ...types].find((value) =>
       isUnionTypeNode(value)
     ) as UnionTypeNode;
     const tag = this.getTag(union);
