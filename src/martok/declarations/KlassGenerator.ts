@@ -90,8 +90,10 @@ export class KlassGenerator {
       });
       const result = new Klass(name)
         .setAnnotation("@Serializable")
-        .addModifier("data")
         .addInternalClasses(...this.generateInnerKlasses(members));
+      if (members.length) {
+        result.addModifier("data");
+      }
       if (options?.extendSealed) {
         result.setExtends({
           name: options.extendSealed.name!,
@@ -185,12 +187,13 @@ export class KlassGenerator {
       const name = node.name.escapedText.toString();
       const members = getMembers(node, this.checker);
       const type = getMemberType(this.checker, node.type);
+      const ref = this.checker.getTypeFromTypeNode(node.type);
       if (type === InternalSymbolName.Type) return undefined; // TODO improve this.
-      if (!members.length) {
+      // TODO fix dirty hack for empty types that turn into self-aliases.
+      if (!members.length && name !== type) {
         return `typealias ${name} = ${type}\n`;
       }
       if (isTypeReferenceNode(node.type)) {
-        const ref = this.checker.getTypeFromTypeNode(node.type);
         const symbol = ref.aliasSymbol ?? ref.getSymbol();
         return `typealias ${name} = ${symbol?.name}`;
       }

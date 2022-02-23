@@ -34,21 +34,28 @@ export class TaggedUnionGenerator {
     name: string,
     node: SupportedDeclaration | TypeNode
   ): Klass | undefined {
-    if (
-      !(
-        isTypeAliasDeclaration(node) &&
-        isIntersectionTypeNode(node.type) &&
-        isTypeLiteralNode(node.type.types[0]) &&
-        isParenthesizedTypeNode(node.type.types[1]) &&
-        isUnionTypeNode(node.type.types[1].type)
-      )
-    ) {
+    const members: TypeElement[] = [];
+    if (!isTypeAliasDeclaration(node)) return undefined;
+    const type = node.type;
+    if (!(isIntersectionTypeNode(type) || isUnionTypeNode(type)))
+      return undefined;
+    const types = type.types.map((value) => {
+      if (isParenthesizedTypeNode(value)) return value.type;
+      return value;
+    });
+    for (const type of types) {
+      if (isTypeLiteralNode(type)) {
+        members.push(...type.members);
+      }
+    }
+    const union = [type, ...types].find((value) => isUnionTypeNode(value)) as
+      | UnionTypeNode
+      | undefined;
+    if (!union) {
       return undefined;
     }
-
-    const members = [...getMembers(node, this.checker, true)];
-    const union = node.type.types[1].type;
     const tag = this.getTag(union);
+
     if (!tag) return undefined;
     const result = new Klass(name)
       .setAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
@@ -61,11 +68,11 @@ export class TaggedUnionGenerator {
           );
         })
       )
-      // .addMembers({
-      //   name: tag.name,
-      //   type: "String",
-      //   abstract: true,
-      // })
+      .addMembers({
+        name: tag.name,
+        type: "String",
+        abstract: true,
+      })
       .addInternalClasses(
         ...this.martok.declarations.klasses.generateInnerKlasses(members)
       );
@@ -77,8 +84,9 @@ export class TaggedUnionGenerator {
 
   private getTag(node: UnionTypeNode): TagMappings | undefined {
     const [type1, ...others] = node.types;
-    if (!isTypeLiteralNode(type1)) return undefined;
-    outer: for (const prop1 of type1.members) {
+    const members1 = getMembers(type1, this.checker, false);
+    // if (!isTypeLiteralNode(type1)) return undefined;
+    outer: for (const prop1 of members1) {
       const name = prop1.name?.getText();
       if (!name) continue;
       const k = this.getTagValue(prop1);
@@ -93,10 +101,9 @@ export class TaggedUnionGenerator {
 
       // Now we need to optimistically build the rest of the map.
       for (const type2 of others) {
-        if (!isTypeLiteralNode(type2)) continue outer;
-        const prop2 = type2.members.find(
-          (value) => value.name?.getText() === name
-        );
+        // if (!isTypeLiteralNode(type2)) continue outer;
+        const members2 = getMembers(type2, this.checker, false);
+        const prop2 = members2.find((value) => value.name?.getText() === name);
         if (!prop2?.name) continue outer;
         const k2 = this.getTagValue(prop2);
         if (!k2) continue outer;
