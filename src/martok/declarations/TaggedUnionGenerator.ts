@@ -48,10 +48,12 @@ export class TaggedUnionGenerator {
         members.push(...type.members);
       }
     }
-    // members.push(...getMembers(type, this.checker, true));
-    const union = [type, ...types].find((value) =>
-      isUnionTypeNode(value)
-    ) as UnionTypeNode;
+    const union = [type, ...types].find((value) => isUnionTypeNode(value)) as
+      | UnionTypeNode
+      | undefined;
+    if (!union) {
+      return undefined;
+    }
     const tag = this.getTag(union);
 
     if (!tag) return undefined;
