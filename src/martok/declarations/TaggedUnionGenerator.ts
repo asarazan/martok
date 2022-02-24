@@ -1,5 +1,6 @@
 import { Martok } from "../Martok";
 import {
+  IntersectionTypeNode,
   isIntersectionTypeNode,
   isLiteralExpression,
   isLiteralTypeNode,
@@ -35,24 +36,29 @@ export class TaggedUnionGenerator {
     node: SupportedDeclaration | TypeNode
   ): Klass | undefined {
     const members: TypeElement[] = [];
-    if (!isTypeAliasDeclaration(node)) return undefined;
-    const type = node.type;
+    let type = node;
+    if (isTypeAliasDeclaration(node)) {
+      type = node.type;
+    }
     if (!(isIntersectionTypeNode(type) || isUnionTypeNode(type)))
       return undefined;
     const types = type.types.map((value) => {
       if (isParenthesizedTypeNode(value)) return value.type;
       return value;
     });
-    for (const type of types) {
-      if (isTypeLiteralNode(type)) {
-        members.push(...type.members);
-      }
-    }
     const union = [type, ...types].find((value) => isUnionTypeNode(value)) as
       | UnionTypeNode
       | undefined;
     if (!union) {
       return undefined;
+    }
+    const intersection = [type].filter((value) =>
+      isIntersectionTypeNode(value)
+    ) as IntersectionTypeNode[];
+    for (const type of intersection.flatMap((value) => value.types)) {
+      if (isTypeLiteralNode(type)) {
+        members.push(...type.members);
+      }
     }
     const tag = this.getTag(union);
 

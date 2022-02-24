@@ -1,20 +1,21 @@
-import { TypeChecker, TypeElement } from "typescript";
+import { Node, TypeChecker, TypeElement, TypeNode } from "typescript";
 import { getMemberType } from "./MemberHelpers";
 import { TaggedUnionError } from "../errors/TaggedUnionError";
 import { all } from "./utils";
-
-export const ErrorDiscriminate = `Can't have fully discriminated unions/intersections yet...`;
+import path from "path";
 
 /**
  * @throws TaggedUnionError
  * @param checker
  * @param types
  * @param isTaggedUnion
+ * @param typeName
  */
 export function dedupeUnion(
   checker: TypeChecker,
   types: ReadonlyArray<TypeElement>,
-  isTaggedUnion: boolean
+  isTaggedUnion: boolean,
+  node: Node
 ): ReadonlyArray<TypeElement> {
   const seen = new Set<string>();
   return types.filter((value) => {
@@ -23,7 +24,8 @@ export function dedupeUnion(
     });
     if (!compatible) {
       if (!isTaggedUnion) {
-        throw new TaggedUnionError();
+        const filename = path.basename(node.getSourceFile().fileName);
+        throw new TaggedUnionError(filename, node.getText());
       }
     } else {
       const name = value.name!.getText();

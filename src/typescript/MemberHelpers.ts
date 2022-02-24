@@ -157,7 +157,8 @@ export function getMembers(
                 questionToken: QUESTION_TOKEN,
               };
         }),
-      isTaggedUnion
+      isTaggedUnion,
+      node
     );
   } else if (isTypeReferenceNode(node)) {
     const ref = checker.getTypeAtLocation(node);
