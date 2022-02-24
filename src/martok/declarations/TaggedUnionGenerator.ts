@@ -35,8 +35,10 @@ export class TaggedUnionGenerator {
     node: SupportedDeclaration | TypeNode
   ): Klass | undefined {
     const members: TypeElement[] = [];
-    if (!isTypeAliasDeclaration(node)) return undefined;
-    const type = node.type;
+    let type = node;
+    if (isTypeAliasDeclaration(node)) {
+      type = node.type;
+    }
     if (!(isIntersectionTypeNode(type) || isUnionTypeNode(type)))
       return undefined;
     const types = type.types.map((value) => {
