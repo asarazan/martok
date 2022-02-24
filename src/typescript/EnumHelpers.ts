@@ -61,7 +61,7 @@ function getValName(name: string): string {
   // let result = title(name);
   // let result = pascalToSnake(name).toUpperCase();
   if (!isNaN(parseFloat(result))) {
-    result = `_${result.replace(".", "_")}`;
+    result = `_${result.replace(/\./g, "_")}`;
   }
   result = result.replace(/\s/g, "_");
   return result;

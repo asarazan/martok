@@ -61,7 +61,7 @@ export class Martok {
     for (const file of output) {
       const relativePath = file.package
         .slice(this.config.package.length)
-        .replace(".", "/");
+        .replace(/\./g, "/");
       const filename = `${outPath}${relativePath}/${title(file.name)}.kt`;
       result[filename] = this.formatter.generateSingleFile(file);
     }
@@ -120,6 +120,6 @@ export class Martok {
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
     }
-    return `${this.config.package}${relativePath.replace("/", ".")}`;
+    return `${this.config.package}${relativePath.replace(/\//g, ".")}`;
   }
 }
