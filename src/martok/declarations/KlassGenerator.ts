@@ -1,5 +1,6 @@
 import { Martok } from "../Martok";
 import {
+  Declaration,
   EnumDeclaration,
   InterfaceDeclaration,
   InternalSymbolName,
@@ -25,6 +26,7 @@ import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
+import ts = require("typescript");
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -136,9 +138,14 @@ export class KlassGenerator {
     options?: MemberOptions
   ): ConstructorParameter {
     const name = node.name!.getText();
+    const referencesFollowed = [] as ts.Symbol[];
     let type = getMemberType(this.checker, node, {
       followReferences: options?.followReferences ?? false,
+      referencesFollowed,
     });
+    if (referencesFollowed.length) {
+      this.martok.pushExternalStatements(...referencesFollowed);
+    }
     if (type === InternalSymbolName.Type) {
       type = title(name);
     }

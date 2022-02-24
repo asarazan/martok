@@ -1,4 +1,4 @@
-import {
+import ts, {
   Declaration,
   factory,
   InternalSymbolName,
@@ -15,13 +15,13 @@ import {
   isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
+  Statement,
   SyntaxKind,
   TypeChecker,
   TypeElement,
   TypeNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
-import _ from "lodash";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -30,6 +30,7 @@ export type MemberTypeOptions = {
    * @default true
    */
   followReferences?: boolean;
+  referencesFollowed?: ts.Symbol[];
 };
 
 export function getMemberType(
@@ -42,9 +43,17 @@ export function getMemberType(
     type = type.type!;
   }
 
-  if (options?.followReferences === false && isTypeReferenceNode(type)) {
-    const ref = type.typeName.getText();
-    if (ref) return ref;
+  if (isTypeReferenceNode(type)) {
+    if (options?.followReferences === false) {
+      const ref = type.typeName.getText();
+      if (ref) return ref;
+    } else {
+      const ttype = checker.getTypeFromTypeNode(type);
+      const symbol = ttype.aliasSymbol ?? ttype.symbol;
+      if (symbol) {
+        options?.referencesFollowed?.push(symbol);
+      }
+    }
   }
 
   const literal = getLiteralLikeType(checker, type);

@@ -18,6 +18,10 @@ export class ImportGenerator {
       if (!isImportDeclaration(statement)) continue;
       symbols.push(...this.getSymbolsFromImport(statement));
     }
+    return this.generateImportsFromSymbols(symbols);
+  }
+
+  public generateImportsFromSymbols(symbols: ts.Symbol[]): string[] {
     return symbols.map((value) => {
       const decl = _.first(value.declarations)!;
       const source = decl.getSourceFile();
