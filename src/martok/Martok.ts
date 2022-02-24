@@ -44,9 +44,7 @@ export class Martok {
       const promises: Promise<unknown>[] = [];
       for (const file in files) {
         const contents = files[file]!;
-        promises.push(
-          fs.promises.mkdir(path.dirname(file), { recursive: true })
-        );
+        await fs.promises.mkdir(path.dirname(file), { recursive: true });
         promises.push(fs.promises.writeFile(file, contents));
       }
       await Promise.allSettled(promises);
