@@ -7,7 +7,6 @@ import { sanitizeComparison } from "./sanitizeComparison";
 import _ from "lodash";
 import * as util from "util";
 import { StandardDatePattern } from "../typescript/Patterns";
-import { ErrorDiscriminate } from "../typescript/UnionHelpers";
 
 const PACKAGE = "net.sarazan.martok";
 const ROOT = path.resolve("./tests/comparisons");
@@ -86,18 +85,6 @@ describe("Special Comparisons", () => {
         await fs.promises.readFile(compare, "utf-8")
       );
       expect(out).toEqual(contents);
-    });
-  }
-
-  {
-    const filename = `${root}/ErrorDiscriminated.d.ts`;
-    it(path.basename(filename), async () => {
-      const martok = new Martok({
-        files: [filename],
-        package: PACKAGE,
-        sourceRoot: root,
-      });
-      expect(() => martok.generateMultiFile()).toThrow(ErrorDiscriminate);
     });
   }
 });

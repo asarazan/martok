@@ -1,7 +1,5 @@
-import { ErrorDiscriminate } from "../typescript/UnionHelpers";
-
 export class TaggedUnionError extends Error {
-  constructor() {
-    super(ErrorDiscriminate);
+  constructor(file: string, typeName: string) {
+    super(`Error processing tagged union in ${file}:\n${typeName}`);
   }
 }
