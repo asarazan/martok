@@ -1,5 +1,6 @@
 import { Martok } from "../Martok";
 import {
+  Declaration,
   EnumDeclaration,
   InterfaceDeclaration,
   InternalSymbolName,
@@ -25,6 +26,7 @@ import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
+import ts = require("typescript");
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -84,7 +86,7 @@ export class KlassGenerator {
         if (alias) return alias;
       }
 
-      const members = getMembers(node, this.checker);
+      const members = getMembers(node, this.martok);
       const ctor = members.map((value) => {
         return this.generateMemberOrCtorArg(value, options);
       });
@@ -136,7 +138,7 @@ export class KlassGenerator {
     options?: MemberOptions
   ): ConstructorParameter {
     const name = node.name!.getText();
-    let type = getMemberType(this.checker, node, {
+    let type = getMemberType(this.martok, node, {
       followReferences: options?.followReferences ?? false,
     });
     if (type === InternalSymbolName.Type) {
@@ -166,7 +168,7 @@ export class KlassGenerator {
 
   public generateInnerKlasses(members: ReadonlyArray<TypeElement>): Klass[] {
     const anonymousTypes = members.filter(
-      (value) => getMemberType(this.checker, value) === InternalSymbolName.Type
+      (value) => getMemberType(this.martok, value) === InternalSymbolName.Type
     );
     if (!anonymousTypes?.length) return [];
     return anonymousTypes.flatMap((value) => {
@@ -185,8 +187,8 @@ export class KlassGenerator {
   ): string | undefined {
     if (isTypeAliasDeclaration(node)) {
       const name = node.name.escapedText.toString();
-      const members = getMembers(node, this.checker);
-      const type = getMemberType(this.checker, node.type);
+      const members = getMembers(node, this.martok);
+      const type = getMemberType(this.martok, node.type);
       const ref = this.checker.getTypeFromTypeNode(node.type);
       if (type === InternalSymbolName.Type) return undefined; // TODO improve this.
       // TODO fix dirty hack for empty types that turn into self-aliases.

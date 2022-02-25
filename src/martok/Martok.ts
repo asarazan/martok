@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import { SourceFile } from "typescript";
+import { SourceFile, Statement, TypeChecker } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import _ from "lodash";
 import { TsHelper } from "../typescript/TsHelper";
@@ -15,6 +15,7 @@ import { AsyncLocalStorage } from "async_hooks";
 
 type MartokState = {
   nameScope: string[];
+  externalStatements: ts.Symbol[];
 };
 
 export class Martok {
@@ -26,8 +27,14 @@ export class Martok {
   });
 
   public readonly declarations = new DeclarationGenerator(this);
+  public get checker(): TypeChecker {
+    return this.program.getTypeChecker();
+  }
   public get nameScope(): string[] {
     return this.storage.getStore()!.nameScope;
+  }
+  public get externalSymbols(): ts.Symbol[] {
+    return this.storage.getStore()!.externalStatements;
   }
 
   private readonly storage = new AsyncLocalStorage<MartokState>();
@@ -71,6 +78,7 @@ export class Martok {
   public generateOutput(): MartokOutFile[] {
     const state: MartokState = {
       nameScope: [],
+      externalStatements: [],
     };
     return this.storage.run(state, () =>
       _(this.config.files)
@@ -90,6 +98,14 @@ export class Martok {
     return result;
   }
 
+  public pushExternalSymbols(...statements: ts.Symbol[]) {
+    this.externalSymbols.push(...statements);
+  }
+
+  public clearExternalSymbols() {
+    this.externalSymbols.length = 0;
+  }
+
   private processFile(file: SourceFile): MartokOutFile {
     console.log(`Process File: ${file.fileName}...`);
     const name = TsHelper.getBaseFileName(file.fileName);
@@ -104,13 +120,19 @@ export class Martok {
         declarations: [],
       },
     };
-    const imports = this.imports.generateImports(file.statements);
-    if (imports.length) {
-      base.text.imports.push(null, ...imports); // spacer
-    }
     base.text.declarations.push(
       ...this.declarations.generateDeclarations(file)
     );
+    const statements = [...file.statements];
+    const symbols = [...this.externalSymbols];
+    const imports = _.uniq([
+      ...this.imports.generateImports(statements),
+      ...this.imports.generateImportsFromSymbols(symbols),
+    ]);
+    if (imports.length) {
+      base.text.imports.push(null, ...imports); // spacer
+    }
+    this.clearExternalSymbols();
     this.popNameScope();
     return base;
   }

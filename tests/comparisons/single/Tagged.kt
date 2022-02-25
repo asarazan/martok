@@ -31,7 +31,7 @@ sealed class Tagged {
     abstract val type: String
 
     @Serializable
-    data class Tagged1(
+    data class TaggedType_1(
         override val id: String,
         override val foo: String?,
         override val type: Type1,
@@ -39,7 +39,7 @@ sealed class Tagged {
     ) : Tagged()
 
     @Serializable
-    data class Tagged2(
+    data class TaggedType_2(
         override val id: String,
         override val foo: String?,
         override val type: Type2,
@@ -50,8 +50,8 @@ sealed class Tagged {
         override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("type 1") -> Tagged1.serializer()
-            JsonPrimitive("type 2") -> Tagged2.serializer()
+            JsonPrimitive("type 1") -> TaggedType_1.serializer()
+            JsonPrimitive("type 2") -> TaggedType_2.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
         }
     }

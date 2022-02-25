@@ -16,11 +16,12 @@ import {
   UnionTypeNode,
 } from "typescript";
 import { getMembers } from "../../typescript/MemberHelpers";
-import _ from "lodash";
+import _, { capitalize } from "lodash";
 import indentString from "indent-string";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { SupportedDeclaration } from "./KlassGenerator";
+import { title } from "../NameGenerators";
 
 type TagMappings = {
   name: string;
@@ -90,7 +91,7 @@ export class TaggedUnionGenerator {
 
   private getTag(node: UnionTypeNode): TagMappings | undefined {
     const [type1, ...others] = node.types;
-    const members1 = getMembers(type1, this.checker, false);
+    const members1 = getMembers(type1, this.martok, false);
     // if (!isTypeLiteralNode(type1)) return undefined;
     outer: for (const prop1 of members1) {
       const name = prop1.name?.getText();
@@ -108,7 +109,7 @@ export class TaggedUnionGenerator {
       // Now we need to optimistically build the rest of the map.
       for (const type2 of others) {
         // if (!isTypeLiteralNode(type2)) continue outer;
-        const members2 = getMembers(type2, this.checker, false);
+        const members2 = getMembers(type2, this.martok, false);
         const prop2 = members2.find((value) => value.name?.getText() === name);
         if (!prop2?.name) continue outer;
         const k2 = this.getTagValue(prop2);
@@ -140,9 +141,8 @@ export class TaggedUnionGenerator {
     parent: Klass
   ): Klass[] {
     const result = [];
-    let counter = 0;
     const tagMapping = _.map(tag.mappings, (v, k) => {
-      const subName = `${name}${++counter}`;
+      const subName = `${name}${title(k).replace(/\s/g, "_")}`;
       result.push(
         this.martok.declarations.klasses.generate(v, {
           forceName: subName,

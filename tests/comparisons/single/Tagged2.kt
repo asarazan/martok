@@ -25,14 +25,14 @@ sealed class IntersectionFirst {
     abstract val type: String
 
     @Serializable
-    data class IntersectionFirst1(
+    data class IntersectionFirstFoo(
         override val id: String,
         override val type: String,
         val foo: String
     ) : IntersectionFirst()
 
     @Serializable
-    data class IntersectionFirst2(
+    data class IntersectionFirstBar(
         override val id: String,
         override val type: String,
         val bar: String
@@ -42,8 +42,8 @@ sealed class IntersectionFirst {
         override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("foo") -> IntersectionFirst1.serializer()
-            JsonPrimitive("bar") -> IntersectionFirst2.serializer()
+            JsonPrimitive("foo") -> IntersectionFirstFoo.serializer()
+            JsonPrimitive("bar") -> IntersectionFirstBar.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
         }
     }
@@ -54,14 +54,14 @@ sealed class UnionFirst {
     abstract val type: String
 
     @Serializable
-    data class UnionFirst1(
+    data class UnionFirstFoo(
         override val type: String,
         val foo: String,
         val id: String
     ) : UnionFirst()
 
     @Serializable
-    data class UnionFirst2(
+    data class UnionFirstBar(
         override val type: String,
         val bar: String,
         val id: String
@@ -71,8 +71,8 @@ sealed class UnionFirst {
         override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("foo") -> UnionFirst1.serializer()
-            JsonPrimitive("bar") -> UnionFirst2.serializer()
+            JsonPrimitive("foo") -> UnionFirstFoo.serializer()
+            JsonPrimitive("bar") -> UnionFirstBar.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
         }
     }
