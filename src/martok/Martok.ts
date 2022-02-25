@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import { SourceFile, Statement } from "typescript";
+import { SourceFile, Statement, TypeChecker } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import _ from "lodash";
 import { TsHelper } from "../typescript/TsHelper";
@@ -27,6 +27,9 @@ export class Martok {
   });
 
   public readonly declarations = new DeclarationGenerator(this);
+  public get checker(): TypeChecker {
+    return this.program.getTypeChecker();
+  }
   public get nameScope(): string[] {
     return this.storage.getStore()!.nameScope;
   }

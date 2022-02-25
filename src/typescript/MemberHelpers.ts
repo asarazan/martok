@@ -22,6 +22,7 @@ import ts, {
   TypeNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
+import { Martok } from "../martok/Martok";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -30,11 +31,10 @@ export type MemberTypeOptions = {
    * @default true
    */
   followReferences?: boolean;
-  referencesFollowed?: ts.Symbol[];
 };
 
 export function getMemberType(
-  checker: TypeChecker,
+  martok: Martok,
   type: TypeNode | TypeElement,
   options?: MemberTypeOptions
 ): string {
@@ -48,22 +48,22 @@ export function getMemberType(
       const ref = type.typeName.getText();
       if (ref) return ref;
     } else {
-      const ttype = checker.getTypeFromTypeNode(type);
+      const ttype = martok.checker.getTypeFromTypeNode(type);
       const symbol = ttype.aliasSymbol ?? ttype.symbol;
-      if (symbol && options?.referencesFollowed) {
-        options?.referencesFollowed?.push(symbol);
+      if (symbol) {
+        martok.pushExternalSymbols(symbol);
       }
     }
   }
 
-  const literal = getLiteralLikeType(checker, type);
+  const literal = getLiteralLikeType(martok, type);
   if (literal) return literal;
 
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
     return InternalSymbolName.Type;
   }
 
-  const ttype = checker.getTypeFromTypeNode(type);
+  const ttype = martok.checker.getTypeFromTypeNode(type);
   const symbol = ttype.aliasSymbol ?? ttype.getSymbol();
   if (!symbol) {
     throw new Error(`Cannot find symbol`);
@@ -72,7 +72,7 @@ export function getMemberType(
 }
 
 export function getLiteralType(
-  checker: TypeChecker,
+  martok: Martok,
   type: TypeNode
 ): string | undefined {
   if (!isLiteralTypeNode(type)) return undefined;
@@ -88,11 +88,11 @@ export function getLiteralType(
 }
 
 export function getReferencedLiteralType(
-  checker: TypeChecker,
+  martok: Martok,
   type: TypeNode
 ): string | undefined {
   if (!isTypeReferenceNode(type)) return undefined;
-  const ttype = checker.getTypeFromTypeNode(type);
+  const ttype = martok.checker.getTypeFromTypeNode(type);
   if (!ttype) return undefined;
   if (ttype.isStringLiteral()) return "String";
   if (ttype.isNumberLiteral()) return "Double";
@@ -100,18 +100,18 @@ export function getReferencedLiteralType(
 }
 
 export function getLiteralLikeType(
-  checker: TypeChecker,
+  martok: Martok,
   type: TypeNode
 ): string | undefined {
   return (
-    getIntrinsicType(checker, type) ??
-    getLiteralType(checker, type) ??
-    getReferencedLiteralType(checker, type)
+    getIntrinsicType(martok, type) ??
+    getLiteralType(martok, type) ??
+    getReferencedLiteralType(martok, type)
   );
 }
 
 export function getIntrinsicType(
-  checker: TypeChecker,
+  martok: Martok,
   type: TypeNode
 ): string | undefined {
   if (isStringLiteralLike(type) || type.kind === SyntaxKind.StringKeyword)
@@ -120,7 +120,7 @@ export function getIntrinsicType(
     return "Double";
   if (type.kind === SyntaxKind.BooleanKeyword) return "Boolean";
   if (isArrayTypeNode(type)) {
-    const param = getMemberType(checker, type.elementType);
+    const param = getMemberType(martok, type.elementType);
     // TODO should we support JsonArray here or leave it as list of JsonObject?
     return `List<${param}>`;
   }
@@ -135,9 +135,10 @@ export function getIntrinsicType(
  */
 export function getMembers(
   node: Declaration | TypeNode,
-  checker: TypeChecker,
+  martok: Martok,
   isTaggedUnion = false
 ): ReadonlyArray<TypeElement> {
+  const checker = martok.checker;
   if (isInterfaceDeclaration(node)) {
     const ttype = checker.getTypeAtLocation(node);
     return ttype
@@ -145,18 +146,18 @@ export function getMembers(
       .map((value) => value.valueDeclaration)
       .filter((value) => value && isPropertySignature(value)) as TypeElement[];
   } else if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
-    return getMembers(node.type, checker, isTaggedUnion);
+    return getMembers(node.type, martok, isTaggedUnion);
   } else if (isTypeLiteralNode(node)) {
     return node.members;
   } else if (isIntersectionTypeNode(node)) {
     return node.types.flatMap((value) =>
-      getMembers(value, checker, isTaggedUnion)
+      getMembers(value, martok, isTaggedUnion)
     );
   } else if (isUnionTypeNode(node)) {
     return dedupeUnion(
-      checker,
+      martok,
       node.types
-        .flatMap((value) => getMembers(value, checker, isTaggedUnion))
+        .flatMap((value) => getMembers(value, martok, isTaggedUnion))
         .map((value) => {
           return isTaggedUnion
             ? value
@@ -174,7 +175,7 @@ export function getMembers(
     const symbol = ref.aliasSymbol ?? ref.getSymbol();
     if (symbol) {
       const decl = symbol!.declarations![0];
-      return getMembers(decl, checker, isTaggedUnion);
+      return getMembers(decl, martok, isTaggedUnion);
     }
   }
   return [];

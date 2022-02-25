@@ -91,7 +91,7 @@ export class TaggedUnionGenerator {
 
   private getTag(node: UnionTypeNode): TagMappings | undefined {
     const [type1, ...others] = node.types;
-    const members1 = getMembers(type1, this.checker, false);
+    const members1 = getMembers(type1, this.martok, false);
     // if (!isTypeLiteralNode(type1)) return undefined;
     outer: for (const prop1 of members1) {
       const name = prop1.name?.getText();
@@ -109,7 +109,7 @@ export class TaggedUnionGenerator {
       // Now we need to optimistically build the rest of the map.
       for (const type2 of others) {
         // if (!isTypeLiteralNode(type2)) continue outer;
-        const members2 = getMembers(type2, this.checker, false);
+        const members2 = getMembers(type2, this.martok, false);
         const prop2 = members2.find((value) => value.name?.getText() === name);
         if (!prop2?.name) continue outer;
         const k2 = this.getTagValue(prop2);

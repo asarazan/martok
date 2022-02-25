@@ -3,16 +3,17 @@ import { getMemberType } from "./MemberHelpers";
 import { TaggedUnionError } from "../errors/TaggedUnionError";
 import { all } from "./utils";
 import path from "path";
+import { Martok } from "../martok/Martok";
 
 /**
  * @throws TaggedUnionError
- * @param checker
+ * @param martok
  * @param types
  * @param isTaggedUnion
- * @param typeName
+ * @param node
  */
 export function dedupeUnion(
-  checker: TypeChecker,
+  martok: Martok,
   types: ReadonlyArray<TypeElement>,
   isTaggedUnion: boolean,
   node: Node
@@ -20,7 +21,7 @@ export function dedupeUnion(
   const seen = new Set<string>();
   return types.filter((value) => {
     const compatible = all(types, (value1) => {
-      return typesAreCompatible(value, value1, checker);
+      return typesAreCompatible(value, value1, martok);
     });
     if (!compatible) {
       if (!isTaggedUnion) {
@@ -41,12 +42,12 @@ export function dedupeUnion(
 function typesAreCompatible(
   value1: TypeElement,
   value2: TypeElement,
-  checker: TypeChecker
+  martok: Martok
 ): boolean {
   const name1 = value1.name!.getText();
   const name2 = value2.name!.getText();
   if (name1 !== name2) return true;
-  const type1 = getMemberType(checker, value1);
-  const type2 = getMemberType(checker, value2);
+  const type1 = getMemberType(martok, value1);
+  const type2 = getMemberType(martok, value2);
   return type1 === type2;
 }
