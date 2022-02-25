@@ -142,7 +142,7 @@ export class TaggedUnionGenerator {
   ): Klass[] {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
-      const subName = `${name}${title(k)}`;
+      const subName = `${name}${title(k).replace(/\s/g, "_")}`;
       result.push(
         this.martok.declarations.klasses.generate(v, {
           forceName: subName,
