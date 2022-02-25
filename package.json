@@ -15,6 +15,7 @@
     "tagged3": "ts-node src/index.ts tests/comparisons/single/tagged3.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "literal": "ts-node src/index.ts tests/comparisons/single/stringLiteral.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "faceoff": "ts-node src/index.ts ../../volley/faceoff-backend/src/types/core -o ./schema/faceoff --package net.sarazan.martok --datePattern standard",
+    "faceoff2": "ts-node src/index.ts types/faceoff/websocket/updates/SocketUpdate.ts -o ./schema/faceoff --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

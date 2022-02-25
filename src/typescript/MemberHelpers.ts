@@ -50,7 +50,7 @@ export function getMemberType(
     } else {
       const ttype = checker.getTypeFromTypeNode(type);
       const symbol = ttype.aliasSymbol ?? ttype.symbol;
-      if (symbol) {
+      if (symbol && options?.referencesFollowed) {
         options?.referencesFollowed?.push(symbol);
       }
     }

@@ -95,11 +95,11 @@ export class Martok {
     return result;
   }
 
-  public pushExternalStatements(...statements: ts.Symbol[]) {
+  public pushExternalSymbols(...statements: ts.Symbol[]) {
     this.externalSymbols.push(...statements);
   }
 
-  public clearExternalStatements() {
+  public clearExternalSymbols() {
     this.externalSymbols.length = 0;
   }
 
@@ -129,7 +129,7 @@ export class Martok {
     if (imports.length) {
       base.text.imports.push(null, ...imports); // spacer
     }
-    this.clearExternalStatements();
+    this.clearExternalSymbols();
     this.popNameScope();
     return base;
   }

@@ -16,11 +16,12 @@ import {
   UnionTypeNode,
 } from "typescript";
 import { getMembers } from "../../typescript/MemberHelpers";
-import _ from "lodash";
+import _, { capitalize } from "lodash";
 import indentString from "indent-string";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { SupportedDeclaration } from "./KlassGenerator";
+import { title } from "../NameGenerators";
 
 type TagMappings = {
   name: string;
@@ -140,9 +141,8 @@ export class TaggedUnionGenerator {
     parent: Klass
   ): Klass[] {
     const result = [];
-    let counter = 0;
     const tagMapping = _.map(tag.mappings, (v, k) => {
-      const subName = `${name}${++counter}`;
+      const subName = `${name}${title(k)}`;
       result.push(
         this.martok.declarations.klasses.generate(v, {
           forceName: subName,

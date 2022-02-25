@@ -144,7 +144,7 @@ export class KlassGenerator {
       referencesFollowed,
     });
     if (referencesFollowed.length) {
-      this.martok.pushExternalStatements(...referencesFollowed);
+      this.martok.pushExternalSymbols(...referencesFollowed);
     }
     if (type === InternalSymbolName.Type) {
       type = title(name);
