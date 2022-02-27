@@ -4,6 +4,7 @@ import {
   EnumDeclaration,
   InterfaceDeclaration,
   InternalSymbolName,
+  isArrayTypeNode,
   isEnumDeclaration,
   isInterfaceDeclaration,
   isPropertySignature,
@@ -62,6 +63,10 @@ export class KlassGenerator {
     options?: MemberOptions
   ): Klass | string {
     try {
+      if (isArrayTypeNode(node)) {
+        return this.generate(node.elementType, options);
+      }
+
       let name = options?.forceName;
       if (!name && KlassGenerator.isSupportedDeclaration(node)) {
         name = node.name.escapedText.toString()!;
@@ -143,6 +148,8 @@ export class KlassGenerator {
     });
     if (type === InternalSymbolName.Type) {
       type = title(name);
+    } else if (type === `List<${InternalSymbolName.Type}>`) {
+      type = `List<${title(name)}>`;
     }
     let annotation: string | undefined;
     if (this.martok.config.options?.dates?.namePattern?.exec(name)?.length) {
@@ -167,9 +174,13 @@ export class KlassGenerator {
   }
 
   public generateInnerKlasses(members: ReadonlyArray<TypeElement>): Klass[] {
-    const anonymousTypes = members.filter(
-      (value) => getMemberType(this.martok, value) === InternalSymbolName.Type
-    );
+    const anonymousTypes = members.filter((value) => {
+      const type = getMemberType(this.martok, value);
+      return (
+        type === InternalSymbolName.Type ||
+        type === `List<${InternalSymbolName.Type}>`
+      );
+    });
     if (!anonymousTypes?.length) return [];
     return anonymousTypes.flatMap((value) => {
       if (isPropertySignature(value)) {
@@ -190,7 +201,12 @@ export class KlassGenerator {
       const members = getMembers(node, this.martok);
       const type = getMemberType(this.martok, node.type);
       const ref = this.checker.getTypeFromTypeNode(node.type);
-      if (type === InternalSymbolName.Type) return undefined; // TODO improve this.
+      if (
+        type === InternalSymbolName.Type ||
+        type === `List<${InternalSymbolName.Type}>`
+      ) {
+        return undefined; // TODO improve this.
+      }
       // TODO fix dirty hack for empty types that turn into self-aliases.
       if (!members.length && name !== type) {
         return `typealias ${name} = ${type}\n`;

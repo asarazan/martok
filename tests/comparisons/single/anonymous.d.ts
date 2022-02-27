@@ -1,3 +1,10 @@
+export type AnonList = {
+  foo: {
+    bar: string;
+    baz: "one" | "two";
+  }[];
+};
+
 export type NumberUnion = {
   foo: 1 | 2;
 };

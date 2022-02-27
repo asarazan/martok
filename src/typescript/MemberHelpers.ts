@@ -121,7 +121,6 @@ export function getIntrinsicType(
   if (type.kind === SyntaxKind.BooleanKeyword) return "Boolean";
   if (isArrayTypeNode(type)) {
     const param = getMemberType(martok, type.elementType);
-    // TODO should we support JsonArray here or leave it as list of JsonObject?
     return `List<${param}>`;
   }
   if (type.kind === SyntaxKind.AnyKeyword) return "JsonObject";
