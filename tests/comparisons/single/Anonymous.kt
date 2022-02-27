@@ -13,6 +13,22 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
+@Serializable
+data class AnonList(
+    val foo: List<Foo>
+) {
+    @Serializable
+    data class Foo(
+        val bar: String,
+        val baz: Baz
+    ) {
+        @Serializable
+        enum class Baz {
+            @SerialName("one") one,
+            @SerialName("two") two;
+        }
+    }
+}
 
 @Serializable
 data class NumberUnion(
