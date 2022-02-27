@@ -62,11 +62,10 @@ export class KlassGenerator {
     node: SupportedDeclaration | TypeNode,
     options?: MemberOptions
   ): Klass | string {
+    if (isArrayTypeNode(node)) {
+      return this.generate(node.elementType, options);
+    }
     try {
-      if (isArrayTypeNode(node)) {
-        return this.generate(node.elementType, options);
-      }
-
       let name = options?.forceName;
       if (!name && KlassGenerator.isSupportedDeclaration(node)) {
         name = node.name.escapedText.toString()!;
