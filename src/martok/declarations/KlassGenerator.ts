@@ -27,7 +27,6 @@ import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
-import ts = require("typescript");
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -63,7 +62,13 @@ export class KlassGenerator {
     options?: MemberOptions
   ): Klass | string {
     if (isArrayTypeNode(node)) {
-      return this.generate(node.elementType, options);
+      let result = this.generate(node.elementType, options);
+      if (typeof result === "string") {
+        result = `${result}Item`;
+      } else {
+        result.name = `${result.name}Item`;
+      }
+      return result;
     }
     try {
       let name = options?.forceName;
@@ -148,7 +153,7 @@ export class KlassGenerator {
     if (type === InternalSymbolName.Type) {
       type = title(name);
     } else if (type === `List<${InternalSymbolName.Type}>`) {
-      type = `List<${title(name)}>`;
+      type = `List<${title(name)}Item>`;
     }
     let annotation: string | undefined;
     if (this.martok.config.options?.dates?.namePattern?.exec(name)?.length) {
