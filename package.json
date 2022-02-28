@@ -1,6 +1,6 @@
 {
   "name": "martok",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "description": "",
   "main": "dist/src/index.js",
   "bin": "dist/src/index.js",
