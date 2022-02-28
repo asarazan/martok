@@ -15,10 +15,10 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 @Serializable
 data class AnonList(
-    val foo: List<Foo>
+    val foo: List<FooItem>
 ) {
     @Serializable
-    data class Foo(
+    data class FooItem(
         val bar: String,
         val baz: Baz
     ) {
