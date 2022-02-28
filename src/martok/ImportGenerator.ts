@@ -1,5 +1,6 @@
 import {
   ImportDeclaration,
+  InternalSymbolName,
   isImportDeclaration,
   isNamedImports,
   Statement,
@@ -22,12 +23,14 @@ export class ImportGenerator {
   }
 
   public generateImportsFromSymbols(symbols: ts.Symbol[]): string[] {
-    return symbols.map((value) => {
-      const decl = _.first(value.declarations)!;
-      const source = decl.getSourceFile();
-      const pkg = this.martok.getFilePackage(source);
-      return `import ${pkg}.${value.getEscapedName()}`;
-    });
+    return symbols
+      .map((value) => {
+        const decl = _.first(value.declarations)!;
+        const source = decl.getSourceFile();
+        const pkg = this.martok.getFilePackage(source);
+        return `import ${pkg}.${value.getEscapedName()}`;
+      })
+      .filter((value) => !value.endsWith(`.${InternalSymbolName.Type}`));
   }
 
   private getSymbolsFromImport(imp: ImportDeclaration): ts.Symbol[] {
