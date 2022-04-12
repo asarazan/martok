@@ -20,8 +20,8 @@ typealias Type2 = String
 
 @Serializable
 enum class Types {
-    @SerialName("type 1") type_1,
-    @SerialName("type 2") type_2;
+    @SerialName("type 1") TYPE_1,
+    @SerialName("type 2") TYPE_2;
 }
 
 @Serializable(with = Tagged.UnionSerializer::class)

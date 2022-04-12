@@ -3,6 +3,11 @@ export enum Strings {
   two = "two",
 }
 
+export enum CamelCase {
+  CamelCaseFirst = "camel_1",
+  CamelCaseSecond = "camel_2",
+}
+
 export enum Ordinals {
   zero,
   one,

@@ -56,10 +56,9 @@ export function getEnumValue(
 }
 
 function getValName(name: string): string {
-  // TODO this should all probably be considered more thoroughly.
-  let result = name;
+  // let result = name;
   // let result = title(name);
-  // let result = pascalToSnake(name).toUpperCase();
+  let result = pascalToSnake(name).toUpperCase();
   if (!isNaN(parseFloat(result))) {
     result = `_${result.replace(/\./g, "_")}`;
   }
