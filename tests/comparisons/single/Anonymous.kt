@@ -24,8 +24,8 @@ data class AnonList(
     ) {
         @Serializable
         enum class Baz {
-            @SerialName("one") one,
-            @SerialName("two") two;
+            @SerialName("one") ONE,
+            @SerialName("two") TWO;
         }
     }
 }
@@ -63,8 +63,8 @@ data class StringUnion(
 ) {
     @Serializable
     enum class Foo {
-        @SerialName("barBar") barBar,
-        @SerialName("bazBaz") bazBaz;
+        @SerialName("barBar") BAR_BAR,
+        @SerialName("bazBaz") BAZ_BAZ;
     }
 }
 
@@ -91,8 +91,8 @@ data class Nested(
     ) {
         @Serializable
         enum class Baz {
-            @SerialName("one") one,
-            @SerialName("two") two;
+            @SerialName("one") ONE,
+            @SerialName("two") TWO;
         }
     }
 }
