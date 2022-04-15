@@ -15,15 +15,19 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
 @Serializable
-enum class Strings {
-    @SerialName("one") ONE,
-    @SerialName("two") TWO;
+enum class Strings(
+    val serialName: String
+) {
+    @SerialName("one") ONE("one"),
+    @SerialName("two") TWO("two");
 }
 
 @Serializable
-enum class CamelCase {
-    @SerialName("camel_1") CAMEL_CASE_FIRST,
-    @SerialName("camel_2") CAMEL_CASE_SECOND;
+enum class CamelCase(
+    val serialName: String
+) {
+    @SerialName("camel_1") CAMEL_CASE_FIRST("camel_1"),
+    @SerialName("camel_2") CAMEL_CASE_SECOND("camel_2");
 }
 
 @Serializable(with = Ordinals.Companion::class)
