@@ -19,9 +19,11 @@ typealias Type1 = String
 typealias Type2 = String
 
 @Serializable
-enum class Types {
-    @SerialName("type 1") TYPE_1,
-    @SerialName("type 2") TYPE_2;
+enum class Types(
+    val serialName: String
+) {
+    @SerialName("type 1") TYPE_1("type 1"),
+    @SerialName("type 2") TYPE_2("type 2");
 }
 
 @Serializable(with = Tagged.UnionSerializer::class)

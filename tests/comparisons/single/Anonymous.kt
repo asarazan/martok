@@ -23,9 +23,11 @@ data class AnonList(
         val baz: Baz
     ) {
         @Serializable
-        enum class Baz {
-            @SerialName("one") ONE,
-            @SerialName("two") TWO;
+        enum class Baz(
+            val serialName: String
+        ) {
+            @SerialName("one") ONE("one"),
+            @SerialName("two") TWO("two");
         }
     }
 }
@@ -62,9 +64,11 @@ data class StringUnion(
     val foo: Foo
 ) {
     @Serializable
-    enum class Foo {
-        @SerialName("barBar") BAR_BAR,
-        @SerialName("bazBaz") BAZ_BAZ;
+    enum class Foo(
+        val serialName: String
+    ) {
+        @SerialName("barBar") BAR_BAR("barBar"),
+        @SerialName("bazBaz") BAZ_BAZ("bazBaz");
     }
 }
 
@@ -73,9 +77,11 @@ data class NumberStringUnion(
     val foo: Foo
 ) {
     @Serializable
-    enum class Foo {
-        @SerialName("1.1") _1_1,
-        @SerialName("2") _2;
+    enum class Foo(
+        val serialName: String
+    ) {
+        @SerialName("1.1") _1_1("1.1"),
+        @SerialName("2") _2("2");
     }
 }
 
@@ -90,9 +96,11 @@ data class Nested(
         val baz: Baz
     ) {
         @Serializable
-        enum class Baz {
-            @SerialName("one") ONE,
-            @SerialName("two") TWO;
+        enum class Baz(
+            val serialName: String
+        ) {
+            @SerialName("one") ONE("one"),
+            @SerialName("two") TWO("two");
         }
     }
 }
