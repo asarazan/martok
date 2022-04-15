@@ -14,6 +14,11 @@ export class StringEnumGenerator {
     return new Klass(name)
       .setAnnotation("@Serializable")
       .addModifier("enum")
+      .addCtorArgs({
+        name: "serialName",
+        type: "String",
+        mutability: "val",
+      })
       .addEnumValues(...this.getEnumValues(node));
   }
 
@@ -25,6 +30,11 @@ export class StringEnumGenerator {
       return {
         annotation: `@SerialName("${val}")`,
         name,
+        args: [
+          {
+            name: `"${val}"`,
+          },
+        ],
       };
     });
   }
