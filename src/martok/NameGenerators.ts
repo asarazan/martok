@@ -4,8 +4,11 @@ export function title(str: string) {
   });
 }
 
+// Adapted from https://stackoverflow.com/a/30521308
 export function pascalToSnake(str: string): string {
-  return str.replace(/[A-Z]/g, (letter, index) => {
-    return index == 0 ? letter.toLowerCase() : "_" + letter.toLowerCase();
-  });
+  return str
+    .replace(/\.?_*([A-Z]+)/g, (letter, index) => {
+      return "_" + index.toLowerCase();
+    })
+    .replace(/^_/, "");
 }
