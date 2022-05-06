@@ -4,6 +4,7 @@ export function title(str: string) {
   });
 }
 
+// Adapted from https://stackoverflow.com/a/30521308
 export function pascalToSnake(str: string): string {
   return str
     .replace(/\.?_*([A-Z]+)/g, (letter, index) => {
