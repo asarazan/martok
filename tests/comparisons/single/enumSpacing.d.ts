@@ -1,5 +1,5 @@
 export enum Errors {
   ERROR_ONE = 400,
-  ERROR_TWO = 401,
-  ERROR_THREE = 500,
+  error_two = 401,
+  Error_Three = 500,
 }

@@ -5,7 +5,9 @@ export function title(str: string) {
 }
 
 export function pascalToSnake(str: string): string {
-  return str.replace(/[A-Z]/g, (letter, index) => {
-    return index == 0 ? letter.toLowerCase() : "_" + letter.toLowerCase();
-  });
+  return str
+    .replace(/\.?_*([A-Z]+)/g, (letter, index) => {
+      return "_" + index.toLowerCase();
+    })
+    .replace(/^_/, "");
 }
