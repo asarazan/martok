@@ -7,17 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "anonymous": "ts-node src/index.ts tests/comparisons/single/anonymous.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "enums": "ts-node src/index.ts tests/comparisons/single/enums.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "enumSpacing": "ts-node src/index.ts tests/comparisons/single/enumSpacing.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "simpleUnion": "ts-node src/index.ts tests/comparisons/single/simpleUnion.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "types": "ts-node src/index.ts tests/comparisons/single/types.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "tagged": "ts-node src/index.ts tests/comparisons/single/tagged.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "tagged2": "ts-node src/index.ts tests/comparisons/single/tagged2.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "tagged3": "ts-node src/index.ts tests/comparisons/single/tagged3.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "literal": "ts-node src/index.ts tests/comparisons/single/stringLiteral.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
-    "faceoff": "ts-node src/index.ts ../../volley/faceoff-backend/src/types/core -o ./schema/faceoff --package net.sarazan.martok --datePattern standard",
-    "faceoff2": "ts-node src/index.ts types/faceoff -o ./schema/faceoff --package net.sarazan.martok --datePattern standard",
+    "special": "ts-node src/index.ts tests/comparisons/single/utilityTypes.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
