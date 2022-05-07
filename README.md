@@ -1,24 +1,19 @@
-Martok [WIP]
+Martok - Glory to your schema!
 ==
-## Glory to your schema!
-
 ![image](https://user-images.githubusercontent.com/542872/141661639-3dc8c2e3-d44d-4e56-bed5-7aea1c1f4cb8.png)
 
 Martok is built for one thing and one thing only: converting Typescript schemas into 
 [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
 schemas. It's the brutal and chaotic rival to [Dukat](https://github.com/Kotlin/dukat).
 
-It is still in the extremely early stages of development, and should not be used.
-
 ### Why Kotlin? Why Typescript?
 We're a huge believer in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
-but also accept the increasing prevalence of Node on the backend. Martok creates a schema pipeline from your
-Typescript backend to your Kotlin data layer on Android & iOS.
+but also recognize the (well-earned) dominance of Node on the backend. Martok creates an automated schema pipeline from the
+Typescript in your backend codebase to the Kotlin data layer in your Android & iOS apps.
 
 ### Why Not QuickType?
 QuickType has gotten quite old and difficult to develop. The PRs have mostly stagnated, 
 we currently cannot find a way to successfully build the project, so we've moved on.
-
 
 ### Installation
 ```shell
@@ -47,6 +42,7 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * Custom package name
 * Enums
 * optional fields
+* Typescrupt "Utility" types (e.g. `Omit` and `Pick`)
 
 ### TODO
 * Fully discriminated/disagreeing unions
