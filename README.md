@@ -18,6 +18,29 @@ Typescript in your backend codebase to the Kotlin data layer in your Android & i
 QuickType has gotten quite old and difficult to develop. The PRs have mostly stagnated, 
 we currently cannot find a way to successfully build the project, so we've moved on.
 
+### Can I see some example output?
+Sure! Check out the comparison files we use for our automated tests [HERE](tests/comparisons/single).
+
+_For a quick example:_
+```typescript
+export type Unions = {
+  foo: { bar: string } | { baz: string };
+};
+```
+_Would translate to _
+```kotlin
+@Serializable
+data class Unions(
+    val foo: Foo
+) {
+    @Serializable
+    data class Foo(
+        val bar: String? = null,
+        val baz: String? = null
+    )
+}
+```
+
 ### Installation
 ```shell
 npm install -g martok
