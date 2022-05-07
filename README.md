@@ -4,7 +4,7 @@ Martok - Glory to your schema!
 
 Martok is built for one thing and one thing only: converting Typescript schemas into 
 [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
-schemas. It's the brutal and chaotic rival to [Dukat](https://github.com/Kotlin/dukat).
+schemas. *It's the brutal and chaotic rival to [Dukat](https://github.com/Kotlin/dukat).*
 
 ### Why Kotlin? Why Typescript?
 We're a huge believer in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
