@@ -27,6 +27,7 @@ import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
+import { UtilityGenerator } from "./UtilityGenerator";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -43,6 +44,7 @@ export type MemberOptions = {
 export class KlassGenerator {
   public readonly enums = new EnumGenerator(this.martok);
   public readonly tagged = new TaggedUnionGenerator(this.martok);
+  public readonly utility = new UtilityGenerator(this.martok);
 
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: Martok) {}
@@ -83,14 +85,16 @@ export class KlassGenerator {
       const asTagged = this.tagged.generateKlass(name, node);
       if (asTagged) return asTagged;
 
-      if (this.enums.canGenerate(node)) {
-        return this.enums.generate(name, node);
-      }
+      const asEnum = this.enums.generate(name, node);
+      if (asEnum) return asEnum;
 
       if (isTypeAliasDeclaration(node)) {
-        if (this.enums.canGenerate(node.type)) {
-          return this.enums.generate(name, node.type);
-        }
+        const typeAsEnum = this.enums.generate(name, node.type);
+        if (typeAsEnum) return typeAsEnum;
+
+        const asUtility = this.utility.generate(name, node.type);
+        if (asUtility) return asUtility;
+
         const alias = this.generateTypeAlias(node);
         if (alias) return alias;
       }

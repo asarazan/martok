@@ -21,7 +21,7 @@ export class EnumGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
-  public canGenerate(type: Node): type is UnionTypeNode | EnumDeclaration {
+  private canGenerate(type: Node): type is UnionTypeNode | EnumDeclaration {
     if (isUnionTypeNode(type)) {
       return all(type.types, (value) => {
         const type = this.checker.getTypeFromTypeNode(value);
@@ -31,7 +31,8 @@ export class EnumGenerator {
     return !!isEnumDeclaration(type);
   }
 
-  public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
+  public generate(name: string, node: Node): Klass | undefined {
+    if (!this.canGenerate(node)) return undefined;
     const generator = this.isStringEnum(node) ? this.strings : this.ordinals;
     return generator.generate(name, node);
   }
