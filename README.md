@@ -27,7 +27,7 @@ export type Unions = {
   foo: { bar: string } | { baz: string };
 };
 ```
-_Would translate to _
+_Would translate to_
 ```kotlin
 @Serializable
 data class Unions(
