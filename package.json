@@ -12,6 +12,7 @@
   },
   "author": "aaron@sarazan.net",
   "license": "Apache-2.0",
+  "repository": "https://github.com/asarazan/martok",
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/jest": "^27.0.3",
