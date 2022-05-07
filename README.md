@@ -67,7 +67,7 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
-* kotlinx.datetime
+* Infer kotlinx.datetime from certain naming patterns _(See [Patterns.ts](src/typescript/Patterns.ts) or pass --datePattern standard)_
 * Custom package name
 * Enums
 * optional fields
