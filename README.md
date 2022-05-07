@@ -1,8 +1,8 @@
 Martok - Glory To Your Schema!
-
-![Build Status](https://github.com/asarazan/martok/actions/workflows/ci.yaml/badge.svg)
 ==
 ![image](https://user-images.githubusercontent.com/542872/141661639-3dc8c2e3-d44d-4e56-bed5-7aea1c1f4cb8.png)
+
+![Build Status](https://github.com/asarazan/martok/actions/workflows/ci.yaml/badge.svg)
 
 Martok is built for one thing and one thing only: converting Typescript schemas into 
 [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
