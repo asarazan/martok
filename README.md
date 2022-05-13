@@ -1,16 +1,19 @@
 Martok - Glory To Your Schema!
 ==
+
 ![Build Status](https://github.com/asarazan/martok/actions/workflows/ci.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/asarazan/martok/branch/main/graph/badge.svg?token=AAIV2Q9PRS)](https://codecov.io/gh/asarazan/martok)
 
 ![image](https://user-images.githubusercontent.com/542872/141661639-3dc8c2e3-d44d-4e56-bed5-7aea1c1f4cb8.png)
+
+<sub>_(Want to get paid to build cool stuff on Kotlin Multiplatform? [We're Hiring!](https://www.volleythat.com/careers))_</sub>
 
 Martok is built for one thing and one thing only: converting Typescript schemas into 
 [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
 schemas. *It's the brutal and chaotic rival to [Dukat](https://github.com/Kotlin/dukat).*
 
 ### Why Kotlin? Why Typescript?
-We're a huge believer in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
+Here at [Volley](https://www.volleythat.com/careers), we're big believers in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
 but also recognize the (well-earned) dominance of Node on the backend. Martok creates an automated schema pipeline from the
 Typescript in your backend codebase to the Kotlin data layer in your Android & iOS apps.
 
@@ -64,7 +67,7 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
-* kotlinx.datetime
+* Infer kotlinx.datetime from certain naming patterns _(See [Patterns.ts](src/typescript/Patterns.ts) or pass --datePattern standard)_
 * Custom package name
 * Enums
 * optional fields

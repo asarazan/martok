@@ -3,7 +3,9 @@
   "version": "1.0.2",
   "description": "",
   "main": "dist/index.js",
-  "bin": "dist/index.js",
+  "bin": {
+    "martok": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
