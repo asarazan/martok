@@ -20,53 +20,63 @@ typealias Type2 = String
 
 @Serializable
 enum class Types(
-    val serialName: String
+  val serialName: String
 ) {
-    @SerialName("type 1") TYPE_1("type 1"),
-    @SerialName("type 2") TYPE_2("type 2");
+  @SerialName("type 1") TYPE_1("type 1"),
+  @SerialName("type 2") TYPE_2("type 2");
 }
 
 @Serializable(with = Tagged.UnionSerializer::class)
 sealed class Tagged {
-    abstract val id: String
-    abstract val foo: String?
-    abstract val type: String
+  abstract val id: String
+  abstract val foo: String?
+  abstract val type: Tag
+  @Serializable
+  enum class Tag(
+    val serialName: String
+  ) {
+    @SerialName("type 1") TYPE_1("type 1"),
+    @SerialName("type 2") TYPE_2("type 2");
+  }
 
-    @Serializable
-    data class TaggedType_1(
-        override val id: String,
-        override val foo: String?,
-        override val type: Type1,
-        val state: State1
-    ) : Tagged()
 
-    @Serializable
-    data class TaggedType_2(
-        override val id: String,
-        override val foo: String?,
-        override val type: Type2,
-        val state: State2
-    ) : Tagged()
+  @Serializable
+  data class TaggedType_1(
+    override val id: String,
+    override val foo: String?,
+    override val type: Tag,
+    val state: State1
+  ) : Tagged()
 
-    object UnionSerializer : JsonContentPolymorphicSerializer<Tagged>(Tagged::class) {
-        override fun selectDeserializer(element: JsonElement) = when(
+
+  @Serializable
+  data class TaggedType_2(
+    override val id: String,
+    override val foo: String?,
+    override val type: Tag,
+    val state: State2
+  ) : Tagged()
+
+
+  object UnionSerializer : JsonContentPolymorphicSerializer<Tagged>(Tagged::class) {
+    override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("type 1") -> TaggedType_1.serializer()
-            JsonPrimitive("type 2") -> TaggedType_2.serializer()
+            JsonPrimitive(Tag.TYPE_1.serialName) -> TaggedType_1.serializer()
+            JsonPrimitive(Tag.TYPE_2.serialName) -> TaggedType_2.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
-        }
     }
+  }
 }
 
 @Serializable
 data class State1(
-    val foo: String,
-    val bar: Double
+  val foo: String,
+  val bar: Double
 )
 
 @Serializable
 data class State2(
-    val foo: Boolean,
-    val bar: String
+  val foo: Boolean,
+  val bar: String
 )

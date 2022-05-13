@@ -142,12 +142,14 @@ export class TaggedUnionGenerator {
     const enums: EnumValue[] = Object.keys(tag.mappings).map((value) => {
       return {
         name: getValName(value),
+        annotation: `@SerialName("${value}")`,
         args: [{ name: `"${value}"` }],
       };
     });
     return new Klass("Tag")
       .addModifier("enum")
-      .setCtorArgs({ name: "value", type: "String", mutability: "val" })
+      .setAnnotation("@Serializable")
+      .setCtorArgs({ name: "serialName", type: "String", mutability: "val" })
       .setEnumValues(...enums);
   }
 
@@ -167,7 +169,7 @@ export class TaggedUnionGenerator {
       const tagMember = subclass.ctor.find((value) => value.name === tag.name);
       tagMember!.type = `Tag`;
       result.push(subclass);
-      return `JsonPrimitive(${tagName}.value) -> ${subName}.serializer()`;
+      return `JsonPrimitive(${tagName}.serialName) -> ${subName}.serializer()`;
     });
     result.push(
       new Klass("UnionSerializer").setKlassType("object").setExtends({

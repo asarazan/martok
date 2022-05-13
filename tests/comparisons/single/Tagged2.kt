@@ -16,64 +16,84 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable
 data class HasId(
-    val id: String
+  val id: String
 )
 
 @Serializable(with = IntersectionFirst.UnionSerializer::class)
 sealed class IntersectionFirst {
-    abstract val id: String
-    abstract val type: String
+  abstract val id: String
+  abstract val type: Tag
+  @Serializable
+  enum class Tag(
+    val serialName: String
+  ) {
+    @SerialName("foo") FOO("foo"),
+    @SerialName("bar") BAR("bar");
+  }
 
-    @Serializable
-    data class IntersectionFirstFoo(
-        override val id: String,
-        override val type: String,
-        val foo: String
-    ) : IntersectionFirst()
 
-    @Serializable
-    data class IntersectionFirstBar(
-        override val id: String,
-        override val type: String,
-        val bar: String
-    ) : IntersectionFirst()
+  @Serializable
+  data class IntersectionFirstFoo(
+    override val id: String,
+    override val type: Tag,
+    val foo: String
+  ) : IntersectionFirst()
 
-    object UnionSerializer : JsonContentPolymorphicSerializer<IntersectionFirst>(IntersectionFirst::class) {
-        override fun selectDeserializer(element: JsonElement) = when(
+
+  @Serializable
+  data class IntersectionFirstBar(
+    override val id: String,
+    override val type: Tag,
+    val bar: String
+  ) : IntersectionFirst()
+
+
+  object UnionSerializer : JsonContentPolymorphicSerializer<IntersectionFirst>(IntersectionFirst::class) {
+    override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("foo") -> IntersectionFirstFoo.serializer()
-            JsonPrimitive("bar") -> IntersectionFirstBar.serializer()
+            JsonPrimitive(Tag.FOO.serialName) -> IntersectionFirstFoo.serializer()
+            JsonPrimitive(Tag.BAR.serialName) -> IntersectionFirstBar.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
-        }
     }
+  }
 }
 
 @Serializable(with = UnionFirst.UnionSerializer::class)
 sealed class UnionFirst {
-    abstract val type: String
+  abstract val type: Tag
+  @Serializable
+  enum class Tag(
+    val serialName: String
+  ) {
+    @SerialName("foo") FOO("foo"),
+    @SerialName("bar") BAR("bar");
+  }
 
-    @Serializable
-    data class UnionFirstFoo(
-        override val type: String,
-        val foo: String,
-        val id: String
-    ) : UnionFirst()
 
-    @Serializable
-    data class UnionFirstBar(
-        override val type: String,
-        val bar: String,
-        val id: String
-    ) : UnionFirst()
+  @Serializable
+  data class UnionFirstFoo(
+    override val type: Tag,
+    val foo: String,
+    val id: String
+  ) : UnionFirst()
 
-    object UnionSerializer : JsonContentPolymorphicSerializer<UnionFirst>(UnionFirst::class) {
-        override fun selectDeserializer(element: JsonElement) = when(
+
+  @Serializable
+  data class UnionFirstBar(
+    override val type: Tag,
+    val bar: String,
+    val id: String
+  ) : UnionFirst()
+
+
+  object UnionSerializer : JsonContentPolymorphicSerializer<UnionFirst>(UnionFirst::class) {
+    override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive("foo") -> UnionFirstFoo.serializer()
-            JsonPrimitive("bar") -> UnionFirstBar.serializer()
+            JsonPrimitive(Tag.FOO.serialName) -> UnionFirstFoo.serializer()
+            JsonPrimitive(Tag.BAR.serialName) -> UnionFirstBar.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
-        }
     }
+  }
 }

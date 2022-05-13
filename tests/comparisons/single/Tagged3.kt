@@ -16,44 +16,53 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable
 data class NestedLiteralUnion(
-    val id: String,
-    val data: Data
+  val id: String,
+  val data: Data
 ) {
-    @Serializable(with = Data.UnionSerializer::class)
-    sealed class Data {
-        abstract val type: String
-        @Serializable
-        data class DataFoo(
-            override val type: String,
-            val data: Foo
-        ) : Data()
-
-
-        @Serializable
-        data class DataBar(
-            override val type: String,
-            val data: Bar
-        ) : Data()
-
-
-        object UnionSerializer : JsonContentPolymorphicSerializer<Data>(Data::class) {
-            override fun selectDeserializer(element: JsonElement) = when(
-                val type = element.jsonObject["type"]
-            ) {
-                JsonPrimitive("foo") -> DataFoo.serializer()
-                JsonPrimitive("bar") -> DataBar.serializer()
-                else -> throw IllegalArgumentException("Unexpected type: $type")
-            }
-        }
+  @Serializable(with = Data.UnionSerializer::class)
+  sealed class Data {
+    abstract val type: Tag
+    @Serializable
+    enum class Tag(
+      val serialName: String
+    ) {
+      @SerialName("foo") FOO("foo"),
+      @SerialName("bar") BAR("bar");
     }
+
+
+    @Serializable
+    data class DataFoo(
+      override val type: Tag,
+      val data: Foo
+    ) : Data()
+
+
+    @Serializable
+    data class DataBar(
+      override val type: Tag,
+      val data: Bar
+    ) : Data()
+
+
+    object UnionSerializer : JsonContentPolymorphicSerializer<Data>(Data::class) {
+      override fun selectDeserializer(element: JsonElement) = when(
+              val type = element.jsonObject["type"]
+          ) {
+              JsonPrimitive(Tag.FOO.serialName) -> DataFoo.serializer()
+              JsonPrimitive(Tag.BAR.serialName) -> DataBar.serializer()
+              else -> throw IllegalArgumentException("Unexpected type: $type")
+      }
+    }
+  }
 }
 
 @Serializable
 data class Foo(
-    val foo: String
+  val foo: String
 )
 
 @Serializable
 data class Bar(
-    val bar: String
+  val bar: String
 )
