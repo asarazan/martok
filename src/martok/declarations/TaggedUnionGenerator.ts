@@ -22,6 +22,8 @@ import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { SupportedDeclaration } from "./KlassGenerator";
 import { title } from "../NameGenerators";
+import EnumValue = kotlin.EnumValue;
+import { getValName } from "../../typescript/EnumHelpers";
 
 type TagMappings = {
   name: string;
@@ -77,10 +79,11 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: "String",
+        type: "Tag",
         abstract: true,
       })
       .addInternalClasses(
+        this.generateTagEnum(tag),
         ...this.martok.declarations.klasses.generateInnerKlasses(members)
       );
     result.addInternalClasses(
@@ -135,6 +138,21 @@ export class TaggedUnionGenerator {
     return propType.literal.text;
   }
 
+  private generateTagEnum(tag: TagMappings): Klass {
+    const enums: EnumValue[] = Object.keys(tag.mappings).map((value) => {
+      return {
+        name: getValName(value),
+        annotation: `@SerialName("${value}")`,
+        args: [{ name: `"${value}"` }],
+      };
+    });
+    return new Klass("Tag")
+      .addModifier("enum")
+      .setAnnotation("@Serializable")
+      .setCtorArgs({ name: "serialName", type: "String", mutability: "val" })
+      .setEnumValues(...enums);
+  }
+
   private generateSerializerAndFriends(
     name: string,
     tag: TagMappings,
@@ -143,13 +161,15 @@ export class TaggedUnionGenerator {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
       const subName = `${name}${title(k).replace(/\s/g, "_")}`;
-      result.push(
-        this.martok.declarations.klasses.generate(v, {
-          forceName: subName,
-          extendSealed: parent,
-        }) as Klass
-      );
-      return `JsonPrimitive("${k}") -> ${subName}.serializer()`;
+      const tagName = `Tag.${getValName(k)}`;
+      const subclass = this.martok.declarations.klasses.generate(v, {
+        forceName: subName,
+        extendSealed: parent,
+      }) as Klass;
+      const tagMember = subclass.ctor.find((value) => value.name === tag.name);
+      tagMember!.type = `Tag`;
+      result.push(subclass);
+      return `JsonPrimitive(${tagName}.serialName) -> ${subName}.serializer()`;
     });
     result.push(
       new Klass("UnionSerializer").setKlassType("object").setExtends({

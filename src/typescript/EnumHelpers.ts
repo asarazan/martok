@@ -55,7 +55,7 @@ export function getEnumValue(
   throw new Error("I don't know what to do with this enum.");
 }
 
-function getValName(name: string): string {
+export function getValName(name: string): string {
   let result = pascalToSnake(name).toUpperCase();
   if (!isNaN(parseFloat(result))) {
     result = `_${result.replace(/\./g, "_")}`;

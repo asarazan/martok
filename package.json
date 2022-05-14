@@ -1,6 +1,6 @@
 {
   "name": "martok",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/index.js",
   "bin": {
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "special": "ts-node src/index.ts tests/comparisons/single/utilityTypes.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "special": "ts-node src/index.ts tests/comparisons/single/tagged.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
