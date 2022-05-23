@@ -79,7 +79,7 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: "Tag",
+        type: this.capitalizeFirst(tag.name),
         abstract: true,
       })
       .addInternalClasses(
@@ -146,7 +146,7 @@ export class TaggedUnionGenerator {
         args: [{ name: `"${value}"` }],
       };
     });
-    return new Klass("Tag")
+    return new Klass(this.capitalizeFirst(tag.name))
       .addModifier("enum")
       .setAnnotation("@Serializable")
       .setCtorArgs({ name: "serialName", type: "String", mutability: "val" })
@@ -184,5 +184,9 @@ ${indentString(tagMapping.join("\n"), 8)}
 }`)
     );
     return result;
+  }
+
+  private capitalizeFirst(value: string): string {
+    return value.replace(/./, c => c.toUpperCase())
   }
 }
