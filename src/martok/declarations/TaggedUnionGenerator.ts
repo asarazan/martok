@@ -187,6 +187,6 @@ ${indentString(tagMapping.join("\n"), 8)}
   }
 
   private capitalizeFirst(value: string): string {
-    return value.replace(/./, c => c.toUpperCase())
+    return value.replace(/./, (c) => c.toUpperCase());
   }
 }
