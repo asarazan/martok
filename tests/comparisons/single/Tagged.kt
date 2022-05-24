@@ -30,9 +30,9 @@ enum class Types(
 sealed class Tagged {
   abstract val id: String
   abstract val foo: String?
-  abstract val type: Tag
+  abstract val type: Type
   @Serializable
-  enum class Tag(
+  enum class Type(
     val serialName: String
   ) {
     @SerialName("type 1") TYPE_1("type 1"),
@@ -44,7 +44,7 @@ sealed class Tagged {
   data class TaggedType_1(
     override val id: String,
     override val foo: String?,
-    override val type: Tag,
+    override val type: Type,
     val state: State1
   ) : Tagged()
 
@@ -53,7 +53,7 @@ sealed class Tagged {
   data class TaggedType_2(
     override val id: String,
     override val foo: String?,
-    override val type: Tag,
+    override val type: Type,
     val state: State2
   ) : Tagged()
 
@@ -62,8 +62,8 @@ sealed class Tagged {
     override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive(Tag.TYPE_1.serialName) -> TaggedType_1.serializer()
-            JsonPrimitive(Tag.TYPE_2.serialName) -> TaggedType_2.serializer()
+            JsonPrimitive(Type.TYPE_1.serialName) -> TaggedType_1.serializer()
+            JsonPrimitive(Type.TYPE_2.serialName) -> TaggedType_2.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
     }
   }
