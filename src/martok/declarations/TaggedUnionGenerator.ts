@@ -79,7 +79,7 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: "Tag",
+        type: title(tag.name),
         abstract: true,
       })
       .addInternalClasses(
@@ -146,7 +146,7 @@ export class TaggedUnionGenerator {
         args: [{ name: `"${value}"` }],
       };
     });
-    return new Klass("Tag")
+    return new Klass(title(tag.name))
       .addModifier("enum")
       .setAnnotation("@Serializable")
       .setCtorArgs({ name: "serialName", type: "String", mutability: "val" })
@@ -161,13 +161,13 @@ export class TaggedUnionGenerator {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
       const subName = `${name}${title(k).replace(/\s/g, "_")}`;
-      const tagName = `Tag.${getValName(k)}`;
+      const tagName = `${title(tag.name)}.${getValName(k)}`;
       const subclass = this.martok.declarations.klasses.generate(v, {
         forceName: subName,
         extendSealed: parent,
       }) as Klass;
       const tagMember = subclass.ctor.find((value) => value.name === tag.name);
-      tagMember!.type = `Tag`;
+      tagMember!.type = `${title(tag.name)}`;
       result.push(subclass);
       return `JsonPrimitive(${tagName}.serialName) -> ${subName}.serializer()`;
     });
