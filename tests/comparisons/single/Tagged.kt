@@ -44,18 +44,20 @@ sealed class Tagged {
   data class TaggedType_1(
     override val id: String,
     override val foo: String?,
-    override val type: Type,
     val state: State1
-  ) : Tagged()
+  ) : Tagged() {
+    override val type = Type.TYPE_1
+  }
 
 
   @Serializable
   data class TaggedType_2(
     override val id: String,
     override val foo: String?,
-    override val type: Type,
     val state: State2
-  ) : Tagged()
+  ) : Tagged() {
+    override val type = Type.TYPE_2,
+  }
 
 
   object UnionSerializer : JsonContentPolymorphicSerializer<Tagged>(Tagged::class) {

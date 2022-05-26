@@ -33,16 +33,18 @@ data class NestedLiteralUnion(
 
     @Serializable
     data class DataFoo(
-      override val type: Type,
       val data: Foo
-    ) : Data()
+    ) : Data() {
+      override val type = Type.FOO
+    }
 
 
     @Serializable
     data class DataBar(
-      override val type: Type,
       val data: Bar
-    ) : Data()
+    ) : Data() {
+      override val type = Type.BAR
+    }
 
 
     object UnionSerializer : JsonContentPolymorphicSerializer<Data>(Data::class) {
