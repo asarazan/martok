@@ -166,10 +166,10 @@ export class TaggedUnionGenerator {
         extendSealed: parent,
       }) as Klass;
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
+      tagMember.type = `${title(tag.name)}`;
       _.remove(subclass.ctor, tagMember);
       tagMember.value = tagName;
       subclass.addMembers(tagMember);
-      tagMember.type = `${title(tag.name)}`;
       result.push(subclass);
       return `JsonPrimitive(${tagName}.serialName) -> ${subName}.serializer()`;
     });
