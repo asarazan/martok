@@ -10,20 +10,19 @@ import {
   isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
-  PropertySignature,
   TypeElement,
   TypeNode,
   UnionTypeNode,
 } from "typescript";
 import { getMembers } from "../../typescript/MemberHelpers";
-import _, { capitalize } from "lodash";
+import _ from "lodash";
 import indentString from "indent-string";
 import { kotlin } from "../../kotlin/Klass";
-import Klass = kotlin.Klass;
 import { SupportedDeclaration } from "./KlassGenerator";
 import { title } from "../NameGenerators";
-import EnumValue = kotlin.EnumValue;
 import { getValName } from "../../typescript/EnumHelpers";
+import Klass = kotlin.Klass;
+import EnumValue = kotlin.EnumValue;
 
 type TagMappings = {
   name: string;
@@ -166,8 +165,11 @@ export class TaggedUnionGenerator {
         forceName: subName,
         extendSealed: parent,
       }) as Klass;
-      const tagMember = subclass.ctor.find((value) => value.name === tag.name);
-      tagMember!.type = `${title(tag.name)}`;
+      const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
+      _.remove(subclass.ctor, tagMember);
+      tagMember.value = tagName;
+      subclass.addMembers(tagMember);
+      tagMember.type = `${title(tag.name)}`;
       result.push(subclass);
       return `JsonPrimitive(${tagName}.serialName) -> ${subName}.serializer()`;
     });

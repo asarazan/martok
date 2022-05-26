@@ -46,7 +46,7 @@ sealed class Tagged {
     override val foo: String?,
     val state: State1
   ) : Tagged() {
-    override val type = Type.TYPE_1
+    override val type: Type = Type.TYPE_1
   }
 
 
@@ -56,7 +56,7 @@ sealed class Tagged {
     override val foo: String?,
     val state: State2
   ) : Tagged() {
-    override val type = Type.TYPE_2,
+    override val type: Type = Type.TYPE_2
   }
 
 

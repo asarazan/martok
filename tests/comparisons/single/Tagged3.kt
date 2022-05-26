@@ -35,7 +35,7 @@ data class NestedLiteralUnion(
     data class DataFoo(
       val data: Foo
     ) : Data() {
-      override val type = Type.FOO
+      override val type: Type = Type.FOO
     }
 
 
@@ -43,7 +43,7 @@ data class NestedLiteralUnion(
     data class DataBar(
       val data: Bar
     ) : Data() {
-      override val type = Type.BAR
+      override val type: Type = Type.BAR
     }
 
 

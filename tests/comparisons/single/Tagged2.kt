@@ -37,7 +37,7 @@ sealed class IntersectionFirst {
     override val id: String,
     val foo: String
   ) : IntersectionFirst() {
-    override val type = Type.FOO
+    override val type: Type = Type.FOO
   }
 
 
@@ -46,7 +46,7 @@ sealed class IntersectionFirst {
     override val id: String,
     val bar: String
   ) : IntersectionFirst() {
-    override val type = Type.BAR
+    override val type: Type = Type.BAR
   }
 
 
@@ -75,18 +75,20 @@ sealed class UnionFirst {
 
   @Serializable
   data class UnionFirstFoo(
-    override val type: Type,
     val foo: String,
     val id: String
-  ) : UnionFirst()
+  ) : UnionFirst() {
+    override val type: Type = Type.FOO
+  }
 
 
   @Serializable
   data class UnionFirstBar(
-    override val type: Type,
     val bar: String,
     val id: String
-  ) : UnionFirst()
+  ) : UnionFirst() {
+    override val type: Type = Type.BAR
+  }
 
 
   object UnionSerializer : JsonContentPolymorphicSerializer<UnionFirst>(UnionFirst::class) {
