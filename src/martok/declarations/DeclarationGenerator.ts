@@ -12,16 +12,26 @@ export class DeclarationGenerator {
 
   public generateDeclarations(file: SourceFile): string[] {
     return _.compact(
-      file.statements.map((value) => this.generateDeclaration(value))
+      file.statements.flatMap((value) => this.generateDeclaration(value))
     );
   }
 
-  private generateDeclaration(node: Statement): string | undefined {
-    if (!KlassGenerator.isSupportedDeclaration(node)) {
-      // throw new Error(`Can't handle type ${node.kind}`);
-      return undefined;
+  private generateDeclaration(node: Statement): string[] | undefined {
+    try {
+      if (!KlassGenerator.isSupportedDeclaration(node)) {
+        // throw new Error(`Can't handle type ${node.kind}`);
+        return undefined;
+      }
+      const value = this.klasses.generate(node);
+      const result = [
+        typeof value === "string" ? value : this.printer.print(value),
+      ];
+      if (this.martok.additionalDeclarations.length) {
+        result.push(...this.martok.additionalDeclarations);
+      }
+      return result;
+    } finally {
+      this.martok.clearAdditionalDeclarations();
     }
-    const value = this.klasses.generate(node);
-    return typeof value === "string" ? value : this.printer.print(value);
   }
 }

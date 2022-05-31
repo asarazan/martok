@@ -89,6 +89,16 @@ export class KlassGenerator {
       if (asEnum) return asEnum;
 
       if (isTypeAliasDeclaration(node)) {
+        if (isArrayTypeNode(node.type)) {
+          const result = this.generate(node.type, {
+            forceName: name,
+            ...options,
+          });
+          this.martok.additionalDeclarations.push(
+            `typealias ${name} = List<${(result as Klass).name}>`
+          );
+          return result;
+        }
         const typeAsEnum = this.enums.generate(name, node.type);
         if (typeAsEnum) return typeAsEnum;
 

@@ -16,6 +16,7 @@ import { AsyncLocalStorage } from "async_hooks";
 type MartokState = {
   nameScope: string[];
   externalStatements: ts.Symbol[];
+  additionalDeclarations: string[];
 };
 
 export class Martok {
@@ -35,6 +36,9 @@ export class Martok {
   }
   public get externalSymbols(): ts.Symbol[] {
     return this.storage.getStore()!.externalStatements;
+  }
+  public get additionalDeclarations(): string[] {
+    return this.storage.getStore()!.additionalDeclarations;
   }
 
   private readonly storage = new AsyncLocalStorage<MartokState>();
@@ -79,6 +83,7 @@ export class Martok {
     const state: MartokState = {
       nameScope: [],
       externalStatements: [],
+      additionalDeclarations: [],
     };
     return this.storage.run(state, () =>
       _(this.config.files)
@@ -104,6 +109,10 @@ export class Martok {
 
   public clearExternalSymbols() {
     this.externalSymbols.length = 0;
+  }
+
+  public clearAdditionalDeclarations() {
+    this.additionalDeclarations.length = 0;
   }
 
   private processFile(file: SourceFile): MartokOutFile {
