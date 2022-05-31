@@ -14,3 +14,6 @@ export type Baz = Bar & {
 };
 
 export type SomeArray = { foo: string }[];
+export type ContainsArray = {
+  arr: { foo: string }[];
+};

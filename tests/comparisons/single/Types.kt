@@ -40,3 +40,13 @@ data class SomeArrayItem(
     val foo: String
 )
 typealias SomeArray = List<SomeArrayItem>
+
+@Serializable
+data class ContainsArray(
+    val arr: List<ArrItem>
+) {
+    @Serializable
+    data class ArrItem(
+        val foo: String
+    )
+}
