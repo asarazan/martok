@@ -1,3 +1,5 @@
+export type Empty = { type: "foo" } | { type: "bar" };
+
 export type NestedLiteralUnion = {
   id: string;
   data:

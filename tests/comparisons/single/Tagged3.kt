@@ -14,6 +14,41 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+@Serializable(with = Empty.UnionSerializer::class)
+sealed class Empty {
+  abstract val type: Type
+  @Serializable
+  enum class Type(
+    val serialName: String
+  ) {
+    @SerialName("foo") FOO("foo"),
+    @SerialName("bar") BAR("bar");
+  }
+
+
+  @Serializable
+  class EmptyFoo : Empty() {
+    override val type: Type = Type.FOO
+  }
+
+
+  @Serializable
+  class EmptyBar : Empty() {
+    override val type: Type = Type.BAR
+  }
+
+
+  object UnionSerializer : JsonContentPolymorphicSerializer<Empty>(Empty::class) {
+    override fun selectDeserializer(element: JsonElement) = when(
+      val type = element.jsonObject["type"]
+    ) {
+      JsonPrimitive(Type.FOO.serialName) -> EmptyFoo.serializer()
+      JsonPrimitive(Type.BAR.serialName) -> EmptyBar.serializer()
+      else -> throw IllegalArgumentException("Unexpected type: $type")
+    }
+  }
+}
+
 @Serializable
 data class NestedLiteralUnion(
   val id: String,
