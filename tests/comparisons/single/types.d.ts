@@ -12,3 +12,5 @@ export type Bar = Foo & {
 export type Baz = Bar & {
   ban: boolean;
 };
+
+export type SomeArray = { foo: string }[];

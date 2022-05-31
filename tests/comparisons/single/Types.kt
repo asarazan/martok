@@ -34,3 +34,9 @@ data class Baz(
     val baz: Double,
     val ban: Boolean
 )
+
+@Serializable
+data class SomeArrayItem(
+    val foo: String
+)
+typealias SomeArray = List<SomeArrayItem>
