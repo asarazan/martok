@@ -168,6 +168,10 @@ export class TaggedUnionGenerator {
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
       tagMember.type = `${title(tag.name)}`;
       _.remove(subclass.ctor, tagMember);
+      // Compile error to have a data class with empty ctor...
+      if (!subclass.ctor.length) {
+        subclass.modifiers = _.without(subclass.modifiers, "data");
+      }
       tagMember.value = tagName;
       subclass.addMembers(tagMember);
       result.push(subclass);
