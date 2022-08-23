@@ -52,3 +52,8 @@ sealed class Foo {
     }
   }
 }
+
+@Serializable
+data class FooRef(
+  val ref: Foo.FooType1
+)
