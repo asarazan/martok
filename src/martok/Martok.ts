@@ -12,11 +12,13 @@ import path from "path";
 import { MartokConfig } from "./MartokConfig";
 import { title } from "./NameGenerators";
 import { AsyncLocalStorage } from "async_hooks";
+import { TypeReplacer } from "./processing/TypeReplacer";
 
 type MartokState = {
   nameScope: string[];
   externalStatements: ts.Symbol[];
   additionalDeclarations: string[];
+  typeReplacer: TypeReplacer;
 };
 
 export class Martok {
@@ -39,6 +41,9 @@ export class Martok {
   }
   public get additionalDeclarations(): string[] {
     return this.storage.getStore()!.additionalDeclarations;
+  }
+  public get typeReplacer(): TypeReplacer {
+    return this.storage.getStore()!.typeReplacer;
   }
 
   private readonly storage = new AsyncLocalStorage<MartokState>();
@@ -84,6 +89,7 @@ export class Martok {
       nameScope: [],
       externalStatements: [],
       additionalDeclarations: [],
+      typeReplacer: new TypeReplacer(this),
     };
     return this.storage.run(state, () =>
       _(this.config.files)
@@ -143,6 +149,7 @@ export class Martok {
     }
     this.clearExternalSymbols();
     this.popNameScope();
+    const replacer = this.typeReplacer;
     return base;
   }
 

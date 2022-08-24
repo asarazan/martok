@@ -14,6 +14,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+import net.sarazan.martok.Foo
+
 @Serializable
 data class FooRef(
   val ref: Foo.FooType1

@@ -3,6 +3,8 @@ import { SourceFile, Statement } from "typescript";
 import { KlassGenerator } from "./KlassGenerator";
 import _ from "lodash";
 import { KlassPrinter } from "../../kotlin/KlassPrinter";
+import { kotlin } from "../../kotlin/Klass";
+import Klass = kotlin.Klass;
 
 export class DeclarationGenerator {
   public readonly klasses = new KlassGenerator(this.martok);
