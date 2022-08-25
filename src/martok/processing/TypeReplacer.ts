@@ -1,19 +1,26 @@
 import { Martok } from "../Martok";
-import { isTypeReferenceNode, Node, TypeNode } from "typescript";
+import {
+  isTypeAliasDeclaration,
+  isTypeReferenceNode,
+  Node,
+  Type,
+  TypeNode,
+} from "typescript";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import ts = require("typescript");
+import { over } from "lodash";
 
 export class TypeReplacer {
-  private readonly map = new Map<ts.Symbol, Klass>();
+  private readonly map = new Map<Type, Klass>();
   private readonly replacements = new Map<Klass, Klass>();
 
-  public get initialTypeMap(): Map<ts.Symbol, Klass> {
+  public get initialTypeMap(): Map<Type, Klass> {
     return new Map(this.map);
   }
 
-  public get finalTypeMap(): Map<ts.Symbol, Klass> {
-    const result = new Map<ts.Symbol, Klass>();
+  public get finalTypeMap(): Map<Type, Klass> {
+    const result = new Map<Type, Klass>();
     for (const key of this.map.keys()) {
       const value = this.lookup(key)!;
       result.set(key, value);
@@ -23,21 +30,24 @@ export class TypeReplacer {
 
   public constructor(private martok: Martok) {}
 
-  // TODO figure out how to resolve TypeReferences :-( :-( :-(
-  public register(type: Node, klass: Klass) {
-    let symbol = this.martok.checker.symbol(type);
-    if (!symbol) return;
-    symbol = this.martok.checker.getAliasedSymbol(symbol) ?? symbol;
-    const existing = this.lookup(symbol);
+  public register(node: Node, klass: Klass) {
+    const type = this.martok.checker.getTypeAtLocation(node);
+    const existing = this.lookup(type);
+    const overwrite = !!klass.meta.generators.length;
     if (existing) {
-      this.replacements.set(existing, klass);
+      if (overwrite) {
+        this.replacements.set(existing, klass);
+      } else {
+        this.replacements.set(klass, existing);
+        this.map.set(type, klass);
+      }
     } else {
-      this.map.set(symbol, klass);
+      this.map.set(type, klass);
     }
   }
 
-  private lookup(type: ts.Symbol): kotlin.Klass | undefined {
-    let lookup = type instanceof Klass ? type : this.map.get(type);
+  private lookup(type: Type): kotlin.Klass | undefined {
+    let lookup = this.map.get(type);
     if (!lookup) return undefined;
     let result = lookup;
     while (lookup) {

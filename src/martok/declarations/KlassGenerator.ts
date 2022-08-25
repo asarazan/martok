@@ -64,8 +64,9 @@ export class KlassGenerator {
     options?: MemberOptions
   ): Klass | string {
     const result = this._generate(node, options);
-    if (result instanceof Klass)
+    if (result instanceof Klass) {
       this.martok.typeReplacer.register(node, result);
+    }
     return result;
   }
 

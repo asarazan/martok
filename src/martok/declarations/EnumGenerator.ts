@@ -34,7 +34,9 @@ export class EnumGenerator {
   public generate(name: string, node: Node): Klass | undefined {
     if (!this.canGenerate(node)) return undefined;
     const generator = this.isStringEnum(node) ? this.strings : this.ordinals;
-    return generator.generate(name, node);
+    const result = generator.generate(name, node);
+    result.addGeneratorTypes("enum");
+    return result;
   }
 
   private isStringEnum(node: UnionTypeNode | EnumDeclaration): boolean {

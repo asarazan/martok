@@ -12,6 +12,13 @@ export namespace kotlin {
     | "companion"
     | "sealed";
 
+  export type GeneratorType =
+    | "tagged"
+    | "string-enum"
+    | "ordinal-enum"
+    | "enum"
+    | "utility";
+
   export type EnumValue = {
     annotation?: string;
     name: string;
@@ -43,6 +50,10 @@ export namespace kotlin {
     args?: FunctionArgument[];
   };
 
+  export type KlassMetadata = {
+    generators: GeneratorType[];
+  };
+
   export class Klass {
     public name?: string;
 
@@ -58,6 +69,10 @@ export namespace kotlin {
     public members: MemberDeclaration[] = [];
     public internalClasses: Klass[] = [];
     public statements: string[] = [];
+
+    public meta: KlassMetadata = {
+      generators: [],
+    };
 
     public constructor(name?: string) {
       this.name = name;
@@ -145,6 +160,11 @@ export namespace kotlin {
 
     public setStatements(...statements: string[]): this {
       this.statements = statements;
+      return this;
+    }
+
+    public addGeneratorTypes(...generators: GeneratorType[]): this {
+      this.meta.generators.push(...generators);
       return this;
     }
   }

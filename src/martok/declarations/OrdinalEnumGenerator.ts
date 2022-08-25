@@ -13,6 +13,7 @@ export class OrdinalEnumGenerator {
   public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
     const fqn = this.martok.nameScope.join(`.`);
     return new Klass(name)
+      .addGeneratorTypes("ordinal-enum")
       .setAnnotation(`@Serializable(with = ${name}.Companion::class)`)
       .addModifier("enum")
       .addCtorArgs({
@@ -59,6 +60,7 @@ export class OrdinalEnumGenerator {
     node: UnionTypeNode | EnumDeclaration
   ): Klass {
     return new Klass()
+      .addGeneratorTypes("ordinal-enum")
       .addModifier("companion")
       .setKlassType("object")
       .addImplements(`KSerializer<${className}>`)

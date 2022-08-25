@@ -66,6 +66,7 @@ export class TaggedUnionGenerator {
 
     if (!tag) return undefined;
     const result = new Klass(name)
+      .addGeneratorTypes("tagged")
       .setAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
       .addModifier("sealed")
       .addMembers(
@@ -83,7 +84,9 @@ export class TaggedUnionGenerator {
       })
       .addInternalClasses(
         this.generateTagEnum(tag),
-        ...this.martok.declarations.klasses.generateInnerKlasses(members)
+        ...this.martok.declarations.klasses
+          .generateInnerKlasses(members)
+          .map((value) => value.addGeneratorTypes("tagged"))
       );
     result.addInternalClasses(
       ...this.generateSerializerAndFriends(name, tag, result)
@@ -146,6 +149,7 @@ export class TaggedUnionGenerator {
       };
     });
     return new Klass(title(tag.name))
+      .addGeneratorTypes("tagged")
       .addModifier("enum")
       .setAnnotation("@Serializable")
       .setCtorArgs({ name: "serialName", type: "String", mutability: "val" })
@@ -165,6 +169,7 @@ export class TaggedUnionGenerator {
         forceName: subName,
         extendSealed: parent,
       }) as Klass;
+      subclass.addGeneratorTypes("tagged");
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
       tagMember.type = `${title(tag.name)}`;
       _.remove(subclass.ctor, tagMember);
@@ -178,10 +183,13 @@ export class TaggedUnionGenerator {
       return `JsonPrimitive(${tagName}.serialName) -> ${subName}.serializer()`;
     });
     result.push(
-      new Klass("UnionSerializer").setKlassType("object").setExtends({
-        name: `JsonContentPolymorphicSerializer<${name}>`,
-        args: [{ name: `${name}::class` }],
-      })
+      new Klass("UnionSerializer")
+        .addGeneratorTypes("tagged")
+        .setKlassType("object")
+        .setExtends({
+          name: `JsonContentPolymorphicSerializer<${name}>`,
+          args: [{ name: `${name}::class` }],
+        })
         .addStatements(`override fun selectDeserializer(element: JsonElement) = when(
         val type = element.jsonObject["${tag.name}"]
     ) {

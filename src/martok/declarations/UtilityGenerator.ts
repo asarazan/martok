@@ -72,6 +72,7 @@ export class UtilityGenerator {
         delete value.value;
       }
     }
+    result.addGeneratorTypes("utility");
     return result;
   }
 
