@@ -41,18 +41,23 @@ export class TypeReplacer {
   }
 
   public processOutput(files: MartokOutFile[]) {
-    // TODO process the imports... likely by fuzzy string matching or something.
+    const klassMap = this.buildKlassMap(files);
     for (const file of files) {
       file.text.declarations = _.compact(
         file.text.declarations.map((value) => {
           if (typeof value === "string") return value;
-          const final = this.replacements.get(value);
-          // Cull any klasses that have a replacement set.
-          return final ? undefined : value;
+          return this.processKlass(value);
         })
       );
     }
     files.filter((value) => !!value.text.declarations.length);
+  }
+
+  private processKlass(klass: Klass): Klass | undefined {
+    const final = this.replacements.get(klass);
+    if (!final) return klass;
+    // Cull any klasses that have a replacement set.
+    return undefined;
   }
 
   private lookup(type: Type): kotlin.Klass | undefined {
@@ -62,6 +67,31 @@ export class TypeReplacer {
     while (lookup) {
       lookup = this.replacements.get(lookup);
       if (lookup) result = lookup;
+    }
+    return result;
+  }
+
+  private buildKlassMap(files: MartokOutFile[]): Record<string, Klass> {
+    const result: Record<string, Klass> = {};
+    for (const file of files) {
+      this._buildKlassMap(file.text.declarations, file.package, result);
+    }
+    return result;
+  }
+
+  private _buildKlassMap(
+    klasses: (Klass | string)[],
+    pkg: string,
+    result: Record<string, Klass>
+  ) {
+    for (const klass of klasses) {
+      if (typeof klass === "string") continue;
+      result[`${pkg}.${klass.name!}`] = klass;
+      this._buildKlassMap(
+        klass.internalClasses,
+        `${pkg}.${klass.name}`,
+        result
+      );
     }
     return result;
   }
