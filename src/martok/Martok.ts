@@ -91,12 +91,14 @@ export class Martok {
       additionalDeclarations: [],
       typeReplacer: new TypeReplacer(this),
     };
-    return this.storage.run(state, () =>
-      _(this.config.files)
+    return this.storage.run(state, () => {
+      const result = _(this.config.files)
         .map((value) => this.processFile(this.program.getSourceFile(value)!))
         .compact()
-        .value()
-    );
+        .value();
+      state.typeReplacer.processOutput(result);
+      return result;
+    });
   }
 
   public pushNameScope(scope: string) {
@@ -149,7 +151,6 @@ export class Martok {
     }
     this.clearExternalSymbols();
     this.popNameScope();
-    const replacer = this.typeReplacer;
     return base;
   }
 

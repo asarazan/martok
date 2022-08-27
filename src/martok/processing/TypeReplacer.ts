@@ -1,15 +1,9 @@
 import { Martok } from "../Martok";
-import {
-  isTypeAliasDeclaration,
-  isTypeReferenceNode,
-  Node,
-  Type,
-  TypeNode,
-} from "typescript";
+import { Node, Type } from "typescript";
 import { kotlin } from "../../kotlin/Klass";
+import _ from "lodash";
+import { MartokOutFile } from "../MartokOutFile";
 import Klass = kotlin.Klass;
-import ts = require("typescript");
-import { over } from "lodash";
 
 export class TypeReplacer {
   private readonly map = new Map<Type, Klass>();
@@ -44,6 +38,21 @@ export class TypeReplacer {
     } else {
       this.map.set(type, klass);
     }
+  }
+
+  public processOutput(files: MartokOutFile[]) {
+    // TODO process the imports... likely by fuzzy string matching or something.
+    for (const file of files) {
+      file.text.declarations = _.compact(
+        file.text.declarations.map((value) => {
+          if (typeof value === "string") return value;
+          const final = this.replacements.get(value);
+          // Cull any klasses that have a replacement set.
+          return final ? undefined : value;
+        })
+      );
+    }
+    files.filter((value) => !!value.text.declarations.length);
   }
 
   private lookup(type: Type): kotlin.Klass | undefined {
