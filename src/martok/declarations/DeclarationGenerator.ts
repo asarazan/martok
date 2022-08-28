@@ -8,7 +8,7 @@ import Klass = kotlin.Klass;
 
 export class DeclarationGenerator {
   public readonly klasses = new KlassGenerator(this.martok);
-  public readonly printer = new KlassPrinter();
+  public readonly printer = KlassPrinter.instance;
 
   public constructor(private readonly martok: Martok) {}
 

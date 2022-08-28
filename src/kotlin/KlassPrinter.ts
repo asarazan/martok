@@ -4,6 +4,8 @@ import ConstructorParameter = kotlin.ConstructorParameter;
 import Mutability = kotlin.Mutability;
 
 export class KlassPrinter {
+  public static readonly instance = new KlassPrinter();
+
   public print(klass: Klass | string, indent = 0): string {
     if (typeof klass === "string") return klass;
     const result = [] as string[];

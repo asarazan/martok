@@ -12,7 +12,11 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
   "rules": {
-    "@typescript-eslint/no-non-null-assertion": 0
+    "@typescript-eslint/no-non-null-assertion": 0,
+    "@typescript-eslint/restrict-template-expressions": ["error", { "allowNullish": true }]
   }
 }

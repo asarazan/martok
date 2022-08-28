@@ -41,7 +41,7 @@ describe("Basic Kotlin Formatting", () => {
         })
       )
       .addStatements(`// statement goes here`);
-    const print = new KlassPrinter().print(k);
+    const print = KlassPrinter.instance.print(k);
     expect(print).toEqual(compare);
   });
 });

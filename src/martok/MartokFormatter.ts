@@ -4,7 +4,7 @@ import { MartokConfig } from "./MartokConfig";
 import { KlassPrinter } from "../kotlin/KlassPrinter";
 
 export class MartokFormatter {
-  private readonly printer = new KlassPrinter();
+  private readonly printer = KlassPrinter.instance;
 
   public constructor(private readonly config: MartokConfig) {}
 
