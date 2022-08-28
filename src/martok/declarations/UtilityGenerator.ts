@@ -14,6 +14,7 @@ import {
 import { kotlin } from "../../kotlin/Klass";
 import { Martok } from "../Martok";
 import Klass = kotlin.Klass;
+import { KlassGenerator } from "./KlassGenerator";
 
 const supportedTypes = ["Omit", "Pick", "Required", "Partial"];
 
@@ -31,6 +32,7 @@ export class UtilityGenerator {
 
     const result = this.martok.declarations.klasses.generate(base, {
       forceName: name,
+      performTypeReplacement: false,
     }) as Klass;
 
     if (typeName === "Omit") {

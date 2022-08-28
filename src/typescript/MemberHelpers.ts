@@ -31,6 +31,12 @@ export type MemberTypeOptions = {
    * @default true
    */
   followReferences?: boolean;
+
+  /**
+   * @default true
+   * @see TypeReplacer
+   */
+  performTypeReplacement?: boolean;
 };
 
 export function getMemberType(
