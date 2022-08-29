@@ -41,6 +41,7 @@ export class TypeReplacer {
   }
 
   public replace(existing: Klass, klass: Klass) {
+    if (existing === klass) return;
     this.replacements.set(existing, klass);
   }
 
