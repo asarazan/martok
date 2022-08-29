@@ -6,15 +6,15 @@ import { MartokOutFile } from "../MartokOutFile";
 import Klass = kotlin.Klass;
 
 export class TypeReplacer {
-  private readonly map = new Map<TypeNode, Klass>();
+  private readonly map = new Map<Type, Klass>();
   private readonly replacements = new Map<Klass, Klass>();
 
-  public get initialTypeMap(): Map<TypeNode, Klass> {
+  public get initialTypeMap(): Map<Type, Klass> {
     return new Map(this.map);
   }
 
-  public get finalTypeMap(): Map<TypeNode, Klass> {
-    const result = new Map<TypeNode, Klass>();
+  public get finalTypeMap(): Map<Type, Klass> {
+    const result = new Map<Type, Klass>();
     for (const key of this.map.keys()) {
       const value = this.lookup(key)!;
       result.set(key, value);
@@ -26,19 +26,17 @@ export class TypeReplacer {
 
   public register(node: Node, klass: Klass) {
     const type = this.martok.checker.getTypeAtLocation(node)!;
-    // literally cannot believe this works lmao.
-    const tn = this.martok.checker.typeToTypeNode(type, node, undefined)!;
-    const existing = this.lookup(tn);
+    const existing = this.lookup(type);
     const overwrite = !!klass.meta.generators.length;
     if (existing) {
       if (overwrite) {
         this.replace(existing, klass);
       } else {
         this.replace(klass, existing);
-        this.map.set(tn, klass);
+        this.map.set(type, klass);
       }
     } else {
-      this.map.set(tn, klass);
+      this.map.set(type, klass);
     }
   }
 
@@ -66,7 +64,7 @@ export class TypeReplacer {
     return undefined;
   }
 
-  private lookup(type: TypeNode): kotlin.Klass | undefined {
+  private lookup(type: Type): kotlin.Klass | undefined {
     let lookup = this.map.get(type);
     if (!lookup) return undefined;
     let result = lookup;
