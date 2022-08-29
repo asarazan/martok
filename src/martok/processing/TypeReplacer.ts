@@ -32,14 +32,18 @@ export class TypeReplacer {
     const overwrite = !!klass.meta.generators.length;
     if (existing) {
       if (overwrite) {
-        this.replacements.set(existing, klass);
+        this.replace(existing, klass);
       } else {
-        this.replacements.set(klass, existing);
+        this.replace(klass, existing);
         this.map.set(tn, klass);
       }
     } else {
       this.map.set(tn, klass);
     }
+  }
+
+  public replace(existing: Klass, klass: Klass) {
+    this.replacements.set(existing, klass);
   }
 
   public processOutput(files: MartokOutFile[]) {
