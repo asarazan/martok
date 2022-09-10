@@ -3,19 +3,12 @@ import Klass = kotlin.Klass;
 import ConstructorParameter = kotlin.ConstructorParameter;
 import Mutability = kotlin.Mutability;
 
-export type KlassPrinterOptions = {
-  indent?: number;
-  pkg?: string;
-};
-
 export class KlassPrinter {
   public static readonly instance = new KlassPrinter();
 
-  public print(klass: Klass | string, options?: KlassPrinterOptions): string {
+  public print(klass: Klass | string, indent = 0): string {
     if (typeof klass === "string") return klass;
     const result = [] as string[];
-
-    let indent = options?.indent ?? 0;
 
     // Annotation
     if (klass.annotation?.length) {
@@ -99,12 +92,7 @@ export class KlassPrinter {
         result.push("\n");
       }
       klass.innerClasses.forEach((value, index) => {
-        result.push(
-          this.print(value, {
-            ...options,
-            indent,
-          })
-        );
+        result.push(this.print(value, indent));
         if (index < klass.innerClasses.length - 1) {
           result.push("\n\n");
         }
