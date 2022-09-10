@@ -14,9 +14,10 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
-import net.sarazan.martok.Foo
+import net.sarazan.martok.Foo.FooType1
 
 @Serializable
 data class FooRef(
-  val ref: Foo.FooType1
+  val ref1: FooType1,
+  val ref2: List<FooType1>
 )

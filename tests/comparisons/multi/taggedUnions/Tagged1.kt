@@ -44,11 +44,17 @@ sealed class Foo {
 
   object UnionSerializer : JsonContentPolymorphicSerializer<Foo>(Foo::class) {
     override fun selectDeserializer(element: JsonElement) = when(
-            val type = element.jsonObject["type"]
-        ) {
-            JsonPrimitive(Type.TYPE1.serialName) -> FooType1.serializer()
-            JsonPrimitive(Type.TYPE2.serialName) -> FooType2.serializer()
-            else -> throw IllegalArgumentException("Unexpected type: $type")
+      val type = element.jsonObject["type"]
+    ) {
+      JsonPrimitive(Type.TYPE1.serialName) -> FooType1.serializer()
+      JsonPrimitive(Type.TYPE2.serialName) -> FooType2.serializer()
+      else -> throw IllegalArgumentException("Unexpected type: $type")
     }
   }
 }
+
+@Serializable
+data class FooInternal(
+  val ref: Foo.FooType2,
+  val refList: List<Foo.FooType2>
+)

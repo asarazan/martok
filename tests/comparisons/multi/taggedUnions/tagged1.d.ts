@@ -9,3 +9,8 @@ export type Foo2 = {
   type: "type2";
   value: number;
 };
+
+export type FooInternal = {
+  ref: Foo2;
+  refList: Foo2[];
+};
