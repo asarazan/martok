@@ -34,7 +34,7 @@ describe("Basic Kotlin Formatting", () => {
         name: "Hallo",
         type: "Double",
       })
-      .addInternalClasses(
+      .addInnerClasses(
         new Klass("Barb").setAnnotation("@Serializable").addCtorArgs({
           name: "whatever",
           type: "Hi",

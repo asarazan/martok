@@ -126,7 +126,7 @@ export class KlassGenerator {
       });
       const result = new Klass(name)
         .setAnnotation("@Serializable")
-        .addInternalClasses(...this.generateInnerKlasses(members));
+        .addInnerClasses(...this.generateInnerKlasses(members));
       if (members.length) {
         result.addModifier("data");
       }

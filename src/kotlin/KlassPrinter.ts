@@ -69,7 +69,7 @@ export class KlassPrinter {
     if (
       klass.enumValues.length ||
       klass.members.length ||
-      klass.internalClasses.length ||
+      klass.innerClasses.length ||
       klass.statements.length
     ) {
       result.push(" {\n");
@@ -98,14 +98,14 @@ export class KlassPrinter {
         );
         result.push("\n");
       }
-      klass.internalClasses.forEach((value, index) => {
+      klass.innerClasses.forEach((value, index) => {
         result.push(
           this.print(value, {
             ...options,
             indent,
           })
         );
-        if (index < klass.internalClasses.length - 1) {
+        if (index < klass.innerClasses.length - 1) {
           result.push("\n\n");
         }
       });
@@ -169,7 +169,8 @@ export class KlassPrinter {
     if (param.mutability || defaultMutability) {
       result.push(`${param.mutability ?? defaultMutability} `);
     }
-    result.push(`${param.name}: ${param.type}`);
+    const type = param.type;
+    result.push(`${param.name}: ${type}`);
     if (param.nullable) {
       result.push("?");
     }

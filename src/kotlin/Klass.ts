@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { QualifiedName } from "./QualifiedName";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace kotlin {
@@ -67,8 +68,11 @@ export namespace kotlin {
 
     public enumValues: EnumValue[] = [];
     public members: MemberDeclaration[] = [];
-    public internalClasses: Klass[] = [];
+    public innerClasses: Klass[] = [];
     public statements: string[] = [];
+
+    // this is pretty hacky, and only gets bound as a very late pass.
+    public qualifiedName?: QualifiedName;
 
     public meta: KlassMetadata = {
       generators: [],
@@ -143,13 +147,13 @@ export namespace kotlin {
       return this;
     }
 
-    public addInternalClasses(...classes: Klass[]): this {
-      this.internalClasses.push(...classes);
+    public addInnerClasses(...classes: Klass[]): this {
+      this.innerClasses.push(...classes);
       return this;
     }
 
-    public setInternalClasses(...classes: Klass[]): this {
-      this.internalClasses = classes;
+    public setInnerClasses(...classes: Klass[]): this {
+      this.innerClasses = classes;
       return this;
     }
 

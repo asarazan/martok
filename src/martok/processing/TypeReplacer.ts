@@ -1,13 +1,16 @@
 import { Martok } from "../Martok";
-import { Node, Type, TypeNode } from "typescript";
+import { Node, Type } from "typescript";
 import { kotlin } from "../../kotlin/Klass";
 import _ from "lodash";
 import { MartokOutFile } from "../MartokOutFile";
 import Klass = kotlin.Klass;
+import { QualifiedName } from "../../kotlin/QualifiedName";
+import FunctionParameter = kotlin.FunctionParameter;
 
 export class TypeReplacer {
   private readonly map = new Map<Type, Klass>();
   private readonly replacements = new Map<Klass, Klass>();
+  private readonly allKlasses: Klass[] = [];
 
   public get initialTypeMap(): Map<Type, Klass> {
     return new Map(this.map);
@@ -16,7 +19,7 @@ export class TypeReplacer {
   public get finalTypeMap(): Map<Type, Klass> {
     const result = new Map<Type, Klass>();
     for (const key of this.map.keys()) {
-      const value = this.lookup(key)!;
+      const value = this.lookupType(key)!;
       result.set(key, value);
     }
     return result;
@@ -25,8 +28,9 @@ export class TypeReplacer {
   public constructor(private martok: Martok) {}
 
   public register(node: Node, klass: Klass) {
+    this.allKlasses.push(klass);
     const type = this.martok.checker.getTypeAtLocation(node)!;
-    const existing = this.lookup(type);
+    const existing = this.lookupType(type);
     const overwrite = !!klass.meta.generators.length;
     if (existing) {
       if (overwrite) {
@@ -46,57 +50,97 @@ export class TypeReplacer {
   }
 
   public processOutput(files: MartokOutFile[]) {
-    const klassMap = this.buildKlassMap(files);
+    this.attachQualifiedNames(files);
     for (const file of files) {
       file.text.declarations = _.compact(
         file.text.declarations.map((value) => {
-          if (typeof value === "string") return value;
-          return this.processKlass(value);
+          if (value instanceof Klass) {
+            return this.processKlass(value, file);
+          } else return value;
         })
       );
     }
     files.filter((value) => !!value.text.declarations.length);
   }
 
-  private processKlass(klass: Klass): Klass | undefined {
-    const final = this.replacements.get(klass);
-    if (!final) return klass;
+  private attachQualifiedNames(files: MartokOutFile[]) {
+    for (const file of files) {
+      for (const decl of file.text.declarations) {
+        if (decl instanceof Klass) {
+          this.attachQualifiedName(decl, file);
+        }
+      }
+    }
+  }
+
+  private attachQualifiedName(
+    klass: Klass,
+    file: MartokOutFile,
+    outer?: Klass
+  ) {
+    if (!klass.name) return;
+    klass.qualifiedName = new QualifiedName(
+      klass.name,
+      file.package,
+      outer?.qualifiedName
+    );
+    for (const inner of klass.innerClasses) {
+      this.attachQualifiedName(inner, file, klass);
+    }
+  }
+
+  private processKlass(
+    klass: kotlin.Klass,
+    file: MartokOutFile
+  ): kotlin.Klass | undefined {
+    this.processMemberTypes(klass, file);
+    const replaced = this.replacements.get(klass);
+    if (!replaced) return klass;
     // Cull any klasses that have a replacement set.
     return undefined;
   }
 
-  private lookup(type: Type): kotlin.Klass | undefined {
-    let lookup = this.map.get(type);
-    if (!lookup) return undefined;
-    let result = lookup;
-    while (lookup) {
-      lookup = this.replacements.get(lookup);
-      if (lookup) result = lookup;
+  private processMemberTypes(klass: Klass, file: MartokOutFile) {
+    const members = [
+      ...klass.ctor.filter((value) => !!value.mutability),
+      ...klass.members,
+    ];
+    for (const member of members) {
+      this.processMember(member, klass, file);
     }
-    return result;
+    for (const inner of klass.innerClasses) {
+      this.processMemberTypes(inner, file);
+    }
   }
 
-  private buildKlassMap(files: MartokOutFile[]): Record<string, Klass> {
-    const result: Record<string, Klass> = {};
-    for (const file of files) {
-      this._buildKlassMap(file.text.declarations, file.package, result);
-    }
-    return result;
-  }
-
-  private _buildKlassMap(
-    klasses: (Klass | string)[],
-    pkg: string,
-    result: Record<string, Klass>
+  private processMember(
+    member: FunctionParameter,
+    klass: Klass,
+    file: MartokOutFile
   ) {
-    for (const klass of klasses) {
-      if (typeof klass === "string") continue;
-      result[`${pkg}.${klass.name!}`] = klass;
-      this._buildKlassMap(
-        klass.internalClasses,
-        `${pkg}.${klass.name}`,
-        result
-      );
+    let allKlasses = file.text.declarations.filter(
+      (value) => value instanceof Klass
+    ) as Klass[];
+    allKlasses = [
+      ...allKlasses,
+      ...allKlasses.flatMap((value) => value.innerClasses),
+    ];
+
+    const typeStr = member.type;
+  }
+
+  private lookupType(type: Type): Klass | undefined {
+    const lookup = this.map.get(type);
+    if (!lookup) return undefined;
+    return this.lookupKlass(lookup);
+  }
+
+  private lookupKlass(lookup: Klass): Klass | undefined {
+    let _lookup: Klass | undefined = lookup;
+    let result = lookup;
+    while (_lookup) {
+      _lookup = this.replacements.get(_lookup);
+      if (_lookup) result = _lookup;
     }
     return result;
   }

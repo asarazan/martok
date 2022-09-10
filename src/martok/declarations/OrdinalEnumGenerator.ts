@@ -22,7 +22,7 @@ export class OrdinalEnumGenerator {
         mutability: "val",
       })
       .addEnumValues(...this.getEnumValues(node))
-      .addInternalClasses(this.getSerializerKlass(name, fqn, node));
+      .addInnerClasses(this.getSerializerKlass(name, fqn, node));
   }
 
   private getEnumValues(node: UnionTypeNode | EnumDeclaration): EnumValue[] {

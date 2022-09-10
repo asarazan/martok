@@ -82,13 +82,13 @@ export class TaggedUnionGenerator {
         type: title(tag.name),
         abstract: true,
       })
-      .addInternalClasses(
+      .addInnerClasses(
         this.generateTagEnum(tag),
         ...this.martok.declarations.klasses
           .generateInnerKlasses(members)
           .map((value) => value.addGeneratorTypes("tagged"))
       );
-    result.addInternalClasses(
+    result.addInnerClasses(
       ...this.generateSerializerAndFriends(name, tag, result)
     );
     return result;
