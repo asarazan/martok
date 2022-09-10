@@ -132,7 +132,7 @@ export class Martok {
     this.pushNameScope(pkg);
     const base: MartokOutFile = {
       name,
-      pkg: pkg,
+      pkg,
       text: {
         package: `package ${pkg}`,
         imports: [...StandardKotlinImportList],
