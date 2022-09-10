@@ -3,4 +3,5 @@ export type MartokOptions = {
     framework: "kotlinx.datetime";
     namePattern: RegExp;
   };
+  dedupeTaggedUnions?: boolean;
 };

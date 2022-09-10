@@ -30,6 +30,13 @@ const args = yargs
     describe:
       "regexp for any field that should be a date (requires kotlinx.datetime, use 'standard' for sensible default')",
   })
+  .option("dedupeTaggedUnions", {
+    alias: "t",
+    type: "boolean",
+    default: false,
+    describe:
+      "Experimental feature that will try to remove any component types of a tagged union and replace references with the optimized class.",
+  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -41,6 +48,7 @@ export type TranspileSingleArgs = {
   out: string;
   package: string;
   datePattern: string;
+  dedupeTaggedUnions: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -61,12 +69,14 @@ async function transpile(args: TranspileSingleArgs) {
           : RegExp(args.datePattern),
     };
   }
+  const { dedupeTaggedUnions } = args;
   const config: MartokConfig = {
     files,
     package: args.package,
     sourceRoot: rootDir,
     options: {
       dates,
+      dedupeTaggedUnions,
     },
   };
   const martok = new Martok(config);

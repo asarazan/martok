@@ -12,19 +12,6 @@ export class TypeReplacer {
   private readonly replacements = new Map<Klass, Klass>();
   private readonly allKlasses: Klass[] = [];
 
-  public get initialTypeMap(): Map<Type, Klass> {
-    return new Map(this.map);
-  }
-
-  public get finalTypeMap(): Map<Type, Klass> {
-    const result = new Map<Type, Klass>();
-    for (const key of this.map.keys()) {
-      const value = this.lookupType(key)!;
-      result.set(key, value);
-    }
-    return result;
-  }
-
   public constructor(private martok: Martok) {}
 
   public register(node: Node, klass: Klass) {
@@ -181,9 +168,9 @@ export class TypeReplacer {
       const addImport = `import ${replacement.qualifiedName!.outermost.string}`;
       file.text.imports.push(addImport);
     }
-    // TODO - remove these at the end.
-    // const removeImport = `import ${match.qualifiedName!.string}`;
-    // _.pull(file.text.imports, removeImport);
+
+    // We don't remove the old import until the end,
+    // since we (unwisely) use it in subsequent calls to this function.
   }
 
   private lookupType(type: Type): Klass | undefined {

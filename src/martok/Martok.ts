@@ -96,7 +96,9 @@ export class Martok {
         .map((value) => this.processFile(this.program.getSourceFile(value)!))
         .compact()
         .value();
-      state.typeReplacer.processOutput(result);
+      if (this.config.options?.dedupeTaggedUnions ?? false) {
+        state.typeReplacer.processOutput(result);
+      }
       return result;
     });
   }
