@@ -75,7 +75,7 @@ export class Martok {
     const output = this.generateOutput();
     const result: Record<string, string> = {};
     for (const file of output) {
-      const relativePath = file.package
+      const relativePath = file.pkg
         .slice(this.config.package.length)
         .replace(/\./g, "/");
       const filename = `${outPath}${relativePath}/${title(file.name)}.kt`;
@@ -130,7 +130,7 @@ export class Martok {
     this.pushNameScope(pkg);
     const base: MartokOutFile = {
       name,
-      package: pkg,
+      pkg: pkg,
       text: {
         package: `package ${pkg}`,
         imports: [...StandardKotlinImportList],

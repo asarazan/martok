@@ -1,4 +1,4 @@
-package net.sarazan.martok
+package net.sarazan.martok.first
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName

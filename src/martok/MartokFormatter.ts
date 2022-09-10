@@ -9,14 +9,14 @@ export class MartokFormatter {
   public constructor(private readonly config: MartokConfig) {}
 
   public generateSingleFile(file: MartokOutFile): string {
-    return `package ${file.package}
+    return `package ${file.pkg}
 
 ${file.text.imports.join("\n")}
 
 ${file.text.declarations
   .map((value) =>
     this.printer.print(value, {
-      pkg: file.package,
+      pkg: file.pkg,
     })
   )
   .join("\n")}`;

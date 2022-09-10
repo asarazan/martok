@@ -86,7 +86,7 @@ export class TypeReplacer {
     if (!klass.name) return;
     klass.qualifiedName = new QualifiedName(
       klass.name,
-      file.package,
+      file.pkg,
       outer?.qualifiedName
     );
     for (const inner of klass.innerClasses) {
@@ -116,41 +116,74 @@ export class TypeReplacer {
     for (const inner of klass.innerClasses) {
       this.processMemberTypes(inner, file);
     }
+    this.cleanUpReplacementImports(file);
+  }
+
+  private cleanUpReplacementImports(file: MartokOutFile) {
+    for (const imp of file.text.imports) {
+      if (!imp) continue;
+      const ref = /import (.*)/.exec(imp)![1];
+      const klass = this.allKlasses.find(
+        (value) => value.qualifiedName?.string === ref
+      );
+      if (!klass) continue;
+      const replace = this.lookupKlass(klass);
+      if (replace && replace !== klass) {
+        _.pull(file.text.imports, imp);
+      }
+    }
   }
 
   private processMember(member: FunctionParameter, file: MartokOutFile) {
-    const type = member.type;
-    const rawType = /List<(.*)>/.exec(type)?.[1] ?? type;
+    let type = member.type;
+    type = /List<(.*)>/.exec(type)?.[1] ?? type;
+    if (type !== member.type) {
+      console.log(`Found a list...`);
+    }
 
     // First we look for any properties that reference a klass we've seen.
     // Unfortunately we're hacking shit together to also identify lists.
-    const matches = this.allKlasses.filter((value) => value.name === rawType);
-    if (!matches.length) return;
+    const matches = this.allKlasses.filter((value) => value.name === type);
+    let match = matches.find(
+      (value) => value.qualifiedName!.string === `${file.pkg}.${type}`
+    );
 
     // Now let's process it through our package name, and through any imported package names.
     // We will cross-reference with the matches' qualified names to find a match.
-    const match = matches.find(
-      (value) => value.qualifiedName!.string === `${file.package}.${rawType}`
-    );
-    // if (!match) {
-    //   for (const klass of this.allKlasses) {
-    //     const imports = file.text.imports.filter((value) =>
-    //       value?.endsWith(type)
-    //     );
-    //   }
-    // }
-    if (!match) return;
+    if (!match) {
+      const imports = file.text.imports.filter((value) =>
+        value?.endsWith(`.${type}`)
+      );
+      if (imports.length) {
+        match = matches.find((value) => {
+          return value.name === type;
+        });
+      }
+    }
+    if (!match) {
+      return;
+    }
 
     // We will then do a replacement-map lookup to see if we need to replace.
     // If so, we will need to change the member type name, as well as the relevant import, if necessary.
     const replacement = this.lookupKlass(match);
     if (!replacement?.name) return;
 
-    member.type = member.type.replace(match.name!, replacement.name);
-    const addImport = `import ${replacement.qualifiedName!.string}`;
-    const removeImport = `import ${match.qualifiedName!.string}`;
-    file.text.imports.push(addImport);
-    _.pull(file.text.imports, removeImport);
+    const isInnerKlass = !!replacement.qualifiedName?.outer;
+    let replacementName = replacement.name;
+    if (isInnerKlass) {
+      replacementName = replacement.qualifiedName!.packageRelativeString;
+    }
+    member.type = member.type.replace(match.name!, replacementName);
+
+    const isSamePackage = replacement.qualifiedName?.pkg === file.pkg;
+    if (!isSamePackage) {
+      const addImport = `import ${replacement.qualifiedName!.outermost.string}`;
+      file.text.imports.push(addImport);
+    }
+    // TODO - remove these at the end.
+    // const removeImport = `import ${match.qualifiedName!.string}`;
+    // _.pull(file.text.imports, removeImport);
   }
 
   private lookupType(type: Type): Klass | undefined {
