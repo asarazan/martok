@@ -63,6 +63,17 @@ export class KlassGenerator {
     node: SupportedDeclaration | TypeNode,
     options?: MemberOptions
   ): Klass | string {
+    const result = this._generate(node, options);
+    if (result instanceof Klass && options?.performTypeReplacement !== false) {
+      this.martok.typeReplacer.register(node, result);
+    }
+    return result;
+  }
+
+  private _generate(
+    node: SupportedDeclaration | TypeNode,
+    options?: MemberOptions
+  ): Klass | string {
     if (isArrayTypeNode(node)) {
       let result = this.generate(node.elementType, options);
       if (typeof result === "string") {
@@ -115,7 +126,7 @@ export class KlassGenerator {
       });
       const result = new Klass(name)
         .setAnnotation("@Serializable")
-        .addInternalClasses(...this.generateInnerKlasses(members));
+        .addInnerClasses(...this.generateInnerKlasses(members));
       if (members.length) {
         result.addModifier("data");
       }

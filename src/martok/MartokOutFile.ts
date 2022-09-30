@@ -1,9 +1,12 @@
+import { kotlin } from "../kotlin/Klass";
+import Klass = kotlin.Klass;
+
 export type MartokOutFile = {
   name: string;
-  package: string;
+  pkg: string;
   text: {
     package: string;
     imports: (string | null)[];
-    declarations: string[];
+    declarations: (Klass | string)[];
   };
 };

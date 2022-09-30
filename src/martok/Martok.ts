@@ -12,11 +12,13 @@ import path from "path";
 import { MartokConfig } from "./MartokConfig";
 import { title } from "./NameGenerators";
 import { AsyncLocalStorage } from "async_hooks";
+import { TypeReplacer } from "./processing/TypeReplacer";
 
 type MartokState = {
   nameScope: string[];
   externalStatements: ts.Symbol[];
   additionalDeclarations: string[];
+  typeReplacer: TypeReplacer;
 };
 
 export class Martok {
@@ -39,6 +41,9 @@ export class Martok {
   }
   public get additionalDeclarations(): string[] {
     return this.storage.getStore()!.additionalDeclarations;
+  }
+  public get typeReplacer(): TypeReplacer {
+    return this.storage.getStore()!.typeReplacer;
   }
 
   private readonly storage = new AsyncLocalStorage<MartokState>();
@@ -70,7 +75,7 @@ export class Martok {
     const output = this.generateOutput();
     const result: Record<string, string> = {};
     for (const file of output) {
-      const relativePath = file.package
+      const relativePath = file.pkg
         .slice(this.config.package.length)
         .replace(/\./g, "/");
       const filename = `${outPath}${relativePath}/${title(file.name)}.kt`;
@@ -84,13 +89,18 @@ export class Martok {
       nameScope: [],
       externalStatements: [],
       additionalDeclarations: [],
+      typeReplacer: new TypeReplacer(this),
     };
-    return this.storage.run(state, () =>
-      _(this.config.files)
+    return this.storage.run(state, () => {
+      const result = _(this.config.files)
         .map((value) => this.processFile(this.program.getSourceFile(value)!))
         .compact()
-        .value()
-    );
+        .value();
+      if (this.config.options?.dedupeTaggedUnions ?? false) {
+        state.typeReplacer.processOutput(result);
+      }
+      return result;
+    });
   }
 
   public pushNameScope(scope: string) {
@@ -122,7 +132,7 @@ export class Martok {
     this.pushNameScope(pkg);
     const base: MartokOutFile = {
       name,
-      package: pkg,
+      pkg,
       text: {
         package: `package ${pkg}`,
         imports: [...StandardKotlinImportList],

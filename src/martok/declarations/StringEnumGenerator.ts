@@ -12,6 +12,7 @@ export class StringEnumGenerator {
 
   public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
     return new Klass(name)
+      .addGeneratorTypes("string-enum")
       .setAnnotation("@Serializable")
       .addModifier("enum")
       .addCtorArgs({

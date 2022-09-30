@@ -23,6 +23,9 @@ describe("Single File Comparisons", () => {
         files: [filename],
         package: PACKAGE,
         sourceRoot: root,
+        options: {
+          dedupeTaggedUnions: true,
+        },
       });
       const out = sanitizeComparison(martok.generateMultiFile());
       const contents = sanitizeComparison(
@@ -47,6 +50,9 @@ describe("Multi File Comparisons", () => {
         files: files,
         package: PACKAGE,
         sourceRoot: dir,
+        options: {
+          dedupeTaggedUnions: true,
+        },
       });
       const out = _.mapValues(martok.generateSingleFiles(dir), (value) => {
         return sanitizeComparison(value);
@@ -78,6 +84,7 @@ describe("Special Comparisons", () => {
             framework: "kotlinx.datetime",
             namePattern: StandardDatePattern,
           },
+          dedupeTaggedUnions: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());

@@ -34,14 +34,14 @@ describe("Basic Kotlin Formatting", () => {
         name: "Hallo",
         type: "Double",
       })
-      .addInternalClasses(
+      .addInnerClasses(
         new Klass("Barb").setAnnotation("@Serializable").addCtorArgs({
           name: "whatever",
           type: "Hi",
         })
       )
       .addStatements(`// statement goes here`);
-    const print = new KlassPrinter().print(k);
+    const print = KlassPrinter.instance.print(k);
     expect(print).toEqual(compare);
   });
 });

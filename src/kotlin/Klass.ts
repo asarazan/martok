@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { QualifiedName } from "./QualifiedName";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace kotlin {
@@ -11,6 +12,13 @@ export namespace kotlin {
     | "enum"
     | "companion"
     | "sealed";
+
+  export type GeneratorType =
+    | "tagged"
+    | "string-enum"
+    | "ordinal-enum"
+    | "enum"
+    | "utility";
 
   export type EnumValue = {
     annotation?: string;
@@ -43,6 +51,10 @@ export namespace kotlin {
     args?: FunctionArgument[];
   };
 
+  export type KlassMetadata = {
+    generators: GeneratorType[];
+  };
+
   export class Klass {
     public name?: string;
 
@@ -56,8 +68,15 @@ export namespace kotlin {
 
     public enumValues: EnumValue[] = [];
     public members: MemberDeclaration[] = [];
-    public internalClasses: Klass[] = [];
+    public innerClasses: Klass[] = [];
     public statements: string[] = [];
+
+    // this is pretty hacky, and only gets bound as a very late pass.
+    public qualifiedName?: QualifiedName;
+
+    public meta: KlassMetadata = {
+      generators: [],
+    };
 
     public constructor(name?: string) {
       this.name = name;
@@ -128,13 +147,13 @@ export namespace kotlin {
       return this;
     }
 
-    public addInternalClasses(...classes: Klass[]): this {
-      this.internalClasses.push(...classes);
+    public addInnerClasses(...classes: Klass[]): this {
+      this.innerClasses.push(...classes);
       return this;
     }
 
-    public setInternalClasses(...classes: Klass[]): this {
-      this.internalClasses = classes;
+    public setInnerClasses(...classes: Klass[]): this {
+      this.innerClasses = classes;
       return this;
     }
 
@@ -145,6 +164,11 @@ export namespace kotlin {
 
     public setStatements(...statements: string[]): this {
       this.statements = statements;
+      return this;
+    }
+
+    public addGeneratorTypes(...generators: GeneratorType[]): this {
+      this.meta.generators.push(...generators);
       return this;
     }
   }
