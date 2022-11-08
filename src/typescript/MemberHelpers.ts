@@ -1,6 +1,9 @@
 import ts, {
   Declaration,
   factory,
+  getAllJSDocTags,
+  getJSDocReturnType,
+  getJSDocTags,
   InternalSymbolName,
   isArrayTypeNode,
   isInterfaceDeclaration,
@@ -23,6 +26,8 @@ import ts, {
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
 import { Martok } from "../martok/Martok";
+import { KotlinNumber } from "../kotlin/KotlinTypes";
+import { startCase } from "lodash";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -122,14 +127,28 @@ export function getIntrinsicType(
 ): string | undefined {
   if (isStringLiteralLike(type) || type.kind === SyntaxKind.StringKeyword)
     return "String";
-  if (isNumericLiteral(type) || type.kind === SyntaxKind.NumberKeyword)
-    return "Double";
+  if (isNumericLiteral(type) || type.kind === SyntaxKind.NumberKeyword) {
+    return getNumberType(type);
+  }
   if (type.kind === SyntaxKind.BooleanKeyword) return "Boolean";
   if (isArrayTypeNode(type)) {
     const param = getMemberType(martok, type.elementType);
     return `List<${param}>`;
   }
   if (type.kind === SyntaxKind.AnyKeyword) return "JsonObject";
+}
+
+function getNumberType(node: TypeNode): KotlinNumber {
+  let doc: ts.Node = node.parent;
+  if (isArrayTypeNode(doc)) doc = doc.parent;
+  const tag = getJSDocPrecision(doc) ?? "double";
+  return startCase(tag) as KotlinNumber;
+}
+
+function getJSDocPrecision(node: ts.Node): string | undefined {
+  return getJSDocTags(node).find((value) => {
+    return value.tagName.text === "precision";
+  })?.comment as string;
 }
 
 /**
