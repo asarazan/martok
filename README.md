@@ -71,7 +71,8 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * Custom package name
 * Enums
 * optional fields
-* Typescrupt "Utility" types (e.g. `Omit` and `Pick`)
+* Typescript "Utility" types (e.g. `Omit` and `Pick`)
+* Configurable numeric precision via the `@precision` jsdoc tag
 
 ### TODO
 * Fully discriminated/disagreeing unions
