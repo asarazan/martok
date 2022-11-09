@@ -7,7 +7,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "sourceRoot": "src",
-    "strict": true,
-    "lib": ["es2021"]
-  }
+    "strict": true
+  },
+  "lib": ["es2015"]
 }
