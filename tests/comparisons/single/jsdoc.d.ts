@@ -3,15 +3,15 @@
  */
 export type WithBlockComment = {
   /**
+   * Testing
+   */
+  foo: string;
+
+  /**
    * Testing with int.
    * @precision int
    */
   bar: number;
-
-  /**
-   * Testing
-   */
-  foo: string;
 
   /**
    * Testing with {@link Ref}

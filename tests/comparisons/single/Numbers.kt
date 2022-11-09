@@ -16,12 +16,36 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable
 data class TestNumbers(
+  /**
+   * @precision float
+   */
   val someFloat: Float,
+  /**
+   * @precision float
+   */
   val someFloats: List<Float>,
+  /**
+   * @precision double
+   */
   val someDouble: Double,
+  /**
+   * @precision double
+   */
   val someDoubles: List<Double>,
+  /**
+   * @precision int
+   */
   val someInt: Int,
+  /**
+   * @precision int
+   */
   val someInts: List<Int>,
+  /**
+   * @precision long
+   */
   val someLong: Long,
+  /**
+   * @precision long
+   */
   val someLongs: List<Long>
 )

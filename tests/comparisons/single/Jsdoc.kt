@@ -14,25 +14,24 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
-import net.sarazan.martok.Ref
-
-/** 
+/**
  * Block Comment
- */ 
+ */
 @Serializable
 data class WithBlockComment(
-  /** 
-   * Testing with [Ref]
-   */ 
-  val ref: Ref,
-  /** 
+  /**
    * Testing
-   */ 
+   */
   val foo: String,
-  /** 
+  /**
    * Testing with int.
-   */ 
-  val bar: Int
+   * @precision int
+   */
+  val bar: Int,
+  /**
+   * Testing with [Ref]
+   */
+  val ref: Ref
 )
 
 @Serializable
