@@ -2,14 +2,18 @@ import { Martok } from "../Martok";
 import {
   Declaration,
   EnumDeclaration,
+  getCommentRange,
+  getJSDocTags,
   InterfaceDeclaration,
   InternalSymbolName,
   isArrayTypeNode,
   isEnumDeclaration,
   isInterfaceDeclaration,
+  isJSDoc,
   isPropertySignature,
   isTypeAliasDeclaration,
   isTypeReferenceNode,
+  JSDoc,
   Node,
   PropertySignature,
   TypeAliasDeclaration,
@@ -28,6 +32,7 @@ import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { UtilityGenerator } from "./UtilityGenerator";
+import { extractComment } from "../processing/Comments";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -64,8 +69,11 @@ export class KlassGenerator {
     options?: MemberOptions
   ): Klass | string {
     const result = this._generate(node, options);
-    if (result instanceof Klass && options?.performTypeReplacement !== false) {
-      this.martok.typeReplacer.register(node, result);
+    if (result instanceof Klass) {
+      if (options?.performTypeReplacement !== false) {
+        this.martok.typeReplacer.register(node, result);
+      }
+      result.setComment(extractComment(node));
     }
     return result;
   }
@@ -190,6 +198,7 @@ export class KlassGenerator {
     const override =
       options?.extendSealed &&
       options.extendSealed.members.find((value) => value.name === name);
+    const comment = extractComment(node);
     return {
       name,
       type,
@@ -199,6 +208,7 @@ export class KlassGenerator {
       abstract: options?.abstract,
       value: nullable && !options?.abstract ? "null" : undefined,
       visibility: override ? "override" : undefined,
+      comment,
     };
   }
 

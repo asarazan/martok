@@ -3,24 +3,22 @@
  */
 export type WithBlockComment = {
   /**
-   * Testing
-   */
-  foo: string;
-
-  /**
    * Testing with int.
    * @precision int
    */
   bar: number;
 
   /**
-   * Testing with {@link WithLineComment}
+   * Testing
    */
-  comment: WithLineComment;
+  foo: string;
+
+  /**
+   * Testing with {@link Ref}
+   */
+  ref: Ref;
 };
 
-// This is a line comment.
-export type WithLineComment = {
-  // So is this.
+export type Ref = {
   foo: boolean;
 };

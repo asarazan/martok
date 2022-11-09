@@ -14,34 +14,28 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
-import net.sarazan.martok.WithLineComment
+import net.sarazan.martok.Ref
 
-/**
+/** 
  * Block Comment
- */
+ */ 
 @Serializable
 data class WithBlockComment(
-
-  /**
+  /** 
+   * Testing with [Ref]
+   */ 
+  val ref: Ref,
+  /** 
    * Testing
-   */
+   */ 
   val foo: String,
-
-  /**
+  /** 
    * Testing with int.
-   * @precision int
-   */
-  val bar: Int,
-
-  /**
-   * Testing with [WithLineComment]
-   */
-  val comment: WithLineComment
+   */ 
+  val bar: Int
 )
 
-// This is a line comment.
 @Serializable
-data class WithLineComment(
-  // So is this.
+data class Ref(
   val foo: Boolean
 )
