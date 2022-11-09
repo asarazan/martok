@@ -2,6 +2,8 @@ import { kotlin } from "./Klass";
 import Klass = kotlin.Klass;
 import ConstructorParameter = kotlin.ConstructorParameter;
 import Mutability = kotlin.Mutability;
+import { convertCommentText } from "./Komments";
+import { split } from "lodash";
 
 export class KlassPrinter {
   public static readonly instance = new KlassPrinter();
@@ -9,6 +11,17 @@ export class KlassPrinter {
   public print(klass: Klass | string, indent = 0): string {
     if (typeof klass === "string") return klass;
     const result = [] as string[];
+
+    // Comments
+    if (klass.comment) {
+      const text = klass.comment.value;
+      this.indent(indent, result);
+      result.push("/**\n");
+      for (const line of split(text, "\n")) {
+        result.push(` * ${line}\n`);
+      }
+      result.push(" */\n");
+    }
 
     // Annotation
     if (klass.annotation?.length) {
@@ -140,6 +153,14 @@ export class KlassPrinter {
     defaultMutability?: Mutability
   ): string {
     const result = [];
+    if (param.comment) {
+      const text = param.comment.value;
+      result.push("/**\n");
+      for (const line of split(text, "\n")) {
+        result.push(` * ${line}\n`);
+      }
+      result.push(" */\n");
+    }
     if (param.annotation?.length) {
       result.push(`${param.annotation}`);
       if (param.annotation.length > 32) {

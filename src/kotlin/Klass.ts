@@ -38,6 +38,7 @@ export namespace kotlin {
     mutability?: Mutability;
     annotation?: string;
     abstract?: boolean;
+    comment?: Komment;
   };
 
   export type MemberDeclaration = ConstructorParameter;
@@ -55,6 +56,13 @@ export namespace kotlin {
     generators: GeneratorType[];
   };
 
+  export type KotlinNumber = "Float" | "Double" | "Int" | "Long";
+
+  export type Komment = {
+    type: "block"; // no current support for line comments...
+    value: string;
+  };
+
   export class Klass {
     public name?: string;
 
@@ -70,6 +78,7 @@ export namespace kotlin {
     public members: MemberDeclaration[] = [];
     public innerClasses: Klass[] = [];
     public statements: string[] = [];
+    public comment: Komment | undefined;
 
     // this is pretty hacky, and only gets bound as a very late pass.
     public qualifiedName?: QualifiedName;
@@ -169,6 +178,11 @@ export namespace kotlin {
 
     public addGeneratorTypes(...generators: GeneratorType[]): this {
       this.meta.generators.push(...generators);
+      return this;
+    }
+
+    public setComment(comment: Komment | undefined): this {
+      this.comment = comment;
       return this;
     }
   }

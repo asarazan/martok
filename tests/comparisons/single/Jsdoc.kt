@@ -14,38 +14,27 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+/**
+ * Block Comment
+ */
 @Serializable
-data class TestNumbers(
+data class WithBlockComment(
   /**
-   * @precision float
+   * Testing
    */
-  val someFloat: Float,
+  val foo: String,
   /**
-   * @precision float
-   */
-  val someFloats: List<Float>,
-  /**
-   * @precision double
-   */
-  val someDouble: Double,
-  /**
-   * @precision double
-   */
-  val someDoubles: List<Double>,
-  /**
+   * Testing with int.
    * @precision int
    */
-  val someInt: Int,
+  val bar: Int,
   /**
-   * @precision int
+   * Testing with [Ref]
    */
-  val someInts: List<Int>,
-  /**
-   * @precision long
-   */
-  val someLong: Long,
-  /**
-   * @precision long
-   */
-  val someLongs: List<Long>
+  val ref: Ref
+)
+
+@Serializable
+data class Ref(
+  val foo: Boolean
 )

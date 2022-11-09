@@ -1,8 +1,6 @@
 import ts, {
   Declaration,
   factory,
-  getAllJSDocTags,
-  getJSDocReturnType,
   getJSDocTags,
   InternalSymbolName,
   isArrayTypeNode,
@@ -18,16 +16,15 @@ import ts, {
   isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
-  Statement,
   SyntaxKind,
-  TypeChecker,
   TypeElement,
   TypeNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
 import { Martok } from "../martok/Martok";
-import { KotlinNumber } from "../kotlin/KotlinTypes";
 import { startCase } from "lodash";
+import { kotlin } from "../kotlin/Klass";
+import KotlinNumber = kotlin.KotlinNumber;
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
