@@ -3,7 +3,7 @@
  */
 export type WithBlockComment = {
   /**
-   * Testing
+   * Testing.
    */
   foo: string;
 
