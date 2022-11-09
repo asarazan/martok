@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "special": "ts-node src/index.ts tests/comparisons/single/numbers.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
+    "special": "ts-node src/index.ts tests/comparisons/single/jsdoc.d.ts -o ./schema/martok --package net.sarazan.martok --datePattern standard",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
