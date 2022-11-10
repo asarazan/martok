@@ -13,6 +13,7 @@ import { MartokConfig } from "./MartokConfig";
 import { title } from "./NameGenerators";
 import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
+import { processSnakeCase } from "./processing/SnakeCase";
 
 type MartokState = {
   nameScope: string[];
@@ -98,6 +99,9 @@ export class Martok {
         .value();
       if (this.config.options?.dedupeTaggedUnions ?? false) {
         state.typeReplacer.processOutput(result);
+      }
+      if (this.config.options?.snakeToCamelCase ?? false) {
+        processSnakeCase(result);
       }
       return result;
     });

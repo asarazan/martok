@@ -71,9 +71,6 @@ export class KlassGenerator {
   ): Klass | string {
     const result = this._generate(node, options);
     if (result instanceof Klass) {
-      if (this.martok.config.options?.snakeToCamelCase) {
-        processSnakeCase(result);
-      }
       if (options?.performTypeReplacement !== false) {
         this.martok.typeReplacer.register(node, result);
       }

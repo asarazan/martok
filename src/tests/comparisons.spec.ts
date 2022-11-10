@@ -85,6 +85,7 @@ describe("Special Comparisons", () => {
             namePattern: StandardDatePattern,
           },
           dedupeTaggedUnions: true,
+          snakeToCamelCase: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());
@@ -106,6 +107,7 @@ describe("Special Comparisons", () => {
         sourceRoot: root,
         options: {
           snakeToCamelCase: true,
+          dedupeTaggedUnions: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());

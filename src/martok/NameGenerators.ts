@@ -1,5 +1,6 @@
 export function title(str: string) {
-  return snakeToCamel(str).replace(/(^|\s)\S/g, function (t) {
+  const camel = snakeToCamel(str);
+  return camel.replace(/(^|\s)\S/g, function (t) {
     return t.toUpperCase();
   });
 }
@@ -18,9 +19,5 @@ export function pascalToSnake(str: string): string {
 }
 
 export function snakeToCamel(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/([-_]+[a-z])/g, (group) =>
-      group.toUpperCase().replace(/-+/, "").replace(/_+/, "")
-    );
+  return str.replace(/(?!^)_+(.)/g, (_, char) => char.toUpperCase());
 }
