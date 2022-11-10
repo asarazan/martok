@@ -16,7 +16,7 @@ import kotlinx.serialization.json.jsonObject
 
 @Serializable(with = Tagged.UnionSerializer::class)
 sealed class Tagged {
-    @SerializedName("some_tag") abstract val someTag: SomeTag
+    @SerialName("some_tag") abstract val someTag: SomeTag
     @Serializable
     enum class SomeTag(
         val serialName: String
@@ -28,17 +28,17 @@ sealed class Tagged {
 
     @Serializable
     data class TaggedFoo(
-        @SerializedName("some_value1") val someValue1: String
+        @SerialName("some_value1") val someValue1: String
     ) : Tagged() {
-        @SerializedName("some_tag") override val someTag: SomeTag = SomeTag.FOO
+        @SerialName("some_tag") override val someTag: SomeTag = SomeTag.FOO
     }
 
 
     @Serializable
     data class TaggedBar(
-        @SerializedName("some_value2") val someValue2: String
+        @SerialName("some_value2") val someValue2: String
     ) : Tagged() {
-        @SerializedName("some_tag") override val someTag: SomeTag = SomeTag.BAR
+        @SerialName("some_tag") override val someTag: SomeTag = SomeTag.BAR
     }
 
 
@@ -55,10 +55,10 @@ sealed class Tagged {
 
 @Serializable
 data class SnakeCase(
-    @SerializedName("some_union") val someUnion: SomeUnion,
-    @SerializedName("some_var") val someVar: String,
-    @SerializedName("stupid__var") val stupidVar: Boolean,
-    @SerializedName("some_ref") val someRef: Ref
+    @SerialName("some_union") val someUnion: SomeUnion,
+    @SerialName("some_var") val someVar: String,
+    @SerialName("stupid__var") val stupidVar: Boolean,
+    @SerialName("some_ref") val someRef: Ref
 ) {
     @Serializable
     enum class SomeUnion(
