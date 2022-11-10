@@ -27,12 +27,13 @@ import {
   getMemberType,
   MemberTypeOptions,
 } from "../../typescript/MemberHelpers";
-import { title } from "../NameGenerators";
+import { snakeToCamel, title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { UtilityGenerator } from "./UtilityGenerator";
 import { extractComment } from "../processing/Comments";
+import { processSnakeCase } from "../processing/SnakeCase";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -70,6 +71,9 @@ export class KlassGenerator {
   ): Klass | string {
     const result = this._generate(node, options);
     if (result instanceof Klass) {
+      if (this.martok.config.options?.snakeToCamelCase) {
+        processSnakeCase(result);
+      }
       if (options?.performTypeReplacement !== false) {
         this.martok.typeReplacer.register(node, result);
       }

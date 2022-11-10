@@ -4,4 +4,5 @@ export type MartokOptions = {
     namePattern: RegExp;
   };
   dedupeTaggedUnions?: boolean;
+  snakeToCamelCase?: boolean;
 };

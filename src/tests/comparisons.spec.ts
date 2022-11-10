@@ -94,4 +94,25 @@ describe("Special Comparisons", () => {
       expect(out).toEqual(contents);
     });
   }
+  {
+    const filename = `${root}/snake.d.ts`;
+    const compare = `${path.dirname(filename)}/${title(
+      path.basename(filename, ".d.ts")
+    )}.kt`;
+    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+        options: {
+          snakeToCamelCase: true,
+        },
+      });
+      const out = sanitizeComparison(martok.generateMultiFile());
+      const contents = sanitizeComparison(
+        await fs.promises.readFile(compare, "utf-8")
+      );
+      expect(out).toEqual(contents);
+    });
+  }
 });
