@@ -124,9 +124,6 @@ export class TypeReplacer {
   private processMember(member: FunctionParameter, file: MartokOutFile) {
     let type = member.type;
     type = /List<(.*)>/.exec(type)?.[1] ?? type;
-    if (type !== member.type) {
-      console.log(`Found a list...`);
-    }
 
     // First we look for any properties that reference a klass we've seen.
     // Unfortunately we're hacking shit together to also identify lists.
