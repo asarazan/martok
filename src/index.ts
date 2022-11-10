@@ -37,6 +37,12 @@ const args = yargs
     describe:
       "Experimental feature that will try to remove any component types of a tagged union and replace references with the optimized class.",
   })
+  .option("snakeToCamelCase", {
+    alias: "s",
+    type: "boolean",
+    default: false,
+    describe: "convert json-friendly snake_case to Kotlin-friendly camelCase",
+  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -49,6 +55,7 @@ export type TranspileSingleArgs = {
   package: string;
   datePattern: string;
   dedupeTaggedUnions: boolean;
+  snakeToCamelCase: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -69,7 +76,7 @@ async function transpile(args: TranspileSingleArgs) {
           : RegExp(args.datePattern),
     };
   }
-  const { dedupeTaggedUnions } = args;
+  const { dedupeTaggedUnions, snakeToCamelCase } = args;
   const config: MartokConfig = {
     files,
     package: args.package,
@@ -77,6 +84,7 @@ async function transpile(args: TranspileSingleArgs) {
     options: {
       dates,
       dedupeTaggedUnions,
+      snakeToCamelCase,
     },
   };
   const martok = new Martok(config);

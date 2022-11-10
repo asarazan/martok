@@ -56,9 +56,9 @@ data class NestedLiteralUnion(
 ) {
   @Serializable(with = Data.UnionSerializer::class)
   sealed class Data {
-    abstract val type: Type
+    abstract val some_type: SomeType
     @Serializable
-    enum class Type(
+    enum class SomeType(
       val serialName: String
     ) {
       @SerialName("foo") FOO("foo"),
@@ -70,7 +70,7 @@ data class NestedLiteralUnion(
     data class DataFoo(
       val data: Foo
     ) : Data() {
-      override val type: Type = Type.FOO
+      override val some_type: SomeType = SomeType.FOO
     }
 
 
@@ -78,16 +78,16 @@ data class NestedLiteralUnion(
     data class DataBar(
       val data: Bar
     ) : Data() {
-      override val type: Type = Type.BAR
+      override val some_type: SomeType = SomeType.BAR
     }
 
 
     object UnionSerializer : JsonContentPolymorphicSerializer<Data>(Data::class) {
       override fun selectDeserializer(element: JsonElement) = when(
-              val type = element.jsonObject["type"]
+              val type = element.jsonObject["some_type"]
           ) {
-              JsonPrimitive(Type.FOO.serialName) -> DataFoo.serializer()
-              JsonPrimitive(Type.BAR.serialName) -> DataBar.serializer()
+              JsonPrimitive(SomeType.FOO.serialName) -> DataFoo.serializer()
+              JsonPrimitive(SomeType.BAR.serialName) -> DataBar.serializer()
               else -> throw IllegalArgumentException("Unexpected type: $type")
       }
     }

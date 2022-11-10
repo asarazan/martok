@@ -33,6 +33,7 @@ import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { UtilityGenerator } from "./UtilityGenerator";
 import { extractComment } from "../processing/Comments";
+import { processSnakeCase } from "../processing/SnakeCase";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration

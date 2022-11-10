@@ -4,11 +4,11 @@ export type NestedLiteralUnion = {
   id: string;
   data:
     | {
-        type: "foo";
+        some_type: "foo";
         data: Foo;
       }
     | {
-        type: "bar";
+        some_type: "bar";
         data: Bar;
       };
 };
