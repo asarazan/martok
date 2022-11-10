@@ -1,7 +1,11 @@
 export function title(str: string) {
-  return str.replace(/(^|\s)\S/g, function (t) {
+  return snakeToCamel(str).replace(/(^|\s)\S/g, function (t) {
     return t.toUpperCase();
   });
+}
+
+export function snakeToPascal(str: string): string {
+  return title(str);
 }
 
 // Adapted from https://stackoverflow.com/a/30521308

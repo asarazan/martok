@@ -27,7 +27,7 @@ import {
   getMemberType,
   MemberTypeOptions,
 } from "../../typescript/MemberHelpers";
-import { snakeToCamel, title } from "../NameGenerators";
+import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
