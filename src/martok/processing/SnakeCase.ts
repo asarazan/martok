@@ -16,7 +16,7 @@ function processKlass(klass: Klass) {
   for (const member of [...klass.members, ...klass.ctor]) {
     const name = snakeToCamel(member.name);
     if (name !== member.name) {
-      member.annotation = `@SerializedName("${member.name}")`;
+      member.annotation = `@SerialName("${member.name}")`;
     }
     member.name = name;
   }
