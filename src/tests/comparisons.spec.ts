@@ -86,6 +86,7 @@ describe("Special Comparisons", () => {
           },
           dedupeTaggedUnions: true,
           snakeToCamelCase: true,
+          annotationNewLines: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());
