@@ -28,10 +28,12 @@ export class KlassPrinter {
     }
 
     // Annotation
-    if (klass.annotation?.length) {
-      this.indent(indent, result);
-      result.push(klass.annotation);
-      result.push("\n");
+    for (const annotation of klass.annotations) {
+      if (annotation.length) {
+        this.indent(indent, result);
+        result.push(annotation);
+        result.push("\n");
+      }
     }
 
     // Class declaration
@@ -174,12 +176,14 @@ export class KlassPrinter {
       }
       result.push(" */\n");
     }
-    if (param.annotation?.length) {
-      result.push(`${param.annotation}`);
-      if (options?.annotationNewLines || param.annotation.length > 32) {
-        result.push("\n");
-      } else {
-        result.push(" ");
+    for (const annotation of param.annotations ?? []) {
+      if (annotation?.length) {
+        result.push(`${annotation}`);
+        if (options?.annotationNewLines || annotation.length > 32) {
+          result.push("\n");
+        } else {
+          result.push(" ");
+        }
       }
     }
     if (param.abstract) {

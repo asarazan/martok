@@ -67,7 +67,7 @@ export class TaggedUnionGenerator {
     if (!tag) return undefined;
     const result = new Klass(name)
       .addGeneratorTypes("tagged")
-      .setAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
+      .addAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
       .addModifier("sealed")
       .addMembers(
         ...members.map((value) => {
@@ -151,7 +151,7 @@ export class TaggedUnionGenerator {
     return new Klass(title(tag.name))
       .addGeneratorTypes("tagged")
       .addModifier("enum")
-      .setAnnotation("@Serializable")
+      .addAnnotation("@Serializable")
       .setCtorArgs({ name: "serialName", type: "String", mutability: "val" })
       .setEnumValues(...enums);
   }

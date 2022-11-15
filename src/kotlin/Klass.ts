@@ -36,7 +36,7 @@ export namespace kotlin {
   export type ConstructorParameter = FunctionParameter & {
     visibility?: Visibility;
     mutability?: Mutability;
-    annotation?: string;
+    annotations?: string[];
     abstract?: boolean;
     comment?: Komment;
     oldName?: string;
@@ -67,7 +67,7 @@ export namespace kotlin {
   export class Klass {
     public name?: string;
 
-    public annotation: string | undefined;
+    public annotations: string[] = [];
     public klassType: KlassType = "class";
     public modifiers: KlassModifier[] = [];
 
@@ -97,8 +97,9 @@ export namespace kotlin {
       return this;
     }
 
-    public setAnnotation(annotation: string | undefined): this {
-      this.annotation = annotation;
+    public addAnnotation(...annotation: string[]): this {
+      this.annotations.push(...annotation);
+      this.annotations = _.uniq(this.annotations);
       return this;
     }
 

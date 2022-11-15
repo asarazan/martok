@@ -2,7 +2,7 @@ export type WithDates = {
   /**
    * @DateTime
    */
-  useDecorators: string;
+  use_decorators: string;
 
   utcDate1: string;
   isoDate2: string;

@@ -139,7 +139,7 @@ export class KlassGenerator {
         return this.generateMemberOrCtorArg(value, options);
       });
       const result = new Klass(name)
-        .setAnnotation("@Serializable")
+        .addAnnotation("@Serializable")
         .addInnerClasses(...this.generateInnerKlasses(members));
       if (members.length) {
         result.addModifier("data");
@@ -186,6 +186,7 @@ export class KlassGenerator {
     options?: MemberOptions
   ): ConstructorParameter {
     const name = node.name!.getText();
+    const annotations: string[] = [];
     let type = getMemberType(this.martok, node, {
       followReferences: options?.followReferences ?? false,
     });
@@ -194,7 +195,6 @@ export class KlassGenerator {
     } else if (type === `List<${InternalSymbolName.Type}>`) {
       type = `List<${title(name)}Item>`;
     }
-    let annotation: string | undefined;
     const doc = getJSDocTags(node);
     const forceDateTime =
       type === "String" &&
@@ -204,8 +204,9 @@ export class KlassGenerator {
       this.martok.config.options?.dates?.namePattern?.exec(name)?.length
     ) {
       type = "kotlinx.datetime.Instant";
-      annotation =
-        "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
+      annotations.push(
+        "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)"
+      );
     }
     const nullable = options?.optional || !!node.questionToken;
     const override =
@@ -217,7 +218,7 @@ export class KlassGenerator {
       name: sanitizedName,
       oldName: name,
       type,
-      annotation,
+      annotations,
       mutability: "val",
       nullable,
       abstract: options?.abstract,

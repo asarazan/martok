@@ -14,7 +14,7 @@ export class OrdinalEnumGenerator {
     const fqn = this.martok.nameScope.join(`.`);
     return new Klass(name)
       .addGeneratorTypes("ordinal-enum")
-      .setAnnotation(`@Serializable(with = ${name}.Companion::class)`)
+      .addAnnotation(`@Serializable(with = ${name}.Companion::class)`)
       .addModifier("enum")
       .addCtorArgs({
         name: "value",

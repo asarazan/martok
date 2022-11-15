@@ -21,7 +21,7 @@ data class WithDates(
      * @DateTime
      */
     @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
-    val useDecorators: kotlinx.datetime.Instant,
+    @SerialName("use_decorators") val useDecorators: kotlinx.datetime.Instant,
 
     @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
 

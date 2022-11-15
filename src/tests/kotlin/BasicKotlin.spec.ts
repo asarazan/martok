@@ -22,7 +22,7 @@ class Foob(
 describe("Basic Kotlin Formatting", () => {
   it("Utilizes all formatting correctly.", () => {
     const k = new Klass("Foob")
-      .setAnnotation("@Serializable")
+      .addAnnotation("@Serializable")
       .addCtorArgs({
         name: "foo",
         type: "Foo",
@@ -39,7 +39,7 @@ describe("Basic Kotlin Formatting", () => {
         type: "Double",
       })
       .addInnerClasses(
-        new Klass("Barb").setAnnotation("@Serializable").addCtorArgs({
+        new Klass("Barb").addAnnotation("@Serializable").addCtorArgs({
           name: "whatever",
           type: "Hi",
         })
