@@ -195,7 +195,14 @@ export class KlassGenerator {
       type = `List<${title(name)}Item>`;
     }
     let annotation: string | undefined;
-    if (this.martok.config.options?.dates?.namePattern?.exec(name)?.length) {
+    const doc = getJSDocTags(node);
+    const forceDateTime =
+      type === "String" &&
+      doc.find((value) => value.tagName.text.toLowerCase() === "datetime");
+    if (
+      forceDateTime ||
+      this.martok.config.options?.dates?.namePattern?.exec(name)?.length
+    ) {
       type = "kotlinx.datetime.Instant";
       annotation =
         "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)";
