@@ -20,8 +20,10 @@ function processKlass(klass: Klass) {
   for (const member of [...klass.members, ...klass.ctor]) {
     if (member.oldName && member.name !== member.oldName) {
       const name = member.oldName.replace(/"/g, "");
-      member.annotations = member.annotations ?? [];
-      member.annotations.push(`@SerialName("${name}")`);
+      member.annotations = [
+        `@SerialName("${name}")`,
+        ...(member.annotations ?? []),
+      ];
     }
   }
   for (const sub of klass.innerClasses) {
