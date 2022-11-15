@@ -14,39 +14,12 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
-typealias FooLike = Foo
-typealias StringLike = String
-
 @Serializable
-data class Foo(
-    val bar: String
-)
-
-@Serializable
-data class Bar(
-    val bar: String,
-    val baz: Double
-)
-
-@Serializable
-data class Baz(
-    val bar: String,
-    val baz: Double,
-    val ban: Boolean
-)
-
-@Serializable
-data class SomeArrayItem(
-    val foo: String
-)
-typealias SomeArray = List<SomeArrayItem>
-
-@Serializable
-data class ContainsArray(
-    val arr: List<ArrItem>
+data class Names(
+  @SerialName("wtf:is:this") val wtf_is_this: WtfIsThis
 ) {
-    @Serializable
-    data class ArrItem(
-        val foo: String
-    )
+  @Serializable
+  data class WtfIsThis(
+    val foo: String
+  )
 }

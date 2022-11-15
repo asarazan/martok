@@ -1,5 +1,7 @@
+import { sanitizeName } from "./processing/SanitizeNames";
+
 export function title(str: string) {
-  const camel = snakeToCamel(str);
+  const camel = snakeToCamel(sanitizeName(str));
   return camel.replace(/(^|\s)\S/g, function (t) {
     return t.toUpperCase();
   });
