@@ -50,3 +50,8 @@ data class ContainsArray(
         val foo: String
     )
 }
+
+@Serializable
+data class Names(
+    @SerialName("wtf:is:this") val wtf_is_this: Boolean
+)

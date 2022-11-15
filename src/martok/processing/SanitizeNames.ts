@@ -1,9 +1,13 @@
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
-import { snakeToCamel } from "../NameGenerators";
 import { MartokOutFile } from "../MartokOutFile";
+import _ from "lodash";
 
-export function processSnakeCase(files: MartokOutFile[]) {
+export function sanitizeName(name: string): string {
+  return name.replace(/:/g, "_").replace(/"/g, "");
+}
+
+export function processOldNames(files: MartokOutFile[]) {
   for (const file of files) {
     for (const klass of file.text.declarations) {
       if (!(klass instanceof Klass)) continue;
@@ -14,10 +18,9 @@ export function processSnakeCase(files: MartokOutFile[]) {
 
 function processKlass(klass: Klass) {
   for (const member of [...klass.members, ...klass.ctor]) {
-    const name = snakeToCamel(member.name);
-    if (name !== member.name) {
-      member.oldName = member.oldName ?? member.name;
-      member.name = name;
+    if (member.oldName && member.name !== member.oldName) {
+      const name = member.oldName.replace(/"/g, "");
+      member.annotation = `@SerialName("${name}")`;
     }
   }
   for (const sub of klass.innerClasses) {

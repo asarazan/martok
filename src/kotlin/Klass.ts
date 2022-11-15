@@ -39,6 +39,7 @@ export namespace kotlin {
     annotation?: string;
     abstract?: boolean;
     comment?: Komment;
+    oldName?: string;
   };
 
   export type MemberDeclaration = ConstructorParameter;

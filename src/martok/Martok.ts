@@ -14,6 +14,7 @@ import { title } from "./NameGenerators";
 import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
+import { processOldNames } from "./processing/SanitizeNames";
 
 type MartokState = {
   nameScope: string[];
@@ -103,6 +104,7 @@ export class Martok {
       if (this.config.options?.snakeToCamelCase ?? false) {
         processSnakeCase(result);
       }
+      processOldNames(result);
       return result;
     });
   }
