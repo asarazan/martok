@@ -7,7 +7,7 @@ import {
   TypeChecker,
   TypeNode,
 } from "typescript";
-import { pascalToSnake, title } from "../martok/NameGenerators";
+import { pascalToSnake } from "../martok/NameGenerators";
 
 export function getEnumName(
   checker: TypeChecker,

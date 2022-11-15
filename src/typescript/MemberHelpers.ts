@@ -51,6 +51,10 @@ export function getMemberType(
     type = type.type!;
   }
 
+  if (isParenthesizedTypeNode(type)) {
+    type = type.type!;
+  }
+
   if (isTypeReferenceNode(type)) {
     if (options?.followReferences === false) {
       const ref = type.typeName.getText();

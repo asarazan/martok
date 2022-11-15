@@ -9,7 +9,7 @@ import {
   isArrayTypeNode,
   isEnumDeclaration,
   isInterfaceDeclaration,
-  isJSDoc,
+  isJSDoc, isParenthesizedTypeNode,
   isPropertySignature,
   isTypeAliasDeclaration,
   isTypeReferenceNode,
@@ -83,6 +83,9 @@ export class KlassGenerator {
     node: SupportedDeclaration | TypeNode,
     options?: MemberOptions
   ): Klass | string {
+    if (isParenthesizedTypeNode(node)) {
+      node = node.type!;
+    }
     if (isArrayTypeNode(node)) {
       let result = this.generate(node.elementType, options);
       if (typeof result === "string") {

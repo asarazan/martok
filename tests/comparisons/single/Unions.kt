@@ -24,3 +24,16 @@ data class Unions(
         val baz: String? = null
     )
 }
+
+@Serializable
+data class StringUnions(
+    val foo: List<FooItem>
+) {
+    @Serializable
+    enum class FooItem(
+        val serialName: String
+    ) {
+        @SerialName("hey") HEY("hey"),
+        @SerialName("hi") HI("hi");
+    }
+}
