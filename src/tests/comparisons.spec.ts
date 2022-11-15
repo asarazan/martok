@@ -118,3 +118,27 @@ describe("Special Comparisons", () => {
     });
   }
 });
+
+describe("Formatting Comparisons", () => {
+  const root = `${ROOT}/formatting`;
+  const types = glob.sync(`${root}/**/*.d.ts`);
+  for (const filename of types) {
+    const compare = `${path.dirname(filename)}/${title(
+      path.basename(filename, ".d.ts")
+    )}.kt`;
+    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+        options: {
+          dedupeTaggedUnions: true,
+          snakeToCamelCase: true,
+        },
+      });
+      const out = martok.generateMultiFile();
+      const contents = await fs.promises.readFile(compare, "utf-8");
+      expect(out).toEqual(contents);
+    });
+  }
+});

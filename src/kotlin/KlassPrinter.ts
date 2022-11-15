@@ -105,6 +105,7 @@ export class KlassPrinter {
         result.push("\n");
       }
       klass.innerClasses.forEach((value, index) => {
+        result.push("\n");
         result.push(this.print(value, indent));
         if (index < klass.innerClasses.length - 1) {
           result.push("\n\n");
@@ -131,7 +132,7 @@ export class KlassPrinter {
     statements.forEach((value, index) => {
       const lines = value.split("\n");
       lines.forEach((line, lineIndex) => {
-        this.indent(indent, result);
+        if (line.length) this.indent(indent, result);
         result.push(line);
         if (lines.length > 1 && lineIndex < lines.length - 1) {
           result.push("\n");
@@ -153,6 +154,9 @@ export class KlassPrinter {
     defaultMutability?: Mutability
   ): string {
     const result = [];
+
+    result.push("\n");
+
     if (param.comment) {
       const text = param.comment.value;
       result.push("/**\n");
