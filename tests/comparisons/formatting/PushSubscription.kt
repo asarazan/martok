@@ -40,7 +40,8 @@ data class PushSubscription(
    * Type: String
    * Version history: Added in 2.4.0
    */
-  @SerialName("server_key") val serverKey: String,
+  @SerialName("server_key")
+  val serverKey: String,
 
   /**
    * Description: Which alerts should be delivered to the endpoint.

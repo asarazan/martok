@@ -134,6 +134,7 @@ describe("Formatting Comparisons", () => {
         options: {
           dedupeTaggedUnions: true,
           snakeToCamelCase: true,
+          annotationNewLines: true,
         },
       });
       const out = martok.generateMultiFile();
