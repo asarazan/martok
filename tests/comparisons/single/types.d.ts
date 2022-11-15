@@ -17,3 +17,7 @@ export type SomeArray = { foo: string }[];
 export type ContainsArray = {
   arr: { foo: string }[];
 };
+
+export type Names = {
+  "wtf:is:this": boolean;
+};

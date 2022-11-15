@@ -9,7 +9,8 @@ import {
   isArrayTypeNode,
   isEnumDeclaration,
   isInterfaceDeclaration,
-  isJSDoc, isParenthesizedTypeNode,
+  isJSDoc,
+  isParenthesizedTypeNode,
   isPropertySignature,
   isTypeAliasDeclaration,
   isTypeReferenceNode,
@@ -34,6 +35,7 @@ import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { UtilityGenerator } from "./UtilityGenerator";
 import { extractComment } from "../processing/Comments";
 import { processSnakeCase } from "../processing/SnakeCase";
+import { sanitizeName } from "../processing/SanitizeNames";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -203,8 +205,10 @@ export class KlassGenerator {
       options?.extendSealed &&
       options.extendSealed.members.find((value) => value.name === name);
     const comment = extractComment(node);
+    const sanitizedName = sanitizeName(name);
     return {
-      name,
+      name: sanitizedName,
+      oldName: name,
       type,
       annotation,
       mutability: "val",
