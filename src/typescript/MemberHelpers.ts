@@ -148,7 +148,7 @@ function getNumberType(node: TypeNode): KotlinNumber {
 
 function getJSDocPrecision(node: ts.Node): string | undefined {
   return getJSDocTags(node).find((value) => {
-    return value.tagName.text === "precision";
+    return value.tagName.text.toLowerCase() === "precision";
   })?.comment as string;
 }
 
