@@ -5,4 +5,5 @@ export type MartokOptions = {
   };
   dedupeTaggedUnions?: boolean;
   snakeToCamelCase?: boolean;
+  annotationNewLines?: boolean;
 };

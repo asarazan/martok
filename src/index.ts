@@ -43,6 +43,13 @@ const args = yargs
     default: false,
     describe: "convert json-friendly snake_case to Kotlin-friendly camelCase",
   })
+  .option("annotationNewLines", {
+    alias: "a",
+    type: "boolean",
+    default: false,
+    describe:
+      "Aesthetic option to always put a newline between annotations and declarations",
+  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -56,6 +63,7 @@ export type TranspileSingleArgs = {
   datePattern: string;
   dedupeTaggedUnions: boolean;
   snakeToCamelCase: boolean;
+  annotationNewLines: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -76,7 +84,7 @@ async function transpile(args: TranspileSingleArgs) {
           : RegExp(args.datePattern),
     };
   }
-  const { dedupeTaggedUnions, snakeToCamelCase } = args;
+  const { dedupeTaggedUnions, snakeToCamelCase, annotationNewLines } = args;
   const config: MartokConfig = {
     files,
     package: args.package,
@@ -85,6 +93,7 @@ async function transpile(args: TranspileSingleArgs) {
       dates,
       dedupeTaggedUnions,
       snakeToCamelCase,
+      annotationNewLines,
     },
   };
   const martok = new Martok(config);

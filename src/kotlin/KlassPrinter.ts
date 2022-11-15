@@ -2,13 +2,17 @@ import { kotlin } from "./Klass";
 import Klass = kotlin.Klass;
 import ConstructorParameter = kotlin.ConstructorParameter;
 import Mutability = kotlin.Mutability;
-import { convertCommentText } from "./Komments";
 import { split } from "lodash";
+import { MartokOptions } from "../martok/MartokOptions";
 
 export class KlassPrinter {
   public static readonly instance = new KlassPrinter();
 
-  public print(klass: Klass | string, indent = 0): string {
+  public print(
+    klass: Klass | string,
+    indent = 0,
+    options?: MartokOptions
+  ): string {
     if (typeof klass === "string") return klass;
     const result = [] as string[];
 
@@ -45,7 +49,9 @@ export class KlassPrinter {
       indent++;
       this.push(
         result,
-        klass.ctor.map((value) => this.printParameter(value)),
+        klass.ctor.map((value) =>
+          this.printParameter(value, undefined, options)
+        ),
         indent,
         ",\n"
       );
@@ -98,7 +104,9 @@ export class KlassPrinter {
       if (klass.members?.length) {
         this.push(
           result,
-          klass.members.map((value) => this.printParameter(value, "val")),
+          klass.members.map((value) =>
+            this.printParameter(value, "val", options)
+          ),
           indent,
           "\n"
         );
@@ -106,7 +114,7 @@ export class KlassPrinter {
       }
       klass.innerClasses.forEach((value, index) => {
         result.push("\n");
-        result.push(this.print(value, indent));
+        result.push(this.print(value, indent, options));
         if (index < klass.innerClasses.length - 1) {
           result.push("\n\n");
         }
@@ -151,7 +159,8 @@ export class KlassPrinter {
   }
   private printParameter(
     param: ConstructorParameter,
-    defaultMutability?: Mutability
+    defaultMutability?: Mutability,
+    options?: MartokOptions
   ): string {
     const result = [];
 
@@ -167,7 +176,7 @@ export class KlassPrinter {
     }
     if (param.annotation?.length) {
       result.push(`${param.annotation}`);
-      if (param.annotation.length > 32) {
+      if (options?.annotationNewLines || param.annotation.length > 32) {
         result.push("\n");
       } else {
         result.push(" ");

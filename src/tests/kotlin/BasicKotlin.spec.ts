@@ -4,11 +4,15 @@ import { KlassPrinter } from "../../kotlin/KlassPrinter";
 
 const compare = `@Serializable
 class Foob(
+
   private val foo: Foo?
 ) : Hateful() {
+
   override val Hallo: Double
+
   @Serializable
   class Barb(
+
     whatever: Hi
   )
   // statement goes here

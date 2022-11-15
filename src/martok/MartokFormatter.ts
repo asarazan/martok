@@ -13,7 +13,9 @@ export class MartokFormatter {
 
 ${file.text.imports.join("\n")}
 
-${file.text.declarations.map((value) => this.printer.print(value)).join("\n")}`;
+${file.text.declarations
+  .map((value) => this.printer.print(value, 0, this.config.options))
+  .join("\n")}`;
   }
 
   public generateMultiFile(files: MartokOutFile[]): string {
@@ -23,7 +25,9 @@ ${StandardKotlinImports}
 
 ${files
   .flatMap((value) =>
-    value.text.declarations.map((value) => this.printer.print(value))
+    value.text.declarations.map((value) =>
+      this.printer.print(value, 0, this.config.options)
+    )
   )
   .join("\n")}`;
   }
