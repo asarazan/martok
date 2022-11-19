@@ -5,6 +5,7 @@ import {
 } from "../kotlin/StandardKotlinImports";
 import { MartokConfig } from "./MartokConfig";
 import { KlassPrinter } from "../kotlin/KlassPrinter";
+import { StandardFileHeader } from "../kotlin/StandardFileHeader";
 
 export class MartokFormatter {
   private readonly printer = KlassPrinter.instance;
@@ -12,7 +13,8 @@ export class MartokFormatter {
   public constructor(private readonly config: MartokConfig) {}
 
   public generateSingleFile(file: MartokOutFile): string {
-    return `package ${file.pkg}
+    return `${StandardFileHeader}
+package ${file.pkg}
 
 ${file.text.imports.join("\n")}
 
@@ -22,7 +24,8 @@ ${file.text.declarations
   }
 
   public generateMultiFile(files: MartokOutFile[]): string {
-    return `package ${this.config.package}
+    return `${StandardFileHeader}
+package ${this.config.package}
 
 ${this.config.options?.importStar ? StarKotlinImport : StandardKotlinImports}
 
