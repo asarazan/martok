@@ -1,5 +1,8 @@
 import { MartokOutFile } from "./MartokOutFile";
-import { StandardKotlinImports } from "../kotlin/StandardKotlinImports";
+import {
+  StandardKotlinImports,
+  StarKotlinImport,
+} from "../kotlin/StandardKotlinImports";
 import { MartokConfig } from "./MartokConfig";
 import { KlassPrinter } from "../kotlin/KlassPrinter";
 
@@ -21,7 +24,7 @@ ${file.text.declarations
   public generateMultiFile(files: MartokOutFile[]): string {
     return `package ${this.config.package}
 
-${StandardKotlinImports}
+${this.config.options?.importStar ? StarKotlinImport : StandardKotlinImports}
 
 ${files
   .flatMap((value) =>
