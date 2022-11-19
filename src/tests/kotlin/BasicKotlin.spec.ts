@@ -4,7 +4,6 @@ import { KlassPrinter } from "../../kotlin/KlassPrinter";
 
 const compare = `@Serializable
 class Foob(
-
   private val foo: Foo?
 ) : Hateful() {
 
@@ -12,7 +11,6 @@ class Foob(
 
   @Serializable
   class Barb(
-
     whatever: Hi
   )
   // statement goes here

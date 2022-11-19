@@ -47,7 +47,12 @@ export class KlassPrinter {
     // Primary Constructor
     if (klass.ctor.length) {
       result.push("(");
-      result.push("\n");
+
+      // Small QoL improvement for single-arg classes, so they don't format weird.
+      if (klass.ctor.length > 1) {
+        result.push("\n");
+      }
+
       indent++;
       this.push(
         result,
@@ -117,9 +122,6 @@ export class KlassPrinter {
       klass.innerClasses.forEach((value, index) => {
         result.push("\n");
         result.push(this.print(value, indent, options));
-        if (index < klass.innerClasses.length - 1) {
-          result.push("\n\n");
-        }
       });
       if (klass.statements.length) {
         this.push(result, klass.statements, indent, "\n");
