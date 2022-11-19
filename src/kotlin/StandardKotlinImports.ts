@@ -14,4 +14,5 @@ export const StandardKotlinImportList = [
   `import kotlinx.serialization.json.jsonObject`,
 ];
 
+export const StarKotlinImport = "import kotlinx.serialization.*";
 export const StandardKotlinImports = StandardKotlinImportList.join("\n");

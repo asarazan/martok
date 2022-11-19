@@ -3,7 +3,10 @@ import { SourceFile, Statement, TypeChecker } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import _ from "lodash";
 import { TsHelper } from "../typescript/TsHelper";
-import { StandardKotlinImportList } from "../kotlin/StandardKotlinImports";
+import {
+  StandardKotlinImportList,
+  StarKotlinImport,
+} from "../kotlin/StandardKotlinImports";
 import { ImportGenerator } from "./ImportGenerator";
 import { DeclarationGenerator } from "./declarations/DeclarationGenerator";
 import * as fs from "fs";
@@ -141,7 +144,11 @@ export class Martok {
       pkg,
       text: {
         package: `package ${pkg}`,
-        imports: [...StandardKotlinImportList],
+        imports: [
+          ...(this.config.options?.importStar
+            ? [StarKotlinImport]
+            : StandardKotlinImportList),
+        ],
         declarations: [],
       },
     };

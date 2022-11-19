@@ -50,6 +50,12 @@ const args = yargs
     describe:
       "Aesthetic option to always put a newline between annotations and declarations",
   })
+  .option("importStar", {
+    alias: "i",
+    type: "boolean",
+    default: false,
+    describe: "Just throw in an import kotlinx.serialization.*",
+  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -64,6 +70,7 @@ export type TranspileSingleArgs = {
   dedupeTaggedUnions: boolean;
   snakeToCamelCase: boolean;
   annotationNewLines: boolean;
+  importStar: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -84,7 +91,12 @@ async function transpile(args: TranspileSingleArgs) {
           : RegExp(args.datePattern),
     };
   }
-  const { dedupeTaggedUnions, snakeToCamelCase, annotationNewLines } = args;
+  const {
+    dedupeTaggedUnions,
+    snakeToCamelCase,
+    annotationNewLines,
+    importStar,
+  } = args;
   const config: MartokConfig = {
     files,
     package: args.package,
@@ -94,6 +106,7 @@ async function transpile(args: TranspileSingleArgs) {
       dedupeTaggedUnions,
       snakeToCamelCase,
       annotationNewLines,
+      importStar,
     },
   };
   const martok = new Martok(config);
