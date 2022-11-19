@@ -22,13 +22,16 @@ export class ImportGenerator {
     return this.generateImportsFromSymbols(symbols);
   }
 
-  public generateImportsFromSymbols(symbols: ts.Symbol[]): string[] {
-    return symbols
+  public generateImportsFromSymbols(symbols: (string | ts.Symbol)[]): string[] {
+    return _.uniq(symbols)
       .map((value) => {
+        if (typeof value === "string") {
+          return `import ${value}`;
+        }
         const decl = _.first(value.declarations)!;
         const source = decl.getSourceFile();
         const pkg = this.martok.getFilePackage(source);
-        return `import ${pkg}.${value.getEscapedName()}`;
+        return `import ${pkg}.${value.getEscapedName() as string}`;
       })
       .filter((value) => !value.endsWith(`.${InternalSymbolName.Type}`));
   }

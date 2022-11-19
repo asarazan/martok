@@ -14,6 +14,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.serializers.InstantIso8601Serializer
+
 @Serializable
 data class WithDates(
 
@@ -21,18 +24,18 @@ data class WithDates(
      * @DateTime
      */
     @SerialName("use_decorators")
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
-    val useDecorators: kotlinx.datetime.Instant,
+    @Serializable(with = InstantIso8601Serializer::class)
+    val useDecorators: Instant,
 
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
+    @Serializable(with = InstantIso8601Serializer::class)
 
-    val utcDate1: kotlinx.datetime.Instant,
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
+    val utcDate1: Instant,
+    @Serializable(with = InstantIso8601Serializer::class)
 
-    val isoDate2: kotlinx.datetime.Instant,
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
+    val isoDate2: Instant,
+    @Serializable(with = InstantIso8601Serializer::class)
 
-    val fooDate: kotlinx.datetime.Instant,
+    val fooDate: Instant,
 
     val justAString: String
 )

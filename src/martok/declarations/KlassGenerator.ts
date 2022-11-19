@@ -34,7 +34,6 @@ import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { UtilityGenerator } from "./UtilityGenerator";
 import { extractComment } from "../processing/Comments";
-import { processSnakeCase } from "../processing/SnakeCase";
 import { sanitizeName } from "../processing/SanitizeNames";
 
 export type SupportedDeclaration =
@@ -203,10 +202,12 @@ export class KlassGenerator {
       forceDateTime ||
       this.martok.config.options?.dates?.namePattern?.exec(name)?.length
     ) {
-      type = "kotlinx.datetime.Instant";
-      annotations.push(
-        "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)"
+      this.martok.externalSymbols.push(
+        "kotlinx.datetime.Instant",
+        "kotlinx.datetime.serializers.InstantIso8601Serializer"
       );
+      type = "Instant";
+      annotations.push(`@Serializable(with = InstantIso8601Serializer::class)`);
     }
     const nullable = options?.optional || !!node.questionToken;
     const override =

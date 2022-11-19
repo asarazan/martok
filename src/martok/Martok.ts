@@ -41,7 +41,7 @@ export class Martok {
   public get nameScope(): string[] {
     return this.storage.getStore()!.nameScope;
   }
-  public get externalSymbols(): ts.Symbol[] {
+  public get externalSymbols(): (string | ts.Symbol)[] {
     return this.storage.getStore()!.externalStatements;
   }
   public get additionalDeclarations(): string[] {
