@@ -196,17 +196,24 @@ export class KlassGenerator {
       type = `List<${title(name)}Item>`;
     }
     const doc = getJSDocTags(node);
-    const forceDateTime =
-      type === "String" &&
-      doc.find((value) => value.tagName.text.toLowerCase() === "datetime");
-    if (
-      forceDateTime ||
-      this.martok.config.options?.dates?.namePattern?.exec(name)?.length
-    ) {
-      type = "kotlinx.datetime.Instant";
-      annotations.push(
-        "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)"
+    if (type === "String") {
+      const forceDateTime = doc.find(
+        (value) => value.tagName.text.toLowerCase() === "datetime"
       );
+      const forceDate = doc.find(
+        (value) => value.tagName.text.toLowerCase() === "date"
+      );
+      if (forceDateTime) {
+        type = "kotlinx.datetime.Instant";
+        annotations.push(
+          "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)"
+        );
+      } else if (forceDate) {
+        type = "kotlinx.datetime.LocalDate";
+        annotations.push(
+          "@Serializable(with = kotlinx.datetime.serializers.LocalDateIso8601Serializer::class)"
+        );
+      }
     }
     const nullable = options?.optional || !!node.questionToken;
     const override =

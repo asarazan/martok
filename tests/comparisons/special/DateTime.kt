@@ -24,15 +24,12 @@ data class WithDates(
     @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
     val useDecorators: kotlinx.datetime.Instant,
 
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
-
-    val utcDate1: kotlinx.datetime.Instant,
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
-
-    val isoDate2: kotlinx.datetime.Instant,
-    @Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)
-
-    val fooDate: kotlinx.datetime.Instant,
+    /**
+     * @Date
+     */
+    @SerialName("just_date")
+    @Serializable(with = kotlinx.datetime.serializers.LocalDateIso8601Serializer::class)
+    val justDate: kotlinx.datetime.LocalDate,
 
     val justAString: String
 )

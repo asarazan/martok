@@ -9,7 +9,6 @@ import * as path from "path";
 import { MartokConfig } from "./martok/MartokConfig";
 import { Martok } from "./martok/Martok";
 import { MartokOptions } from "./martok/MartokOptions";
-import { StandardDatePattern } from "./typescript/Patterns";
 
 const args = yargs
   .scriptName("martok")
@@ -23,12 +22,6 @@ const args = yargs
     type: "string",
     describe: "the kotlin package name",
     default: "example",
-  })
-  .option("datePattern", {
-    alias: "d",
-    type: "string",
-    describe:
-      "regexp for any field that should be a date (requires kotlinx.datetime, use 'standard' for sensible default')",
   })
   .option("dedupeTaggedUnions", {
     alias: "t",
@@ -81,16 +74,6 @@ async function transpile(args: TranspileSingleArgs) {
     ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
     : [args.path];
   const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
-  let dates: MartokOptions["dates"] | undefined;
-  if (args.datePattern?.length) {
-    dates = {
-      framework: "kotlinx.datetime",
-      namePattern:
-        args.datePattern === "standard"
-          ? StandardDatePattern
-          : RegExp(args.datePattern),
-    };
-  }
   const {
     dedupeTaggedUnions,
     snakeToCamelCase,
@@ -102,7 +85,6 @@ async function transpile(args: TranspileSingleArgs) {
     package: args.package,
     sourceRoot: rootDir,
     options: {
-      dates,
       dedupeTaggedUnions,
       snakeToCamelCase,
       annotationNewLines,
