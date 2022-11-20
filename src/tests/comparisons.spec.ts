@@ -6,7 +6,6 @@ import * as fs from "fs";
 import { sanitizeComparison } from "./sanitizeComparison";
 import _ from "lodash";
 import * as util from "util";
-import { StandardDatePattern } from "../typescript/Patterns";
 
 const PACKAGE = "net.sarazan.martok";
 const ROOT = path.resolve("./tests/comparisons");
@@ -80,10 +79,6 @@ describe("Special Comparisons", () => {
         package: PACKAGE,
         sourceRoot: root,
         options: {
-          dates: {
-            framework: "kotlinx.datetime",
-            namePattern: StandardDatePattern,
-          },
           dedupeTaggedUnions: true,
           snakeToCamelCase: true,
           annotationNewLines: true,

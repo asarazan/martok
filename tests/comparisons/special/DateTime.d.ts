@@ -4,8 +4,10 @@ export type WithDates = {
    */
   use_decorators: string;
 
-  utcDate1: string;
-  isoDate2: string;
-  fooDate: string;
+  /**
+   * @Date
+   */
+  just_date: string;
+
   justAString: string;
 };
