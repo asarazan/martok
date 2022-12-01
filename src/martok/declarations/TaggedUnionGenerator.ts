@@ -48,12 +48,18 @@ export class TaggedUnionGenerator {
       if (isParenthesizedTypeNode(value)) return value.type;
       return value;
     });
+
     const union = [type, ...types].find((value) => isUnionTypeNode(value)) as
       | UnionTypeNode
       | undefined;
     if (!union) {
       return undefined;
     }
+    const commonMembers = _.intersection(
+      ...union.types.map((value) => getMembers(value, this.martok))
+    );
+    members.push(...commonMembers);
+
     const intersection = [type].filter((value) =>
       isIntersectionTypeNode(value)
     ) as IntersectionTypeNode[];
@@ -89,7 +95,12 @@ export class TaggedUnionGenerator {
           .map((value) => value.addGeneratorTypes("tagged"))
       );
     result.addInnerClasses(
-      ...this.generateSerializerAndFriends(name, tag, result)
+      ...this.generateSerializerAndFriends(
+        name,
+        tag,
+        result,
+        commonMembers.map((value) => value.name?.getText() ?? "")
+      )
     );
     return result;
   }
@@ -159,7 +170,8 @@ export class TaggedUnionGenerator {
   private generateSerializerAndFriends(
     name: string,
     tag: TagMappings,
-    parent: Klass
+    parent: Klass,
+    excludeAnonymousTypes: string[]
   ): Klass[] {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
@@ -168,6 +180,7 @@ export class TaggedUnionGenerator {
       const subclass = this.martok.declarations.klasses.generate(v, {
         forceName: subName,
         extendSealed: parent,
+        excludeAnonymousTypes,
       }) as Klass;
       subclass.addGeneratorTypes("tagged");
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;

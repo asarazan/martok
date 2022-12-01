@@ -63,6 +63,7 @@ sealed class IntersectionFirst {
 
 @Serializable(with = UnionFirst.UnionSerializer::class)
 sealed class UnionFirst {
+  abstract val id: String
   abstract val type: Type
   @Serializable
   enum class Type(
@@ -76,7 +77,7 @@ sealed class UnionFirst {
   @Serializable
   data class UnionFirstFoo(
     val foo: String,
-    val id: String
+    override val id: String
   ) : UnionFirst() {
     override val type: Type = Type.FOO
   }
@@ -84,8 +85,8 @@ sealed class UnionFirst {
 
   @Serializable
   data class UnionFirstBar(
-    val bar: String,
-    val id: String
+    val bar: Double,
+    override val id: String
   ) : UnionFirst() {
     override val type: Type = Type.BAR
   }

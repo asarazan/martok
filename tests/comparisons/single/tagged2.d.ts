@@ -20,5 +20,5 @@ export type UnionFirst =
     } & HasId)
   | ({
       type: "bar";
-      bar: string;
+      bar: number;
     } & HasId);

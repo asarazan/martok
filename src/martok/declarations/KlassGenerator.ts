@@ -47,6 +47,7 @@ export type MemberOptions = {
   abstract?: boolean;
   forceName?: string;
   extendSealed?: Klass;
+  excludeAnonymousTypes?: string[];
 } & MemberTypeOptions;
 
 export class KlassGenerator {
@@ -140,7 +141,9 @@ export class KlassGenerator {
       });
       const result = new Klass(name)
         .addAnnotation("@Serializable")
-        .addInnerClasses(...this.generateInnerKlasses(members));
+        .addInnerClasses(
+          ...this.generateInnerKlasses(members, options?.excludeAnonymousTypes)
+        );
       if (members.length) {
         result.addModifier("data");
       }
@@ -235,9 +238,14 @@ export class KlassGenerator {
     };
   }
 
-  public generateInnerKlasses(members: ReadonlyArray<TypeElement>): Klass[] {
+  public generateInnerKlasses(
+    members: ReadonlyArray<TypeElement>,
+    excludeAnonymousTypes?: string[]
+  ): Klass[] {
     const anonymousTypes = members.filter((value) => {
       const type = getMemberType(this.martok, value);
+      const name = value.name?.getText() ?? "";
+      if (excludeAnonymousTypes?.includes(name)) return false;
       return (
         type === InternalSymbolName.Type ||
         type === `List<${InternalSymbolName.Type}>`
