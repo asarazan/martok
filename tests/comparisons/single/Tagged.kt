@@ -14,9 +14,19 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
-typealias Type1 = String
+@Serializable
+enum class Type1(
+    val serialName: String
+) {
+    @SerialName("type 1") TYPE_1("type 1"),
+}
 
-typealias Type2 = String
+@Serializable
+enum class Type1(
+    val serialName: String
+) {
+    @SerialName("type 2") TYPE_2("type 2"),
+}
 
 @Serializable
 enum class Types(
