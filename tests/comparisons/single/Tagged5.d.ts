@@ -7,22 +7,12 @@ export type Tagged = {
   id: string;
   foo?: string;
 } & (
-    | {
+  | {
       type: Types.Type1;
-      state: State1;
+      state: string;
     }
-    | {
+  | {
       type: Types.Type2;
-      state: State2;
+      state: number;
     }
-  );
-
-export type State1 = {
-  foo: string;
-  bar: number;
-};
-
-export type State2 = {
-  foo: boolean;
-  bar: string;
-};
+);

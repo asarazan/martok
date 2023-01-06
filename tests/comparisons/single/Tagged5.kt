@@ -33,7 +33,7 @@ sealed class Tagged {
   data class TaggedType_1(
     override val id: String,
     override val foo: String?,
-    val state: State1
+    val state: String
   ) : Tagged() {
     override val type: Types = Types.TYPE_1
   }
@@ -43,7 +43,7 @@ sealed class Tagged {
   data class TaggedType_2(
     override val id: String,
     override val foo: String?,
-    val state: State2
+    val state: Double
   ) : Tagged() {
     override val type: Types = Types.TYPE_2
   }
@@ -59,15 +59,3 @@ sealed class Tagged {
     }
   }
 }
-
-@Serializable
-data class State1(
-  val foo: String,
-  val bar: Double
-)
-
-@Serializable
-data class State2(
-  val foo: Boolean,
-  val bar: String
-)
