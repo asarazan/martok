@@ -53,8 +53,8 @@ sealed class Tagged {
     override fun selectDeserializer(element: JsonElement) = when(
             val type = element.jsonObject["type"]
         ) {
-            JsonPrimitive(Type.TYPE_1.serialName) -> TaggedType_1.serializer()
-            JsonPrimitive(Type.TYPE_2.serialName) -> TaggedType_2.serializer()
+            JsonPrimitive(MyEnum.TYPE_1.serialName) -> TaggedType_1.serializer()
+            JsonPrimitive(MyEnum.TYPE_2.serialName) -> TaggedType_2.serializer()
             else -> throw IllegalArgumentException("Unexpected type: $type")
     }
   }

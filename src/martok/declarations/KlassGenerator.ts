@@ -34,7 +34,6 @@ import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { UtilityGenerator } from "./UtilityGenerator";
 import { extractComment } from "../processing/Comments";
-import { processSnakeCase } from "../processing/SnakeCase";
 import { sanitizeName } from "../processing/SanitizeNames";
 
 export type SupportedDeclaration =
@@ -56,7 +55,7 @@ export class KlassGenerator {
   public readonly utility = new UtilityGenerator(this.martok);
 
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: Martok) {}
+  public constructor(private readonly martok: Martok) { }
 
   public static isSupportedDeclaration(
     node: Node

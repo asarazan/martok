@@ -69,8 +69,8 @@ export class TaggedUnionGenerator {
         members.push(...type.members);
       }
     }
-    const tag = this.getTag(union);
 
+    const tag = this.getTag(union);
     if (!tag) return undefined;
 
     const innerTagEnum: Klass[] = [];
@@ -90,7 +90,7 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: title(tag.name),
+        type: title(tag.externalRef ?? tag.name),
         abstract: true,
       })
       .addInnerClasses(
@@ -199,7 +199,7 @@ export class TaggedUnionGenerator {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
       const subName = `${name}${title(k).replace(/\s/g, "_")}`;
-      const tagName = `${title(tag.name)}.${getValName(k)}`;
+      const tagName = `${title(tag.externalRef ?? tag.name)}.${getValName(k)}`;
       const subclass = this.martok.declarations.klasses.generate(v, {
         forceName: subName,
         extendSealed: parent,
@@ -207,7 +207,7 @@ export class TaggedUnionGenerator {
       }) as Klass;
       subclass.addGeneratorTypes("tagged");
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
-      tagMember.type = `${title(tag.name)}`;
+      tagMember.type = `${title(tag.externalRef ?? tag.name)}`;
       _.remove(subclass.ctor, tagMember);
       // Compile error to have a data class with empty ctor...
       if (!subclass.ctor.length) {
