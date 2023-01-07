@@ -20,18 +20,19 @@ import indentString from "indent-string";
 import { kotlin } from "../../kotlin/Klass";
 import { SupportedDeclaration } from "./KlassGenerator";
 import { title } from "../NameGenerators";
-import { getValName } from "../../typescript/EnumHelpers";
+import { getValName, symbolHasParent } from "../../typescript/EnumHelpers";
 import Klass = kotlin.Klass;
 import EnumValue = kotlin.EnumValue;
 
 type TagMappings = {
   name: string;
   mappings: Record<string, TypeNode>;
+  externalRef?: string;
 };
 
 export class TaggedUnionGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: Martok) {}
+  public constructor(private readonly martok: Martok) { }
 
   public generateKlass(
     name: string,
@@ -71,6 +72,10 @@ export class TaggedUnionGenerator {
     const tag = this.getTag(union);
 
     if (!tag) return undefined;
+
+    const innerTagEnum: Klass[] = [];
+    if (!tag?.externalRef) innerTagEnum.push(this.generateTagEnum(tag));
+
     const result = new Klass(name)
       .addGeneratorTypes("tagged")
       .addAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
@@ -89,7 +94,7 @@ export class TaggedUnionGenerator {
         abstract: true,
       })
       .addInnerClasses(
-        this.generateTagEnum(tag),
+        ...innerTagEnum,
         ...this.martok.declarations.klasses
           .generateInnerKlasses(members)
           .map((value) => value.addGeneratorTypes("tagged"))
@@ -115,11 +120,13 @@ export class TaggedUnionGenerator {
       const k = this.getTagValue(prop1);
       // We've found a candidate for our tag discriminator.
       if (!k) continue;
+
       const result: TagMappings = {
         name,
         mappings: {
           [k]: type1,
         },
+        externalRef: this.identifyExternalRef(prop1),
       };
 
       // Now we need to optimistically build the rest of the map.
@@ -130,11 +137,27 @@ export class TaggedUnionGenerator {
         if (!prop2?.name) continue outer;
         const k2 = this.getTagValue(prop2);
         if (!k2) continue outer;
+
+        if (this.identifyExternalRef(prop2) !== result.externalRef)
+          result.externalRef = undefined;
+
         result.mappings[k2] = type2;
       }
+
+      // Every tagged type type uses the same external reference, so we can rename it
+      // if (result.externalRef) result.name = result.externalRef;
+
       return result;
     }
     return undefined;
+  }
+
+  private identifyExternalRef(tagType: TypeElement): string | undefined {
+    if (!isPropertySignature(tagType) || !tagType.type) return undefined;
+    const ref = this.checker.getTypeFromTypeNode(tagType.type);
+    if (!ref) return undefined;
+    if (!symbolHasParent(ref.symbol)) return undefined;
+    return ref.symbol.parent.getName();
   }
 
   private getTagValue(prop: TypeElement): string | undefined {

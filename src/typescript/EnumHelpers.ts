@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   EnumMember,
   isEnumMember,
@@ -6,6 +7,7 @@ import {
   Node,
   TypeChecker,
   TypeNode,
+  Symbol,
 } from "typescript";
 import { pascalToSnake } from "../martok/NameGenerators";
 
@@ -62,4 +64,10 @@ export function getValName(name: string): string {
   }
   result = result.replace(/\s/g, "_");
   return result;
+}
+
+export function symbolHasParent(
+  symbol: unknown
+): symbol is Symbol & { parent: Symbol } {
+  return (symbol as { parent: Symbol })?.parent !== undefined;
 }

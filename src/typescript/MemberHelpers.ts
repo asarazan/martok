@@ -187,10 +187,10 @@ export function getMembers(
           return isTaggedUnion
             ? value
             : {
-                ...value,
-                // Union type is just where everything is optional lmao
-                questionToken: QUESTION_TOKEN,
-              };
+              ...value,
+              // Union type is just where everything is optional lmao
+              questionToken: QUESTION_TOKEN,
+            };
         }),
       isTaggedUnion,
       node

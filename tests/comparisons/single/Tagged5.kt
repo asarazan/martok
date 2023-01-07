@@ -15,18 +15,18 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
 @Serializable
-enum class Types(
+enum class MyEnum(
   val serialName: String
 ) {
-  @SerialName("type 1") TYPE_1("type 1"),
-  @SerialName("type 2") TYPE_2("type 2");
+  @SerialName("type 1") TYPE1("type 1"),
+  @SerialName("type 2") TYPE2("type 2");
 }
 
 @Serializable(with = Tagged.UnionSerializer::class)
 sealed class Tagged {
   abstract val id: String
   abstract val foo: String?
-  abstract val type: Types
+  abstract val type: MyEnum
 
 
   @Serializable
@@ -35,7 +35,7 @@ sealed class Tagged {
     override val foo: String?,
     val state: String
   ) : Tagged() {
-    override val type: Types = Types.TYPE_1
+    override val type: MyEnum = MyEnum.TYPE_1
   }
 
 
@@ -45,7 +45,7 @@ sealed class Tagged {
     override val foo: String?,
     val state: Double
   ) : Tagged() {
-    override val type: Types = Types.TYPE_2
+    override val type: MyEnum = MyEnum.TYPE_2
   }
 
 
