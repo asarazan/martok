@@ -1,6 +1,10 @@
 import { Martok } from "../Martok";
 import {
+  EnumDeclaration,
+  EnumMember,
   IntersectionTypeNode,
+  isEnumDeclaration,
+  isEnumMember,
   isIntersectionTypeNode,
   isLiteralExpression,
   isLiteralTypeNode,
@@ -14,7 +18,10 @@ import {
   TypeNode,
   UnionTypeNode,
 } from "typescript";
-import { getMembers } from "../../typescript/MemberHelpers";
+import {
+  getMembers,
+  tryToExtractEnumMember,
+} from "../../typescript/MemberHelpers";
 import _ from "lodash";
 import indentString from "indent-string";
 import { kotlin } from "../../kotlin/Klass";
@@ -27,6 +34,7 @@ import EnumValue = kotlin.EnumValue;
 type TagMappings = {
   name: string;
   typeName: string;
+  typeExists: boolean;
   mappings: Record<string, TypeNode>;
 };
 
@@ -69,8 +77,8 @@ export class TaggedUnionGenerator {
         members.push(...type.members);
       }
     }
-    const tag = this.getTag(union);
 
+    const tag = this.getTag(union);
     if (!tag) return undefined;
     const result = new Klass(name)
       .addGeneratorTypes("tagged")
@@ -88,13 +96,15 @@ export class TaggedUnionGenerator {
         name: tag.name,
         type: tag.typeName,
         abstract: true,
-      })
-      .addInnerClasses(
+      });
+    if (!tag.typeExists) {
+      result.addInnerClasses(
         this.generateTagEnum(tag),
         ...this.martok.declarations.klasses
           .generateInnerKlasses(members)
           .map((value) => value.addGeneratorTypes("tagged"))
       );
+    }
     result.addInnerClasses(
       ...this.generateSerializerAndFriends(
         name,
@@ -113,12 +123,20 @@ export class TaggedUnionGenerator {
     outer: for (const prop1 of members1) {
       const name = prop1.name?.getText();
       if (!name) continue;
-      const k = this.getTagValue(prop1);
+      let k = this.getTagValue(prop1);
       // We've found a candidate for our tag discriminator.
       if (!k) continue;
+      let typeExists = false;
+      let typeName = title(name);
+      if (typeof k !== "string") {
+        typeName = k.parent.name.text;
+        typeExists = true;
+        k = k.name.getText();
+      }
       const result: TagMappings = {
         name,
-        typeName: title(name),
+        typeName,
+        typeExists,
         mappings: {
           [k]: type1,
         },
@@ -130,8 +148,11 @@ export class TaggedUnionGenerator {
         const members2 = getMembers(type2, this.martok, false);
         const prop2 = members2.find((value) => value.name?.getText() === name);
         if (!prop2?.name) continue outer;
-        const k2 = this.getTagValue(prop2);
+        let k2 = this.getTagValue(prop2);
         if (!k2) continue outer;
+        if (typeof k2 !== "string") {
+          k2 = k2.name.getText();
+        }
         result.mappings[k2] = type2;
       }
       return result;
@@ -139,12 +160,14 @@ export class TaggedUnionGenerator {
     return undefined;
   }
 
-  private getTagValue(prop: TypeElement): string | undefined {
+  private getTagValue(prop: TypeElement): string | EnumMember | undefined {
     if (!isPropertySignature(prop)) return undefined;
     const propType = prop.type;
     if (!propType) return undefined;
     if (isTypeReferenceNode(propType)) {
       const ref = this.checker.getTypeFromTypeNode(propType);
+      const asEnum = tryToExtractEnumMember(ref);
+      if (asEnum) return asEnum;
       if (!ref.isStringLiteral()) return undefined;
       return ref.value;
     }

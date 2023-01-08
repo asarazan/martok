@@ -1,9 +1,13 @@
 import ts, {
   Declaration,
+  EnumDeclaration,
+  EnumMember,
   factory,
   getJSDocTags,
   InternalSymbolName,
   isArrayTypeNode,
+  isEnumDeclaration,
+  isEnumMember,
   isInterfaceDeclaration,
   isIntersectionTypeNode,
   isLiteralTypeNode,
@@ -16,9 +20,13 @@ import ts, {
   isTypeLiteralNode,
   isTypeReferenceNode,
   isUnionTypeNode,
+  PropertyDeclaration,
   SyntaxKind,
+  Type,
+  TypeChecker,
   TypeElement,
   TypeNode,
+  TypeReferenceNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
 import { Martok } from "../martok/Martok";
@@ -204,4 +212,14 @@ export function getMembers(
     }
   }
   return [];
+}
+
+export function tryToExtractEnumMember(node: Type): EnumMember | undefined {
+  const symbol = node.symbol;
+  const decl = symbol.valueDeclaration;
+  if (!decl) return undefined;
+  if (isEnumMember(decl)) {
+    return decl;
+  }
+  return undefined;
 }
