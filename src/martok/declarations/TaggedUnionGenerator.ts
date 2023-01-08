@@ -26,6 +26,7 @@ import EnumValue = kotlin.EnumValue;
 
 type TagMappings = {
   name: string;
+  typeName: string;
   mappings: Record<string, TypeNode>;
 };
 
@@ -85,7 +86,7 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: title(tag.name),
+        type: tag.typeName,
         abstract: true,
       })
       .addInnerClasses(
@@ -117,6 +118,7 @@ export class TaggedUnionGenerator {
       if (!k) continue;
       const result: TagMappings = {
         name,
+        typeName: title(name),
         mappings: {
           [k]: type1,
         },
@@ -159,7 +161,7 @@ export class TaggedUnionGenerator {
         args: [{ name: `"${value}"` }],
       };
     });
-    return new Klass(title(tag.name))
+    return new Klass(tag.typeName)
       .addGeneratorTypes("tagged")
       .addModifier("enum")
       .addAnnotation("@Serializable")
@@ -176,7 +178,7 @@ export class TaggedUnionGenerator {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
       const subName = `${name}${title(k).replace(/\s/g, "_")}`;
-      const tagName = `${title(tag.name)}.${getValName(k)}`;
+      const tagName = `${tag.typeName}.${getValName(k)}`;
       const subclass = this.martok.declarations.klasses.generate(v, {
         forceName: subName,
         extendSealed: parent,
@@ -184,7 +186,7 @@ export class TaggedUnionGenerator {
       }) as Klass;
       subclass.addGeneratorTypes("tagged");
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
-      tagMember.type = `${title(tag.name)}`;
+      tagMember.type = tag.typeName;
       _.remove(subclass.ctor, tagMember);
       // Compile error to have a data class with empty ctor...
       if (!subclass.ctor.length) {
