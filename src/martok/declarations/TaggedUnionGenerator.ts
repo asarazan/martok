@@ -1,10 +1,7 @@
 import { Martok } from "../Martok";
 import {
-  EnumDeclaration,
   EnumMember,
   IntersectionTypeNode,
-  isEnumDeclaration,
-  isEnumMember,
   isIntersectionTypeNode,
   isLiteralExpression,
   isLiteralTypeNode,

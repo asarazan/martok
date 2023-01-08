@@ -1,36 +1,55 @@
 import {
+  EnumDeclaration,
   ImportDeclaration,
   InternalSymbolName,
+  isEnumMember,
   isImportDeclaration,
   isNamedImports,
+  SourceFile,
   Statement,
 } from "typescript";
 import * as ts from "typescript";
 import _ from "lodash";
 import { Martok } from "./Martok";
+import { bestDeclaration } from "../typescript/MemberHelpers";
 
 export class ImportGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: Martok) {}
 
-  public generateImports(statements: ReadonlyArray<Statement>): string[] {
+  public generateImports(
+    file: SourceFile,
+    statements: ReadonlyArray<Statement>
+  ): string[] {
     const symbols: ts.Symbol[] = [];
     for (const statement of statements) {
       if (!isImportDeclaration(statement)) continue;
       symbols.push(...this.getSymbolsFromImport(statement));
     }
-    return this.generateImportsFromSymbols(symbols);
+    return _.compact(this.generateImportsFromSymbols(file, symbols));
   }
 
-  public generateImportsFromSymbols(symbols: ts.Symbol[]): string[] {
-    return symbols
+  public generateImportsFromSymbols(
+    file: SourceFile,
+    symbols: ts.Symbol[]
+  ): string[] {
+    const result = symbols
       .map((value) => {
-        const decl = _.first(value.declarations)!;
+        let decl = bestDeclaration(value)!;
+        let name = value.getEscapedName().toString();
+        if (isEnumMember(decl)) {
+          name = decl.parent.name.escapedText.toString();
+          decl = decl.parent;
+        }
         const source = decl.getSourceFile();
         const pkg = this.martok.getFilePackage(source);
-        return `import ${pkg}.${value.getEscapedName()}`;
+        if (pkg === this.martok.getFilePackage(file)) {
+          return undefined; // you don't need to import these.
+        }
+        return `import ${pkg}.${name}`;
       })
-      .filter((value) => !value.endsWith(`.${InternalSymbolName.Type}`));
+      .filter((value) => !value?.endsWith(`.${InternalSymbolName.Type}`));
+    return _.compact(result);
   }
 
   private getSymbolsFromImport(imp: ImportDeclaration): ts.Symbol[] {

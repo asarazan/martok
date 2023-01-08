@@ -30,7 +30,7 @@ import ts, {
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
 import { Martok } from "../martok/Martok";
-import { startCase } from "lodash";
+import _, { startCase } from "lodash";
 import { kotlin } from "../kotlin/Klass";
 import KotlinNumber = kotlin.KotlinNumber;
 
@@ -176,7 +176,7 @@ export function getMembers(
     const ttype = checker.getTypeAtLocation(node);
     return ttype
       .getProperties()
-      .map((value) => value.valueDeclaration)
+      .map((value) => bestDeclaration(value))
       .filter((value) => value && isPropertySignature(value)) as TypeElement[];
   } else if (isTypeAliasDeclaration(node) || isParenthesizedTypeNode(node)) {
     return getMembers(node.type, martok, isTaggedUnion);
@@ -216,10 +216,15 @@ export function getMembers(
 
 export function tryToExtractEnumMember(node: Type): EnumMember | undefined {
   const symbol = node.symbol;
-  const decl = symbol.valueDeclaration;
+  if (!symbol) return undefined;
+  const decl = bestDeclaration(symbol);
   if (!decl) return undefined;
   if (isEnumMember(decl)) {
     return decl;
   }
   return undefined;
+}
+
+export function bestDeclaration(symbol: ts.Symbol): Declaration | undefined {
+  return symbol.valueDeclaration ?? _.first(symbol.declarations);
 }

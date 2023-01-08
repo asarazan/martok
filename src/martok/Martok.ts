@@ -158,8 +158,8 @@ export class Martok {
     const statements = [...file.statements];
     const symbols = [...this.externalSymbols];
     const imports = _.uniq([
-      ...this.imports.generateImports(statements),
-      ...this.imports.generateImportsFromSymbols(symbols),
+      ...this.imports.generateImports(file, statements),
+      ...this.imports.generateImportsFromSymbols(file, symbols),
     ]);
     if (imports.length) {
       base.text.imports.push(null, ...imports); // spacer

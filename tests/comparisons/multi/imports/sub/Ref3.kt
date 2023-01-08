@@ -1,4 +1,4 @@
-package net.sarazan.martok
+package net.sarazan.martok.sub
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -14,10 +14,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
-import net.sarazan.martok.sub.Ref3
-
 @Serializable
-data class Ref2(
-    val ref1: Ref1,
-    val ref3: Ref3
+data class Ref3(
+    val foo: String
 )
