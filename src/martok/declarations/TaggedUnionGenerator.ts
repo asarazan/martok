@@ -26,6 +26,7 @@ import EnumValue = kotlin.EnumValue;
 
 type TagMappings = {
   name: string;
+  typeName: string;
   mappings: Record<string, TypeNode>;
   externalRef?: string;
 };
@@ -90,7 +91,7 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: title(tag.externalRef ?? tag.name),
+        type: title(tag.typeName),
         abstract: true,
       })
       .addInnerClasses(
@@ -123,6 +124,7 @@ export class TaggedUnionGenerator {
 
       const result: TagMappings = {
         name,
+        typeName: name,
         mappings: {
           [k]: type1,
         },
@@ -144,8 +146,7 @@ export class TaggedUnionGenerator {
         result.mappings[k2] = type2;
       }
 
-      // Every tagged type type uses the same external reference, so we can rename it
-      // if (result.externalRef) result.name = result.externalRef;
+      if (result.externalRef) result.typeName = result.externalRef;
 
       return result;
     }
@@ -199,7 +200,7 @@ export class TaggedUnionGenerator {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
       const subName = `${name}${title(k).replace(/\s/g, "_")}`;
-      const tagName = `${title(tag.externalRef ?? tag.name)}.${getValName(k)}`;
+      const tagName = `${title(tag.typeName)}.${getValName(k)}`;
       const subclass = this.martok.declarations.klasses.generate(v, {
         forceName: subName,
         extendSealed: parent,
@@ -207,7 +208,7 @@ export class TaggedUnionGenerator {
       }) as Klass;
       subclass.addGeneratorTypes("tagged");
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
-      tagMember.type = `${title(tag.externalRef ?? tag.name)}`;
+      tagMember.type = `${title(tag.typeName)}`;
       _.remove(subclass.ctor, tagMember);
       // Compile error to have a data class with empty ctor...
       if (!subclass.ctor.length) {
