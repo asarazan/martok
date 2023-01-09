@@ -20,18 +20,20 @@ import indentString from "indent-string";
 import { kotlin } from "../../kotlin/Klass";
 import { SupportedDeclaration } from "./KlassGenerator";
 import { title } from "../NameGenerators";
-import { getValName } from "../../typescript/EnumHelpers";
+import { getValName, symbolHasParent } from "../../typescript/EnumHelpers";
 import Klass = kotlin.Klass;
 import EnumValue = kotlin.EnumValue;
 
 type TagMappings = {
   name: string;
+  typeName: string;
   mappings: Record<string, TypeNode>;
+  externalRef?: string;
 };
 
 export class TaggedUnionGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: Martok) {}
+  public constructor(private readonly martok: Martok) { }
 
   public generateKlass(
     name: string,
@@ -68,9 +70,13 @@ export class TaggedUnionGenerator {
         members.push(...type.members);
       }
     }
-    const tag = this.getTag(union);
 
+    const tag = this.getTag(union);
     if (!tag) return undefined;
+
+    const innerTagEnum: Klass[] = [];
+    if (!tag?.externalRef) innerTagEnum.push(this.generateTagEnum(tag));
+
     const result = new Klass(name)
       .addGeneratorTypes("tagged")
       .addAnnotation(`@Serializable(with = ${name}.UnionSerializer::class)`)
@@ -85,11 +91,11 @@ export class TaggedUnionGenerator {
       )
       .addMembers({
         name: tag.name,
-        type: title(tag.name),
+        type: tag.typeName,
         abstract: true,
       })
       .addInnerClasses(
-        this.generateTagEnum(tag),
+        ...innerTagEnum,
         ...this.martok.declarations.klasses
           .generateInnerKlasses(members)
           .map((value) => value.addGeneratorTypes("tagged"))
@@ -115,11 +121,14 @@ export class TaggedUnionGenerator {
       const k = this.getTagValue(prop1);
       // We've found a candidate for our tag discriminator.
       if (!k) continue;
+
       const result: TagMappings = {
         name,
+        typeName: title(name),
         mappings: {
           [k]: type1,
         },
+        externalRef: this.identifyExternalRef(prop1),
       };
 
       // Now we need to optimistically build the rest of the map.
@@ -130,11 +139,26 @@ export class TaggedUnionGenerator {
         if (!prop2?.name) continue outer;
         const k2 = this.getTagValue(prop2);
         if (!k2) continue outer;
+
+        if (this.identifyExternalRef(prop2) !== result.externalRef)
+          result.externalRef = undefined;
+
         result.mappings[k2] = type2;
       }
+
+      if (result.externalRef) result.typeName = title(result.externalRef);
+
       return result;
     }
     return undefined;
+  }
+
+  private identifyExternalRef(tagType: TypeElement): string | undefined {
+    if (!isPropertySignature(tagType) || !tagType.type) return undefined;
+    const ref = this.checker.getTypeFromTypeNode(tagType.type);
+    if (!ref) return undefined;
+    if (!symbolHasParent(ref.symbol)) return undefined;
+    return ref.symbol.parent.getName();
   }
 
   private getTagValue(prop: TypeElement): string | undefined {
@@ -176,7 +200,7 @@ export class TaggedUnionGenerator {
     const result = [];
     const tagMapping = _.map(tag.mappings, (v, k) => {
       const subName = `${name}${title(k).replace(/\s/g, "_")}`;
-      const tagName = `${title(tag.name)}.${getValName(k)}`;
+      const tagName = `${tag.typeName}.${getValName(k)}`;
       const subclass = this.martok.declarations.klasses.generate(v, {
         forceName: subName,
         extendSealed: parent,
@@ -184,7 +208,7 @@ export class TaggedUnionGenerator {
       }) as Klass;
       subclass.addGeneratorTypes("tagged");
       const tagMember = subclass.ctor.find((value) => value.name === tag.name)!;
-      tagMember.type = `${title(tag.name)}`;
+      tagMember.type = `${tag.typeName}`;
       _.remove(subclass.ctor, tagMember);
       // Compile error to have a data class with empty ctor...
       if (!subclass.ctor.length) {
