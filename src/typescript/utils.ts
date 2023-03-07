@@ -1,3 +1,5 @@
+import ts from "typescript";
+
 export function all<T>(
   arr: ReadonlyArray<T>,
   fn: (value: T) => boolean
@@ -17,4 +19,10 @@ export function joinArray<T>(arr: T[], join: T): T[] {
     }
   });
   return result;
+}
+
+export function hasTypeArguments(
+  node: any
+): node is ts.ExpressionWithTypeArguments {
+  return node && node.typeArguments && node.typeArguments.length > 0;
 }

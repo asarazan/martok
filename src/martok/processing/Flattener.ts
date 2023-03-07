@@ -1,5 +1,6 @@
 import { VirtualTypeScriptEnvironment } from "@typescript/vfs";
 import ts, { SourceFile, Statement, Node } from "typescript";
+import { hasTypeArguments } from "../../typescript/utils";
 import { Martok } from "../Martok";
 import { extractJsDocs, insertJsDocs, JsDocProperty } from "./Comments";
 
@@ -35,10 +36,7 @@ export class Flattener {
         const val = children[typeKeywordIndex + 3];
         const end = children[typeKeywordIndex + 4];
 
-        let hasGenericArguments = false;
-        if (ts.isExpressionWithTypeArguments(val) && val.typeArguments) {
-          hasGenericArguments = val.typeArguments.length > 0;
-        }
+        const hasGenericArguments = hasTypeArguments(val);
 
         const isTerminating = !end || end.kind === ts.SyntaxKind.SemicolonToken;
 
