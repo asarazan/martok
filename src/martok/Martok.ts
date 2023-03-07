@@ -90,7 +90,7 @@ export class Martok {
 
     if (this.config.options?.experimentalTypeFlattening) {
       console.log("Flattening types...");
-      // Flatten all the files, then recompile them together, then swap out our program
+      // Flatten all the files, recompile them together, then swap out our program
       const { program, fs, env } = this.flattener.flattenFileSystem();
       this.fsMap = fs;
       this.env = env;
