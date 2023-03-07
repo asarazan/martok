@@ -1,20 +1,16 @@
 import { Martok } from "../Martok";
 import {
-  Declaration,
   EnumDeclaration,
-  getCommentRange,
   getJSDocTags,
   InterfaceDeclaration,
   InternalSymbolName,
   isArrayTypeNode,
   isEnumDeclaration,
   isInterfaceDeclaration,
-  isJSDoc,
   isParenthesizedTypeNode,
   isPropertySignature,
   isTypeAliasDeclaration,
   isTypeReferenceNode,
-  JSDoc,
   Node,
   PropertySignature,
   TypeAliasDeclaration,
@@ -50,12 +46,16 @@ export type MemberOptions = {
 } & MemberTypeOptions;
 
 export class KlassGenerator {
-  public readonly enums = new EnumGenerator(this.martok);
-  public readonly tagged = new TaggedUnionGenerator(this.martok);
-  public readonly utility = new UtilityGenerator(this.martok);
+  public readonly enums;
+  public readonly tagged;
+  public readonly utility;
 
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: Martok) { }
+  public constructor(private readonly martok: Martok) {
+    this.enums = new EnumGenerator(this.martok);
+    this.tagged = new TaggedUnionGenerator(this.martok);
+    this.utility = new UtilityGenerator(this.martok);
+  }
 
   public static isSupportedDeclaration(
     node: Node
@@ -189,16 +189,16 @@ export class KlassGenerator {
   ): ConstructorParameter {
     const name = node.name!.getText();
     const annotations: string[] = [];
-    let type = getMemberType(this.martok, node, {
+    const t = getMemberType(this.martok, node, {
       followReferences: options?.followReferences ?? false,
     });
-    if (type === InternalSymbolName.Type) {
-      type = title(name);
-    } else if (type === `List<${InternalSymbolName.Type}>`) {
-      type = `List<${title(name)}Item>`;
+    if (t.type === InternalSymbolName.Type) {
+      t.type = title(name);
+    } else if (t.type === `List<${InternalSymbolName.Type}>`) {
+      t.type = `List<${title(name)}Item>`;
     }
     const doc = getJSDocTags(node);
-    if (type === "String") {
+    if (t.type === "String") {
       const forceDateTime = doc.find(
         (value) => value.tagName.text.toLowerCase() === "datetime"
       );
@@ -206,18 +206,18 @@ export class KlassGenerator {
         (value) => value.tagName.text.toLowerCase() === "date"
       );
       if (forceDateTime) {
-        type = "kotlinx.datetime.Instant";
+        t.type = "kotlinx.datetime.Instant";
         annotations.push(
           "@Serializable(with = kotlinx.datetime.serializers.InstantIso8601Serializer::class)"
         );
       } else if (forceDate) {
-        type = "kotlinx.datetime.LocalDate";
+        t.type = "kotlinx.datetime.LocalDate";
         annotations.push(
           "@Serializable(with = kotlinx.datetime.serializers.LocalDateIso8601Serializer::class)"
         );
       }
     }
-    const nullable = options?.optional || !!node.questionToken;
+    const nullable = options?.optional || !!node.questionToken || t.nullable;
     const override =
       options?.extendSealed &&
       options.extendSealed.members.find((value) => value.name === name);
@@ -226,7 +226,7 @@ export class KlassGenerator {
     return {
       name: sanitizedName,
       oldName: name,
-      type,
+      type: t.type,
       annotations,
       mutability: "val",
       nullable,
@@ -242,12 +242,12 @@ export class KlassGenerator {
     excludeAnonymousTypes?: string[]
   ): Klass[] {
     const anonymousTypes = members.filter((value) => {
-      const type = getMemberType(this.martok, value);
+      const t = getMemberType(this.martok, value);
       const name = value.name?.getText() ?? "";
       if (excludeAnonymousTypes?.includes(name)) return false;
       return (
-        type === InternalSymbolName.Type ||
-        type === `List<${InternalSymbolName.Type}>`
+        t.type === InternalSymbolName.Type ||
+        t.type === `List<${InternalSymbolName.Type}>`
       );
     });
     if (!anonymousTypes?.length) return [];
@@ -268,17 +268,17 @@ export class KlassGenerator {
     if (isTypeAliasDeclaration(node)) {
       const name = node.name.escapedText.toString();
       const members = getMembers(node, this.martok);
-      const type = getMemberType(this.martok, node.type);
+      const t = getMemberType(this.martok, node.type);
       const ref = this.checker.getTypeFromTypeNode(node.type);
       if (
-        type === InternalSymbolName.Type ||
-        type === `List<${InternalSymbolName.Type}>`
+        t.type === InternalSymbolName.Type ||
+        t.type === `List<${InternalSymbolName.Type}>`
       ) {
         return undefined; // TODO improve this.
       }
       // TODO fix dirty hack for empty types that turn into self-aliases.
-      if (!members.length && name !== type) {
-        return `typealias ${name} = ${type}\n`;
+      if (!members.length && name !== t.type) {
+        return `typealias ${name} = ${t.type}\n`;
       }
       if (isTypeReferenceNode(node.type)) {
         const symbol = ref.aliasSymbol ?? ref.getSymbol();

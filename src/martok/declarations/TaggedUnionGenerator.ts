@@ -33,7 +33,7 @@ type TagMappings = {
 
 export class TaggedUnionGenerator {
   private readonly checker = this.martok.program.getTypeChecker();
-  public constructor(private readonly martok: Martok) { }
+  public constructor(private readonly martok: Martok) {}
 
   public generateKlass(
     name: string,

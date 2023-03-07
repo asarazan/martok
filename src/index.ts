@@ -49,6 +49,12 @@ const args = yargs
     default: false,
     describe: "Just throw in an import kotlinx.serialization.*",
   })
+  .option("experimentalTypeFlattening", {
+    alias: "f",
+    type: "boolean",
+    default: false,
+    describe: "Experimental feature that will flatten computed types",
+  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -64,21 +70,25 @@ export type TranspileSingleArgs = {
   snakeToCamelCase: boolean;
   annotationNewLines: boolean;
   importStar: boolean;
+  experimentalTypeFlattening: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
   const getFiles = util.promisify(glob);
   const isDir = (await fs.promises.lstat(args.path)).isDirectory();
-  const files = isDir
+  let files = isDir
     ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
     : [args.path];
   const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
+  // Needed for relative imports to work when flattening
+  files = files.map((file) => path.resolve(file));
   const {
     dedupeTaggedUnions,
     snakeToCamelCase,
     annotationNewLines,
     importStar,
+    experimentalTypeFlattening,
   } = args;
   const config: MartokConfig = {
     files,
@@ -89,6 +99,7 @@ async function transpile(args: TranspileSingleArgs) {
       snakeToCamelCase,
       annotationNewLines,
       importStar,
+      experimentalTypeFlattening,
     },
   };
   const martok = new Martok(config);

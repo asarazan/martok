@@ -1,20 +1,14 @@
 import {
-  Collection,
   isLiteralTypeNode,
-  isStringLiteral,
-  isStringLiteralLike,
   isTypeReferenceNode,
   isUnionTypeNode,
   LiteralTypeNode,
   StringLiteral,
-  StringLiteralType,
   TypeNode,
-  TypeReferenceNode,
 } from "typescript";
 import { kotlin } from "../../kotlin/Klass";
 import { Martok } from "../Martok";
 import Klass = kotlin.Klass;
-import { KlassGenerator } from "./KlassGenerator";
 
 const supportedTypes = ["Omit", "Pick", "Required", "Partial"];
 

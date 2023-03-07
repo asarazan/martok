@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import { SourceFile, Statement, TypeChecker } from "typescript";
+import { SourceFile, TypeChecker } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import _ from "lodash";
 import { TsHelper } from "../typescript/TsHelper";
@@ -18,6 +18,12 @@ import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames } from "./processing/SanitizeNames";
+import {
+  createFSBackedSystem,
+  createVirtualTypeScriptEnvironment,
+  VirtualTypeScriptEnvironment,
+} from "@typescript/vfs";
+import { Flattener } from "./processing/Flattener";
 
 type MartokState = {
   nameScope: string[];
@@ -26,15 +32,23 @@ type MartokState = {
   typeReplacer: TypeReplacer;
 };
 
-export class Martok {
-  public readonly program = ts.createProgram(this.config.files, {
-    noEmitOnError: true,
-    noImplicitAny: true,
-    target: ts.ScriptTarget.ES5,
-    module: ts.ModuleKind.CommonJS,
-  });
+const compilerOptions: ts.CompilerOptions = {
+  noEmitOnError: true,
+  noImplicitAny: true,
+  target: ts.ScriptTarget.ES5,
+  module: ts.ModuleKind.CommonJS,
+  esModuleInterop: true,
+};
 
-  public readonly declarations = new DeclarationGenerator(this);
+export class Martok {
+  public readonly program: ts.Program;
+
+  public readonly env: VirtualTypeScriptEnvironment;
+
+  public readonly fsMap = new Map<string, string>();
+
+  public readonly declarations;
+
   public get checker(): TypeChecker {
     return this.program.getTypeChecker();
   }
@@ -51,11 +65,59 @@ export class Martok {
     return this.storage.getStore()!.typeReplacer;
   }
 
-  private readonly storage = new AsyncLocalStorage<MartokState>();
-  private readonly imports = new ImportGenerator(this);
-  private readonly formatter = new MartokFormatter(this.config);
+  private readonly storage;
+  private readonly imports;
+  private readonly flattener;
+  private readonly formatter;
 
-  public constructor(public readonly config: MartokConfig) {}
+  public constructor(public readonly config: MartokConfig) {
+    // Get all file raw text
+    for (const file of this.config.files) {
+      try {
+        const result = fs.readFileSync(file, "utf-8");
+        this.fsMap.set(file, result);
+      } catch (e) {
+        console.error(`Failed to read file ${file}: `, e);
+      }
+    }
+
+    // Create initial program
+    const { program, env } = this.compileFiles(this.fsMap);
+    this.env = env;
+    this.program = program;
+
+    this.flattener = new Flattener(this);
+
+    if (this.config.options?.experimentalTypeFlattening) {
+      console.log("Flattening types...");
+      // Flatten all the files, then recompile them together, then swap out our program
+      const { program, fs, env } = this.flattener.flattenFileSystem();
+      this.fsMap = fs;
+      this.env = env;
+      this.program = program;
+    }
+
+    this.declarations = new DeclarationGenerator(this);
+    this.storage = new AsyncLocalStorage<MartokState>();
+    this.imports = new ImportGenerator(this);
+    this.formatter = new MartokFormatter(this.config);
+  }
+
+  public compileFiles(files: Map<string, string>) {
+    const system = createFSBackedSystem(files, this.config.sourceRoot, ts);
+    const env = createVirtualTypeScriptEnvironment(
+      system,
+      [...files.keys()],
+      ts,
+      compilerOptions
+    );
+    const program = env.languageService.getProgram();
+    if (!program) throw new Error("Failed to create program");
+    return {
+      program,
+      env,
+    };
+  }
 
   public async writeKotlinFiles(outPath: string) {
     if (outPath.endsWith(".kt")) {

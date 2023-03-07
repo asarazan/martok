@@ -5,12 +5,14 @@ import _ from "lodash";
 import { KlassPrinter } from "../../kotlin/KlassPrinter";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
-
 export class DeclarationGenerator {
-  public readonly klasses = new KlassGenerator(this.martok);
-  public readonly printer = KlassPrinter.instance;
+  public readonly klasses;
+  public readonly printer;
 
-  public constructor(private readonly martok: Martok) {}
+  public constructor(private readonly martok: Martok) {
+    this.klasses = new KlassGenerator(this.martok);
+    this.printer = KlassPrinter.instance;
+  }
 
   public generateDeclarations(file: SourceFile): (Klass | string)[] {
     return _.compact(
@@ -21,10 +23,10 @@ export class DeclarationGenerator {
   private generateDeclaration(node: Statement): (Klass | string)[] {
     try {
       if (!KlassGenerator.isSupportedDeclaration(node)) {
-        // throw new Error(`Can't handle type ${node.kind}`);
         return [];
       }
       const result = [this.klasses.generate(node)];
+
       if (this.martok.additionalDeclarations.length) {
         result.push(...this.martok.additionalDeclarations);
       }
