@@ -24,6 +24,7 @@ import {
   VirtualTypeScriptEnvironment,
 } from "@typescript/vfs";
 import { TypeExpander } from "./processing/TypeExpander";
+import { TsCompiler } from "./TsCompiler";
 
 type MartokState = {
   nameScope: string[];
@@ -32,20 +33,14 @@ type MartokState = {
   typeReplacer: TypeReplacer;
 };
 
-const compilerOptions: ts.CompilerOptions = {
-  noEmitOnError: true,
-  noImplicitAny: true,
-  target: ts.ScriptTarget.ES5,
-  module: ts.ModuleKind.CommonJS,
-  esModuleInterop: true,
-};
-
 export class Martok {
   public readonly program: ts.Program;
 
   public readonly env: VirtualTypeScriptEnvironment;
 
   public readonly fsMap = new Map<string, string>();
+
+  public readonly compiler = new TsCompiler(this.config);
 
   public readonly declarations;
 
@@ -82,15 +77,13 @@ export class Martok {
     }
 
     // Create initial program
-    const { program, env } = this.compileFiles(this.fsMap);
+    const { program, env } = this.compiler.compileFiles(this.fsMap);
     this.env = env;
     this.program = program;
 
     this.expander = new TypeExpander(this);
 
     if (this.config.options?.experimentalTypeExpanding) {
-      console.log("Expand types...");
-      // Flatten all the files, recompile them together, then swap out our program
       const { program, fs, env } = this.expander.expand();
       this.fsMap = fs;
       this.env = env;
@@ -101,22 +94,6 @@ export class Martok {
     this.storage = new AsyncLocalStorage<MartokState>();
     this.imports = new ImportGenerator(this);
     this.formatter = new MartokFormatter(this.config);
-  }
-
-  public compileFiles(files: Map<string, string>) {
-    const system = createFSBackedSystem(files, this.config.sourceRoot, ts);
-    const env = createVirtualTypeScriptEnvironment(
-      system,
-      [...files.keys()],
-      ts,
-      compilerOptions
-    );
-    const program = env.languageService.getProgram();
-    if (!program) throw new Error("Failed to create program");
-    return {
-      program,
-      env,
-    };
   }
 
   public async writeKotlinFiles(outPath: string) {

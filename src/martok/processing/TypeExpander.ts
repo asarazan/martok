@@ -121,7 +121,7 @@ export class TypeExpander {
     });
 
     // Recompile with flattened types
-    const { program, env } = this.martok.compileFiles(fs);
+    const { program, env } = this.martok.compiler.compileFiles(fs);
 
     // Insert collected docs back into the program
     fs.forEach((_value, fileName) => {
