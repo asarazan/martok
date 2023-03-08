@@ -28,7 +28,6 @@ import { title } from "../NameGenerators";
 import ConstructorParameter = kotlin.ConstructorParameter;
 import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
-import { UtilityGenerator } from "./UtilityGenerator";
 import { extractComment } from "../processing/Comments";
 import { sanitizeName } from "../processing/SanitizeNames";
 
@@ -48,13 +47,11 @@ export type MemberOptions = {
 export class KlassGenerator {
   public readonly enums;
   public readonly tagged;
-  public readonly utility;
 
   private readonly checker = this.martok.program.getTypeChecker();
   public constructor(private readonly martok: Martok) {
     this.enums = new EnumGenerator(this.martok);
     this.tagged = new TaggedUnionGenerator(this.martok);
-    this.utility = new UtilityGenerator(this.martok);
   }
 
   public static isSupportedDeclaration(
@@ -126,9 +123,6 @@ export class KlassGenerator {
         }
         const typeAsEnum = this.enums.generate(name, node.type);
         if (typeAsEnum) return typeAsEnum;
-
-        const asUtility = this.utility.generate(name, node.type);
-        if (asUtility) return asUtility;
 
         const alias = this.generateTypeAlias(node);
         if (alias) return alias;
