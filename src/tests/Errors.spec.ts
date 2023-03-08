@@ -7,13 +7,15 @@ import fs from "fs";
 const PACKAGE = "net.sarazan.martok";
 const ROOT = path.resolve("./tests/errors");
 
+const ErrorStrings: Record<string, string> = {
+  invalidComputed: `Type Computed is using computed types. Please add @expand to the type to expand it. If you wish to ignore this type, use @ignore.`,
+  nestedComputed: `Type Computed is using computed types. Please add @expand to the type to expand it. If you wish to ignore this type, use @ignore.`,
+};
+
 describe("Type Expansion Errors", () => {
   const root = `${ROOT}/expand`;
   const types = glob.sync(`${root}/**/*.d.ts`);
   for (const filename of types) {
-    const errorCompare = `${path.dirname(filename)}/${title(
-      path.basename(filename, ".d.ts")
-    )}.txt`;
     it(`${path.basename(filename)}`, async () => {
       expect(() => {
         new Martok({
@@ -25,7 +27,7 @@ describe("Type Expansion Errors", () => {
             experimentalTypeExpanding: true,
           },
         });
-      }).toThrow(fs.readFileSync(errorCompare, "utf-8"));
+      }).toThrow(ErrorStrings[filename]);
     });
   }
 });
