@@ -18,11 +18,7 @@ import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames } from "./processing/SanitizeNames";
-import {
-  createFSBackedSystem,
-  createVirtualTypeScriptEnvironment,
-  VirtualTypeScriptEnvironment,
-} from "@typescript/vfs";
+import { VirtualTypeScriptEnvironment } from "@typescript/vfs";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
 
