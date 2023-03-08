@@ -30,7 +30,7 @@ export class ImportGenerator {
         const decl = _.first(value.declarations)!;
         const source = decl.getSourceFile();
         const pkg = this.martok.getFilePackage(source);
-        return `import ${pkg}.${value.getEscapedName()}`;
+        return `import ${pkg}.${value.getEscapedName().toString()}`;
       })
       .filter((value) => !value.endsWith(`.${InternalSymbolName.Type}`));
   }

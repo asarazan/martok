@@ -25,7 +25,7 @@ describe("Single File Comparisons", () => {
           sourceRoot: root,
           options: {
             dedupeTaggedUnions: true,
-            experimentalTypeFlattening: flatten,
+            experimentalTypeExpanding: flatten,
           },
         });
         const out = sanitizeComparison(martok.generateMultiFile());
@@ -40,8 +40,8 @@ describe("Single File Comparisons", () => {
   }
 });
 
-describe("Flattening Comparisons", () => {
-  const root = `${ROOT}/flatten`;
+describe("Expand Comparisons", () => {
+  const root = `${ROOT}/expand`;
   const types = glob.sync(`${root}/**/*.d.ts`);
   for (const filename of types) {
     const compare = `${path.dirname(filename)}/${title(
@@ -54,7 +54,7 @@ describe("Flattening Comparisons", () => {
         sourceRoot: root,
         options: {
           dedupeTaggedUnions: true,
-          experimentalTypeFlattening: true,
+          experimentalTypeExpanding: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());
@@ -83,7 +83,7 @@ describe("Multi File Comparisons", () => {
           sourceRoot: dir,
           options: {
             dedupeTaggedUnions: true,
-            experimentalTypeFlattening: flatten,
+            experimentalTypeExpanding: flatten,
           },
         });
         const out = _.mapValues(martok.generateSingleFiles(dir), (value) => {
@@ -119,7 +119,7 @@ describe("Special Comparisons", () => {
             dedupeTaggedUnions: true,
             snakeToCamelCase: true,
             annotationNewLines: true,
-            experimentalTypeFlattening: flatten,
+            experimentalTypeExpanding: flatten,
           },
         });
         const out = sanitizeComparison(martok.generateMultiFile());
@@ -146,7 +146,7 @@ describe("Special Comparisons", () => {
           options: {
             snakeToCamelCase: true,
             dedupeTaggedUnions: true,
-            experimentalTypeFlattening: flatten,
+            experimentalTypeExpanding: flatten,
           },
         });
         const out = sanitizeComparison(martok.generateMultiFile());
@@ -178,7 +178,7 @@ describe("Formatting Comparisons", () => {
             dedupeTaggedUnions: true,
             snakeToCamelCase: true,
             annotationNewLines: true,
-            experimentalTypeFlattening: flatten,
+            experimentalTypeExpanding: flatten,
           },
         });
         const out = martok.generateMultiFile();

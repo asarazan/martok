@@ -1,4 +1,4 @@
-import { Node, TypeChecker, TypeElement, TypeNode } from "typescript";
+import { Node, TypeElement } from "typescript";
 import { getMemberType } from "./MemberHelpers";
 import { TaggedUnionError } from "../errors/TaggedUnionError";
 import { all } from "./utils";

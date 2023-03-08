@@ -87,8 +87,8 @@ export function getMemberType(
     };
 
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
-    if (isUnionNullable(martok, type)) {
-      const unionTypes = excludeNullableLiteral(martok, type);
+    if (isUnionNullable(type)) {
+      const unionTypes = excludeNullableLiteral(type);
       if (unionTypes.length === 1) {
         const t = getMemberType(martok, unionTypes[0], options);
         return {
@@ -113,7 +113,9 @@ export function getMemberType(
   const ttype = martok.checker.getTypeFromTypeNode(type);
   const symbol = ttype.aliasSymbol ?? ttype.getSymbol();
   if (!symbol) {
-    throw new Error(`Cannot find symbol`);
+    const typeWithIssue = type.getText();
+    const source = type.getSourceFile();
+    throw new Error(`Cannot find ${typeWithIssue} in ${source.fileName}`);
   }
   return {
     type: symbol.getEscapedName().toString(),
@@ -135,15 +137,11 @@ function isNullableType(type: TypeNode): boolean {
  * Checks if union or intersection type contains either `null` or `undefined`.
  * If that's the case, then we may want to make this member nullable.
  */
-function isUnionNullable(
-  martok: Martok,
-  type: UnionTypeNode | IntersectionTypeNode
-) {
+function isUnionNullable(type: UnionTypeNode | IntersectionTypeNode) {
   return type.types.some(isNullableType);
 }
 
 function excludeNullableLiteral(
-  martok: Martok,
   type: UnionTypeNode | IntersectionTypeNode
 ): TypeNode[] {
   return type.types.filter((t) => !isNullableType(t));

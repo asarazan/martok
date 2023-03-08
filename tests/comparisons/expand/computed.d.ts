@@ -15,16 +15,26 @@ type MyType = {
   };
 };
 
+/**
+ * @ignore
+ */
 type Modify<T extends Record<string, { foo: string }>> = {
   [P in keyof T]: T[P]["foo"];
 };
 
-// Should not carry comment over as the propterty's value is different
+/**
+ * @expand
+ */
 export type Computed = Modify<MyType>;
 
+/**
+ * @ignore
+ */
 type Modify2<T extends Record<string, { foo: string }>> = {
   [P in keyof T]: T[P];
 };
 
-// Should carry comment over
+/**
+ * @expand
+ */
 export type Computed2 = Modify2<MyType>;

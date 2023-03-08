@@ -126,7 +126,9 @@ export function areNodesEqual(martok: Martok, a: ts.Node, b: ts.Node): boolean {
       .typeToString(
         martok.checker.getTypeAtLocation(node),
         node,
-        ts.TypeFormatFlags.InTypeAlias | ts.TypeFormatFlags.NoTypeReduction
+        ts.TypeFormatFlags.InTypeAlias |
+          ts.TypeFormatFlags.NoTypeReduction |
+          ts.TypeFormatFlags.NoTruncation
       )
       .replace(/[\s \n]/g, "")
       .trim();

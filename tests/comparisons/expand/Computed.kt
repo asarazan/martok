@@ -24,7 +24,9 @@ import kotlinx.serialization.json.jsonObject
  */
 @Serializable
 data class MyType(
+
   val prop1: Prop1,
+
   /**
    * This is a comment
    * poggings
@@ -34,7 +36,9 @@ data class MyType(
 
   @Serializable
   data class Prop1(
+
     val foo: String,
+
     val boz: String
   )
 
@@ -44,21 +48,25 @@ data class MyType(
   )
 }
 
-@Serializable
-class Modify
-
+/**
+ * @expand
+ */
 @Serializable
 data class Computed(
+
   val prop1: String,
+
   val prop2: String
 )
 
-@Serializable
-class Modify2
-
+/**
+ * @expand
+ */
 @Serializable
 data class Computed2(
+
   val prop1: Prop1,
+
   /**
    * This is a comment
    * poggings
@@ -68,7 +76,9 @@ data class Computed2(
 
   @Serializable
   data class Prop1(
+
     val foo: String,
+
     val boz: String
   )
 

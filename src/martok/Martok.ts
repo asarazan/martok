@@ -23,7 +23,7 @@ import {
   createVirtualTypeScriptEnvironment,
   VirtualTypeScriptEnvironment,
 } from "@typescript/vfs";
-import { Flattener } from "./processing/Flattener";
+import { TypeExpander } from "./processing/TypeExpander";
 
 type MartokState = {
   nameScope: string[];
@@ -67,7 +67,7 @@ export class Martok {
 
   private readonly storage;
   private readonly imports;
-  private readonly flattener;
+  private readonly expander;
   private readonly formatter;
 
   public constructor(public readonly config: MartokConfig) {
@@ -86,12 +86,12 @@ export class Martok {
     this.env = env;
     this.program = program;
 
-    this.flattener = new Flattener(this);
+    this.expander = new TypeExpander(this);
 
-    if (this.config.options?.experimentalTypeFlattening) {
-      console.log("Flattening types...");
+    if (this.config.options?.experimentalTypeExpanding) {
+      console.log("Expand types...");
       // Flatten all the files, recompile them together, then swap out our program
-      const { program, fs, env } = this.flattener.flattenFileSystem();
+      const { program, fs, env } = this.expander.expand();
       this.fsMap = fs;
       this.env = env;
       this.program = program;
@@ -223,6 +223,7 @@ export class Martok {
       ...this.imports.generateImports(statements),
       ...this.imports.generateImportsFromSymbols(symbols),
     ]);
+
     if (imports.length) {
       base.text.imports.push(null, ...imports); // spacer
     }
