@@ -47,7 +47,7 @@ function typesAreCompatible(
   const name1 = value1.name!.getText();
   const name2 = value2.name!.getText();
   if (name1 !== name2) return true;
-  const type1 = getMemberType(martok, value1);
-  const type2 = getMemberType(martok, value2);
-  return type1.type === type2.type;
+  const memberType1 = getMemberType(martok, value1);
+  const memberType2 = getMemberType(martok, value2);
+  return memberType1.type === memberType2.type;
 }

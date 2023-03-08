@@ -90,9 +90,9 @@ export function getMemberType(
     if (isUnionNullable(type)) {
       const unionTypes = excludeNullableLiteral(type);
       if (unionTypes.length === 1) {
-        const t = getMemberType(martok, unionTypes[0], options);
+        const memberType = getMemberType(martok, unionTypes[0], options);
         return {
-          type: t.type,
+          type: memberType.type,
           nullable: true,
         };
       } else if (unionTypes.length > 1) {
@@ -197,8 +197,8 @@ export function getIntrinsicType(
   }
   if (type.kind === SyntaxKind.BooleanKeyword) return "Boolean";
   if (isArrayTypeNode(type)) {
-    const t = getMemberType(martok, type.elementType);
-    return `List<${t.type}>`;
+    const memberType = getMemberType(martok, type.elementType);
+    return `List<${memberType.type}>`;
   }
   if (type.kind === SyntaxKind.AnyKeyword) return "JsonObject";
 }
