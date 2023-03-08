@@ -6,13 +6,10 @@ import { KlassPrinter } from "../../kotlin/KlassPrinter";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 export class DeclarationGenerator {
-  public readonly klasses;
-  public readonly printer;
+  public readonly klasses = new KlassGenerator(this.martok);
+  public readonly printer = KlassPrinter.instance;
 
-  public constructor(private readonly martok: Martok) {
-    this.klasses = new KlassGenerator(this.martok);
-    this.printer = KlassPrinter.instance;
-  }
+  public constructor(private readonly martok: Martok) {}
 
   public generateDeclarations(file: SourceFile): (Klass | string)[] {
     return _.compact(

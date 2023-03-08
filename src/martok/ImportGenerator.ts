@@ -10,10 +10,8 @@ import _ from "lodash";
 import { Martok } from "./Martok";
 
 export class ImportGenerator {
-  private readonly checker;
-  public constructor(private readonly martok: Martok) {
-    this.checker = this.martok.program.getTypeChecker();
-  }
+  private readonly checker = this.martok.program.getTypeChecker();
+  public constructor(private readonly martok: Martok) {}
 
   public generateImports(statements: ReadonlyArray<Statement>): string[] {
     const symbols: ts.Symbol[] = [];
