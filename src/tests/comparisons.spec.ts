@@ -17,36 +17,6 @@ describe("Single File Comparisons", () => {
     const compare = `${path.dirname(filename)}/${title(
       path.basename(filename, ".d.ts")
     )}.kt`;
-    const runTest = (flatten: boolean) => {
-      it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
-        const martok = new Martok({
-          files: [filename],
-          package: PACKAGE,
-          sourceRoot: root,
-          options: {
-            dedupeTaggedUnions: true,
-            experimentalTypeExpanding: flatten,
-          },
-        });
-        const out = sanitizeComparison(martok.generateMultiFile());
-        const contents = sanitizeComparison(
-          await fs.promises.readFile(compare, "utf-8")
-        );
-        expect(out).toEqual(contents);
-      });
-    };
-    runTest(false);
-    runTest(true);
-  }
-});
-
-describe("Expand Comparisons", () => {
-  const root = `${ROOT}/expand`;
-  const types = glob.sync(`${root}/**/*.d.ts`);
-  for (const filename of types) {
-    const compare = `${path.dirname(filename)}/${title(
-      path.basename(filename, ".d.ts")
-    )}.kt`;
     it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
       const martok = new Martok({
         files: [filename],
@@ -54,7 +24,6 @@ describe("Expand Comparisons", () => {
         sourceRoot: root,
         options: {
           dedupeTaggedUnions: true,
-          experimentalTypeExpanding: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());
@@ -73,33 +42,27 @@ describe("Multi File Comparisons", () => {
     .filter((value) => value.isDirectory())
     .map((value) => value.name);
   for (const dirname of dirs) {
-    const runTest = (flatten: boolean) => {
-      if (dirname.includes("expand") && !flatten) return;
-      it(`${path.basename(dirname)}`, async () => {
-        const dir = `${root}/${dirname}`;
-        const files = await util.promisify(glob)(`${dir}/**/*.{ts,d.ts}`);
-        const martok = new Martok({
-          files: files,
-          package: PACKAGE,
-          sourceRoot: dir,
-          options: {
-            dedupeTaggedUnions: true,
-            experimentalTypeExpanding: flatten,
-          },
-        });
-        const out = _.mapValues(martok.generateSingleFiles(dir), (value) => {
-          return sanitizeComparison(value);
-        });
-        for (const filename in out) {
-          const contents = sanitizeComparison(
-            await fs.promises.readFile(filename, "utf-8")
-          );
-          expect(out[filename]).toEqual(contents);
-        }
+    it(`${path.basename(dirname)}`, async () => {
+      const dir = `${root}/${dirname}`;
+      const files = await util.promisify(glob)(`${dir}/**/*.{ts,d.ts}`);
+      const martok = new Martok({
+        files: files,
+        package: PACKAGE,
+        sourceRoot: dir,
+        options: {
+          dedupeTaggedUnions: true,
+        },
       });
-    };
-    runTest(false);
-    runTest(true);
+      const out = _.mapValues(martok.generateSingleFiles(dir), (value) => {
+        return sanitizeComparison(value);
+      });
+      for (const filename in out) {
+        const contents = sanitizeComparison(
+          await fs.promises.readFile(filename, "utf-8")
+        );
+        expect(out[filename]).toEqual(contents);
+      }
+    });
   }
 });
 
@@ -110,55 +73,45 @@ describe("Special Comparisons", () => {
     const compare = `${path.dirname(filename)}/${title(
       path.basename(filename, ".d.ts")
     )}.kt`;
-    const runTest = (flatten: boolean) => {
-      it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
-        const martok = new Martok({
-          files: [filename],
-          package: PACKAGE,
-          sourceRoot: root,
-          options: {
-            dedupeTaggedUnions: true,
-            snakeToCamelCase: true,
-            annotationNewLines: true,
-            experimentalTypeExpanding: flatten,
-          },
-        });
-        const out = sanitizeComparison(martok.generateMultiFile());
-        const contents = sanitizeComparison(
-          await fs.promises.readFile(compare, "utf-8")
-        );
-        expect(out).toEqual(contents);
+    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+        options: {
+          dedupeTaggedUnions: true,
+          snakeToCamelCase: true,
+          annotationNewLines: true,
+        },
       });
-    };
-    runTest(false);
-    runTest(true);
+      const out = sanitizeComparison(martok.generateMultiFile());
+      const contents = sanitizeComparison(
+        await fs.promises.readFile(compare, "utf-8")
+      );
+      expect(out).toEqual(contents);
+    });
   }
   {
     const filename = `${root}/snake.d.ts`;
     const compare = `${path.dirname(filename)}/${title(
       path.basename(filename, ".d.ts")
     )}.kt`;
-    const runTest = (flatten: boolean) => {
-      it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
-        const martok = new Martok({
-          files: [filename],
-          package: PACKAGE,
-          sourceRoot: root,
-          options: {
-            snakeToCamelCase: true,
-            dedupeTaggedUnions: true,
-            experimentalTypeExpanding: flatten,
-          },
-        });
-        const out = sanitizeComparison(martok.generateMultiFile());
-        const contents = sanitizeComparison(
-          await fs.promises.readFile(compare, "utf-8")
-        );
-        expect(out).toEqual(contents);
+    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+        options: {
+          snakeToCamelCase: true,
+          dedupeTaggedUnions: true,
+        },
       });
-    };
-    runTest(false);
-    runTest(true);
+      const out = sanitizeComparison(martok.generateMultiFile());
+      const contents = sanitizeComparison(
+        await fs.promises.readFile(compare, "utf-8")
+      );
+      expect(out).toEqual(contents);
+    });
   }
 });
 
@@ -169,25 +122,20 @@ describe("Formatting Comparisons", () => {
     const compare = `${path.dirname(filename)}/${title(
       path.basename(filename, ".d.ts")
     )}.kt`;
-    const runTest = (flatten: boolean) => {
-      it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
-        const martok = new Martok({
-          files: [filename],
-          package: PACKAGE,
-          sourceRoot: root,
-          options: {
-            dedupeTaggedUnions: true,
-            snakeToCamelCase: true,
-            annotationNewLines: true,
-            experimentalTypeExpanding: flatten,
-          },
-        });
-        const out = martok.generateMultiFile();
-        const contents = await fs.promises.readFile(compare, "utf-8");
-        expect(out).toEqual(contents);
+    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
+      const martok = new Martok({
+        files: [filename],
+        package: PACKAGE,
+        sourceRoot: root,
+        options: {
+          dedupeTaggedUnions: true,
+          snakeToCamelCase: true,
+          annotationNewLines: true,
+        },
       });
-    };
-    runTest(false);
-    runTest(true);
+      const out = martok.generateMultiFile();
+      const contents = await fs.promises.readFile(compare, "utf-8");
+      expect(out).toEqual(contents);
+    });
   }
 });

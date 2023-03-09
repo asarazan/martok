@@ -70,11 +70,8 @@ export class Martok {
 
     // Create initial program
     this.program = this.compiler.compileFiles(fsMap);
+    this.program = new TypeExpander(this).expand();
     this.imports = new ImportGenerator(this);
-
-    if (this.config.options?.experimentalTypeExpanding) {
-      this.program = new TypeExpander(this).expand();
-    }
 
     this.declarations = new DeclarationGenerator(this);
     this.storage = new AsyncLocalStorage<MartokState>();

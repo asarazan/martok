@@ -48,11 +48,6 @@ const args = yargs
     default: false,
     describe: "Just throw in an import kotlinx.serialization.*",
   })
-  .option("experimentalTypeExpanding", {
-    type: "boolean",
-    default: false,
-    describe: "Experimental feature that will flatten computed types",
-  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -68,7 +63,6 @@ export type TranspileSingleArgs = {
   snakeToCamelCase: boolean;
   annotationNewLines: boolean;
   importStar: boolean;
-  experimentalTypeExpanding: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -86,7 +80,6 @@ async function transpile(args: TranspileSingleArgs) {
     snakeToCamelCase,
     annotationNewLines,
     importStar,
-    experimentalTypeExpanding,
   } = args;
   const config: MartokConfig = {
     files,
@@ -97,7 +90,6 @@ async function transpile(args: TranspileSingleArgs) {
       snakeToCamelCase,
       annotationNewLines,
       importStar,
-      experimentalTypeExpanding,
     },
   };
   const martok = new Martok(config);
