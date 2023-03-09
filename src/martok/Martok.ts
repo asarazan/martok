@@ -209,6 +209,10 @@ export class Martok {
     let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
+    } else {
+      throw new Error(
+        `${file.fileName} is not within the given source root, it can't be included in this project.`
+      );
     }
     return `${this.config.package}${relativePath.replace(/\//g, ".")}`;
   }

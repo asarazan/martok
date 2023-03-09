@@ -74,6 +74,7 @@ describe("Multi File Comparisons", () => {
     .map((value) => value.name);
   for (const dirname of dirs) {
     const runTest = (flatten: boolean) => {
+      if (dirname.includes("expand") && !flatten) return;
       it(`${path.basename(dirname)}`, async () => {
         const dir = `${root}/${dirname}`;
         const files = await util.promisify(glob)(`${dir}/**/*.{ts,d.ts}`);

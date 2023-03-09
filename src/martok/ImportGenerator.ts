@@ -26,6 +26,8 @@ export class ImportGenerator {
     return symbols
       .map((value) => {
         const decl = _.first(value.declarations)!;
+        if (!decl) throw new Error(`No declaration for symbol ${value.name}`);
+
         const source = decl.getSourceFile();
         const pkg = this.martok.getFilePackage(source);
         return `import ${pkg}.${value.getEscapedName().toString()}`;
@@ -41,6 +43,11 @@ export class ImportGenerator {
       for (const element of bindings.elements) {
         let symbol = this.checker.getSymbolAtLocation(element.name)!;
         symbol = this.checker.getAliasedSymbol(symbol) ?? symbol;
+        if (symbol.name === "unknown") {
+          throw new Error(
+            `Could not find symbol ${element.name.getText()} imported from ${imp.moduleSpecifier.getText()}`
+          );
+        }
         result.push(symbol);
       }
     }

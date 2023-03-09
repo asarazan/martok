@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "special": "ts-node src/index.ts tests/comparisons/flatten/utilityTypes.d.ts -i -a -s -t -f true -o ./schema/martok --package net.sarazan.martok",
+    "special": "ts-node src/index.ts tests/comparisons/multi/computedImports/ -i -a -s -t -f true -o ./schema/martok --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",

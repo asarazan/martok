@@ -16,6 +16,11 @@ type ExpandFile = {
   docs: JsDocProperty[];
 };
 
+type ExpandStatementWithImports = {
+  imports: string[];
+  statement: string;
+};
+
 export class TypeExpander {
   public constructor(private martok: Martok) {}
 
@@ -58,6 +63,46 @@ export class TypeExpander {
     return hasFlattenTag;
   }
 
+  private pullImports(type: string): ExpandStatementWithImports {
+    const resolvedImports: ExpandStatementWithImports = {
+      imports: [],
+      statement: type,
+    };
+    const imports: Record<string, Set<string>> = {};
+
+    // Import regex for statements like: import("path/to/file").Type
+    const importRegex = /import\(["']([^\n ]*)["']\)/g;
+    const importRegexWithType =
+      /import\(["']([^\n ]*)["']\)\.([a-zA-Z_$][0-9a-zA-Z_$]*)/g;
+
+    const matches = type.match(importRegexWithType);
+    if (!matches) return resolvedImports;
+
+    // Pull out all the imports and types, replace them with a placeholder type
+    for (const match of matches) {
+      const importStatement = match.match(importRegex)![0];
+      const fileName = importStatement
+        .replace(/import\(["']/g, "")
+        .replace(/["']\)/g, "");
+      const typeName = match.replace(importStatement, "").replace(".", "");
+      console.log("MATCH FOUND: ", match);
+
+      if (!imports[fileName]) imports[fileName] = new Set();
+      imports[fileName].add(typeName);
+
+      // Replace the import statement with a placeholder type
+      resolvedImports.statement.replace(match, typeName);
+    }
+
+    // Create the import statements
+    for (const fileName in imports) {
+      const types = Array.from(imports[fileName]).join(", ");
+      resolvedImports.imports.push(`import { ${types} } from "${fileName}";`);
+    }
+
+    return resolvedImports;
+  }
+
   /**
    * Takes in a statement and runs typeToString on it. This will compute any complex
    * types and returns a string representing the expended type. This string is expected to
@@ -77,6 +122,8 @@ export class TypeExpander {
         ts.TypeFormatFlags.NoTruncation
     );
 
+    const newStatement = this.pullImports(newExpandedType);
+
     const s = [];
     for (const c of statement.getChildren()) {
       if (c.kind === ts.SyntaxKind.EqualsToken) break;
@@ -84,7 +131,12 @@ export class TypeExpander {
     }
     s.push("=");
 
-    return `${s.join(" ")} ${newExpandedType};`;
+    const statements = [
+      ...newStatement.imports,
+      `${s.join(" ")} ${newStatement.statement};`,
+    ];
+
+    return statements.join("\n");
   }
 
   private insertJsDocsToFile(file: SourceFile, docs: JsDocProperty[]) {
@@ -116,6 +168,11 @@ export class TypeExpander {
       const source = this.martok.program.getSourceFile(fileName);
       if (!source) throw new Error(`Failed to get source file ${fileName}`);
       const expandedFile = this.getExpandedFile(source);
+
+      // if (expandedFile.fileString.trim().includes("GameSession")) {
+      //   console.log(expandedFile.fileString);
+      // }
+
       fs.set(expandedFile.fileName, expandedFile.fileString);
       docs.set(expandedFile.fileName, expandedFile.docs);
     });
