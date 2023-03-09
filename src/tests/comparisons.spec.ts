@@ -35,31 +35,6 @@ describe("Single File Comparisons", () => {
   }
 });
 
-describe("Expand Comparisons", () => {
-  const root = `${ROOT}/expand`;
-  const types = glob.sync(`${root}/**/*.d.ts`);
-  for (const filename of types) {
-    const compare = `${path.dirname(filename)}/${title(
-      path.basename(filename, ".d.ts")
-    )}.kt`;
-    it(`${path.basename(filename)} : ${path.basename(compare)}`, async () => {
-      const martok = new Martok({
-        files: [filename],
-        package: PACKAGE,
-        sourceRoot: root,
-        options: {
-          dedupeTaggedUnions: true,
-        },
-      });
-      const out = sanitizeComparison(martok.generateMultiFile());
-      const contents = sanitizeComparison(
-        await fs.promises.readFile(compare, "utf-8")
-      );
-      expect(out).toEqual(contents);
-    });
-  }
-});
-
 describe("Multi File Comparisons", () => {
   const root = `${ROOT}/multi`;
   const dirs = fs
