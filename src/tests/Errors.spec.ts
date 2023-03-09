@@ -22,7 +22,6 @@ describe("Type Expansion Errors", () => {
           sourceRoot: root,
           options: {
             dedupeTaggedUnions: true,
-            experimentalTypeExpanding: true,
           },
         });
         martok.generateOutput();
@@ -43,7 +42,6 @@ describe("Import Errors", () => {
           sourceRoot: root,
           options: {
             dedupeTaggedUnions: true,
-            experimentalTypeExpanding: true,
           },
         });
         martok.generateOutput();

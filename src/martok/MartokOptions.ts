@@ -3,5 +3,4 @@ export type MartokOptions = {
   snakeToCamelCase?: boolean;
   annotationNewLines?: boolean;
   importStar?: boolean;
-  experimentalTypeExpanding?: boolean;
 };

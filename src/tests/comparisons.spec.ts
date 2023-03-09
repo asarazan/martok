@@ -25,7 +25,6 @@ describe("Single File Comparisons", () => {
           sourceRoot: root,
           options: {
             dedupeTaggedUnions: true,
-            experimentalTypeExpanding: flatten,
           },
         });
         const out = sanitizeComparison(martok.generateMultiFile());
@@ -54,7 +53,6 @@ describe("Expand Comparisons", () => {
         sourceRoot: root,
         options: {
           dedupeTaggedUnions: true,
-          experimentalTypeExpanding: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());
@@ -84,7 +82,6 @@ describe("Multi File Comparisons", () => {
           sourceRoot: dir,
           options: {
             dedupeTaggedUnions: true,
-            experimentalTypeExpanding: flatten,
           },
         });
         const out = _.mapValues(martok.generateSingleFiles(dir), (value) => {
@@ -120,7 +117,6 @@ describe("Special Comparisons", () => {
             dedupeTaggedUnions: true,
             snakeToCamelCase: true,
             annotationNewLines: true,
-            experimentalTypeExpanding: flatten,
           },
         });
         const out = sanitizeComparison(martok.generateMultiFile());
@@ -147,7 +143,6 @@ describe("Special Comparisons", () => {
           options: {
             snakeToCamelCase: true,
             dedupeTaggedUnions: true,
-            experimentalTypeExpanding: flatten,
           },
         });
         const out = sanitizeComparison(martok.generateMultiFile());
@@ -179,7 +174,6 @@ describe("Formatting Comparisons", () => {
             dedupeTaggedUnions: true,
             snakeToCamelCase: true,
             annotationNewLines: true,
-            experimentalTypeExpanding: flatten,
           },
         });
         const out = martok.generateMultiFile();
