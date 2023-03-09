@@ -26,9 +26,6 @@ export class TsCompiler {
     );
     const program = env.languageService.getProgram();
     if (!program) throw new Error("Failed to create program");
-    return {
-      program,
-      env,
-    };
+    return program;
   }
 }

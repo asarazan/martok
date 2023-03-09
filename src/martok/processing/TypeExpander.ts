@@ -7,7 +7,6 @@ import { extractJsDocs, insertJsDocs, JsDocProperty } from "./Comments";
 type ExpandResponse = {
   fs: Map<string, string>;
   program: ts.Program;
-  env: VirtualTypeScriptEnvironment;
 };
 
 type ExpandFile = {
@@ -158,7 +157,7 @@ export class TypeExpander {
     return expandedFile;
   }
 
-  public expand(): ExpandResponse {
+  public expand(): ts.Program {
     const fs = new Map<string, string>();
     const docs = new Map<string, JsDocProperty[]>();
 
@@ -172,7 +171,7 @@ export class TypeExpander {
     });
 
     // Recompile with flattened types
-    const { program, env } = this.martok.compiler.compileFiles(fs);
+    const program = this.martok.compiler.compileFiles(fs);
 
     // Insert collected docs back into the program
     fs.forEach((_value, fileName) => {
@@ -181,10 +180,6 @@ export class TypeExpander {
       this.insertJsDocsToFile(source, docs.get(fileName)!);
     });
 
-    return {
-      fs,
-      program,
-      env,
-    };
+    return program;
   }
 }
