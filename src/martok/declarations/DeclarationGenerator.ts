@@ -5,7 +5,6 @@ import _ from "lodash";
 import { KlassPrinter } from "../../kotlin/KlassPrinter";
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
-
 export class DeclarationGenerator {
   public readonly klasses = new KlassGenerator(this.martok);
   public readonly printer = KlassPrinter.instance;
@@ -21,10 +20,10 @@ export class DeclarationGenerator {
   private generateDeclaration(node: Statement): (Klass | string)[] {
     try {
       if (!KlassGenerator.isSupportedDeclaration(node)) {
-        // throw new Error(`Can't handle type ${node.kind}`);
         return [];
       }
       const result = [this.klasses.generate(node)];
+
       if (this.martok.additionalDeclarations.length) {
         result.push(...this.martok.additionalDeclarations);
       }

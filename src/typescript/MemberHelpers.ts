@@ -3,6 +3,7 @@ import ts, {
   factory,
   getJSDocTags,
   InternalSymbolName,
+  IntersectionTypeNode,
   isArrayTypeNode,
   isInterfaceDeclaration,
   isIntersectionTypeNode,
@@ -19,6 +20,7 @@ import ts, {
   SyntaxKind,
   TypeElement,
   TypeNode,
+  UnionTypeNode,
 } from "typescript";
 import { dedupeUnion } from "./UnionHelpers";
 import { Martok } from "../martok/Martok";
@@ -41,11 +43,16 @@ export type MemberTypeOptions = {
   performTypeReplacement?: boolean;
 };
 
+type MemberType = {
+  type: string;
+  nullable: boolean;
+};
+
 export function getMemberType(
   martok: Martok,
   type: TypeNode | TypeElement,
   options?: MemberTypeOptions
-): string {
+): MemberType {
   if (isTypeElement(type)) {
     if (!isPropertySignature(type)) throw new Error("Can't find property");
     type = type.type!;
@@ -58,7 +65,11 @@ export function getMemberType(
   if (isTypeReferenceNode(type)) {
     if (options?.followReferences === false) {
       const ref = type.typeName.getText();
-      if (ref) return ref;
+      if (ref)
+        return {
+          type: ref,
+          nullable: false,
+        };
     } else {
       const ttype = martok.checker.getTypeFromTypeNode(type);
       const symbol = ttype.aliasSymbol ?? ttype.symbol;
@@ -69,18 +80,71 @@ export function getMemberType(
   }
 
   const literal = getLiteralLikeType(martok, type);
-  if (literal) return literal;
+  if (literal)
+    return {
+      type: literal,
+      nullable: false,
+    };
 
   if (isUnionTypeNode(type) || isIntersectionTypeNode(type)) {
-    return InternalSymbolName.Type;
+    if (isUnionNullable(type)) {
+      const unionTypes = excludeNullableLiteral(type);
+      if (unionTypes.length === 1) {
+        const memberType = getMemberType(martok, unionTypes[0], options);
+        return {
+          type: memberType.type,
+          nullable: true,
+        };
+      } else if (unionTypes.length > 1) {
+        return {
+          type: InternalSymbolName.Type,
+          nullable: true,
+        };
+      } else {
+        throw new Error(`Unreachable, union with one type`);
+      }
+    }
+    return {
+      type: InternalSymbolName.Type,
+      nullable: false,
+    };
   }
 
   const ttype = martok.checker.getTypeFromTypeNode(type);
   const symbol = ttype.aliasSymbol ?? ttype.getSymbol();
   if (!symbol) {
-    throw new Error(`Cannot find symbol`);
+    const typeWithIssue = type.getText();
+    const source = type.getSourceFile();
+    throw new Error(`Cannot find ${typeWithIssue} in ${source.fileName}`);
   }
-  return symbol.getEscapedName().toString();
+  return {
+    type: symbol.getEscapedName().toString(),
+    nullable: false,
+  };
+}
+
+function isNullableType(type: TypeNode): boolean {
+  const isNullableKind = (kind: SyntaxKind) => {
+    return (
+      kind === SyntaxKind.NullKeyword || kind === SyntaxKind.UndefinedKeyword
+    );
+  };
+  if (isLiteralTypeNode(type)) return isNullableKind(type.literal.kind);
+  return isNullableKind(type.kind);
+}
+
+/**
+ * Checks if union or intersection type contains either `null` or `undefined`.
+ * If that's the case, then we may want to make this member nullable.
+ */
+function isUnionNullable(type: UnionTypeNode | IntersectionTypeNode) {
+  return type.types.some(isNullableType);
+}
+
+function excludeNullableLiteral(
+  type: UnionTypeNode | IntersectionTypeNode
+): TypeNode[] {
+  return type.types.filter((t) => !isNullableType(t));
 }
 
 export function getLiteralType(
@@ -133,8 +197,8 @@ export function getIntrinsicType(
   }
   if (type.kind === SyntaxKind.BooleanKeyword) return "Boolean";
   if (isArrayTypeNode(type)) {
-    const param = getMemberType(martok, type.elementType);
-    return `List<${param}>`;
+    const memberType = getMemberType(martok, type.elementType);
+    return `List<${memberType.type}>`;
   }
   if (type.kind === SyntaxKind.AnyKeyword) return "JsonObject";
 }
@@ -187,10 +251,10 @@ export function getMembers(
           return isTaggedUnion
             ? value
             : {
-              ...value,
-              // Union type is just where everything is optional lmao
-              questionToken: QUESTION_TOKEN,
-            };
+                ...value,
+                // Union type is just where everything is optional lmao
+                questionToken: QUESTION_TOKEN,
+              };
         }),
       isTaggedUnion,
       node

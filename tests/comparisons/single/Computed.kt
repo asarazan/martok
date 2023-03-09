@@ -19,35 +19,71 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+/**
+ * This is a comment2
+ */
 @Serializable
-data class Foo(
-  val foo: String? = null
+data class MyType(
+
+  val prop1: Prop1,
+
+  /**
+   * This is a comment
+   * poggings
+   */
+  val prop2: Prop2
+) {
+
+  @Serializable
+  data class Prop1(
+
+    val foo: String,
+
+    val boz: String
+  )
+
+  @Serializable
+  data class Prop2(
+    val foo: String
+  )
+}
+
+/**
+ * @expand
+ */
+@Serializable
+data class Computed(
+
+  val prop1: String,
+
+  val prop2: String
 )
 
+/**
+ * @expand
+ */
 @Serializable
-data class Bar(
-  val optionalProp: String? = null
-)
+data class Computed2(
 
-@Serializable
-data class Baz(
-  val nullProp: Boolean? = null
-)
+  val prop1: Prop1,
 
-@Serializable
-data class One(
-  val foo: String
-)
+  /**
+   * This is a comment
+   * poggings
+   */
+  val prop2: Prop2
+) {
 
-@Serializable
-data class Two(
-  val bar: String
-)
+  @Serializable
+  data class Prop1(
 
-@Serializable
-data class Three(
+    val foo: String,
 
-  val foo: String? = null,
+    val boz: String
+  )
 
-  val bar: String? = null
-)
+  @Serializable
+  data class Prop2(
+    val foo: String
+  )
+}

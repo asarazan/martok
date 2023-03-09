@@ -119,7 +119,7 @@ export class KlassPrinter {
         );
         result.push("\n");
       }
-      klass.innerClasses.forEach((value, index) => {
+      klass.innerClasses.forEach((value) => {
         result.push("\n");
         result.push(this.print(value, indent, options));
       });

@@ -8,7 +8,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { MartokConfig } from "./martok/MartokConfig";
 import { Martok } from "./martok/Martok";
-import { MartokOptions } from "./martok/MartokOptions";
 
 const args = yargs
   .scriptName("martok")
@@ -70,10 +69,12 @@ async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
   const getFiles = util.promisify(glob);
   const isDir = (await fs.promises.lstat(args.path)).isDirectory();
-  const files = isDir
+  let files = isDir
     ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
     : [args.path];
   const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
+  // Needed for relative imports to work when flattening
+  files = files.map((file) => path.resolve(file));
   const {
     dedupeTaggedUnions,
     snakeToCamelCase,

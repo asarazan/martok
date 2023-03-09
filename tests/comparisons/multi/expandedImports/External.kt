@@ -18,36 +18,20 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
+import net.sarazan.martok.Bar
 
 @Serializable
 data class Foo(
-  val foo: String? = null
-)
+  val prop: Prop
+) {
+
+  @Serializable
+  data class Prop(
+    val foo: Bar
+  )
+}
 
 @Serializable
 data class Bar(
-  val optionalProp: String? = null
-)
-
-@Serializable
-data class Baz(
-  val nullProp: Boolean? = null
-)
-
-@Serializable
-data class One(
-  val foo: String
-)
-
-@Serializable
-data class Two(
-  val bar: String
-)
-
-@Serializable
-data class Three(
-
-  val foo: String? = null,
-
-  val bar: String? = null
+  val b: String
 )

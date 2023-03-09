@@ -6,9 +6,11 @@ import Klass = kotlin.Klass;
 import EnumValue = kotlin.EnumValue;
 
 export class StringEnumGenerator {
-  private readonly checker = this.martok.program.getTypeChecker();
+  private readonly checker;
 
-  public constructor(private readonly martok: Martok) {}
+  public constructor(private readonly martok: Martok) {
+    this.checker = this.martok.program.getTypeChecker();
+  }
 
   public generate(name: string, node: UnionTypeNode | EnumDeclaration): Klass {
     return new Klass(name)
@@ -25,7 +27,7 @@ export class StringEnumGenerator {
 
   private getEnumValues(node: UnionTypeNode | EnumDeclaration): EnumValue[] {
     const members = isEnumDeclaration(node) ? node.members : node.types;
-    return members.map((value, index) => {
+    return members.map((value) => {
       const name = getEnumName(this.checker, value);
       const val = getEnumValue(this.checker, value);
       return {

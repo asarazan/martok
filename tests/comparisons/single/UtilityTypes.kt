@@ -14,18 +14,27 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 
+/**
+ * @expand
+ */
 @Serializable
 data class WithOmit(
   val foo: String,
   val baz: Boolean? = null
 )
 
+/**
+ * @expand
+ */
 @Serializable
 data class WithPick(
   val bar: Double,
   val baz: Boolean? = null
 )
 
+/**
+ * @expand
+ */
 @Serializable
 data class WithPartial(
   val foo: String? = null,
@@ -33,6 +42,9 @@ data class WithPartial(
   val baz: Boolean? = null
 )
 
+/**
+ * @expand
+ */
 @Serializable
 data class WithRequired(
   val foo: String,

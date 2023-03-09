@@ -14,12 +14,15 @@ import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 
 export class EnumGenerator {
-  private readonly strings = new StringEnumGenerator(this.martok);
-  private readonly ordinals = new OrdinalEnumGenerator(this.martok);
+  private readonly strings;
+  private readonly ordinals;
 
   private readonly checker = this.martok.program.getTypeChecker();
 
-  public constructor(private readonly martok: Martok) {}
+  public constructor(private readonly martok: Martok) {
+    this.strings = new StringEnumGenerator(this.martok);
+    this.ordinals = new OrdinalEnumGenerator(this.martok);
+  }
 
   private canGenerate(type: Node): type is UnionTypeNode | EnumDeclaration {
     if (isUnionTypeNode(type)) {

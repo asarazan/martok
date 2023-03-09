@@ -1,7 +1,6 @@
 import { kotlin } from "../../kotlin/Klass";
 import Klass = kotlin.Klass;
 import { MartokOutFile } from "../MartokOutFile";
-import _ from "lodash";
 
 export function sanitizeName(name: string): string {
   return name.replace(/:/g, "_").replace(/"/g, "");

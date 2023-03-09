@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import { SourceFile, Statement, TypeChecker } from "typescript";
+import { SourceFile, TypeChecker } from "typescript";
 import { MartokOutFile } from "./MartokOutFile";
 import _ from "lodash";
 import { TsHelper } from "../typescript/TsHelper";
@@ -18,6 +18,8 @@ import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames } from "./processing/SanitizeNames";
+import { TypeExpander } from "./processing/TypeExpander";
+import { TsCompiler } from "./TsCompiler";
 
 type MartokState = {
   nameScope: string[];
@@ -27,14 +29,14 @@ type MartokState = {
 };
 
 export class Martok {
-  public readonly program = ts.createProgram(this.config.files, {
-    noEmitOnError: true,
-    noImplicitAny: true,
-    target: ts.ScriptTarget.ES5,
-    module: ts.ModuleKind.CommonJS,
-  });
+  public readonly program: ts.Program;
 
-  public readonly declarations = new DeclarationGenerator(this);
+  public readonly compiler = new TsCompiler(this.config);
+
+  public readonly declarations;
+
+  public readonly imports;
+
   public get checker(): TypeChecker {
     return this.program.getTypeChecker();
   }
@@ -51,11 +53,30 @@ export class Martok {
     return this.storage.getStore()!.typeReplacer;
   }
 
-  private readonly storage = new AsyncLocalStorage<MartokState>();
-  private readonly imports = new ImportGenerator(this);
-  private readonly formatter = new MartokFormatter(this.config);
+  private readonly storage;
+  private readonly formatter;
 
-  public constructor(public readonly config: MartokConfig) {}
+  public constructor(public readonly config: MartokConfig) {
+    const fsMap = new Map<string, string>();
+    // Get all file raw text
+    for (const file of this.config.files) {
+      try {
+        const result = fs.readFileSync(file, "utf-8");
+        fsMap.set(file, result);
+      } catch (e) {
+        console.error(`Failed to read file ${file}: `, e);
+      }
+    }
+
+    // Create initial program
+    this.program = this.compiler.compileFiles(fsMap);
+    this.program = new TypeExpander(this).expand();
+    this.imports = new ImportGenerator(this);
+
+    this.declarations = new DeclarationGenerator(this);
+    this.storage = new AsyncLocalStorage<MartokState>();
+    this.formatter = new MartokFormatter(this.config);
+  }
 
   public async writeKotlinFiles(outPath: string) {
     if (outPath.endsWith(".kt")) {
@@ -161,6 +182,7 @@ export class Martok {
       ...this.imports.generateImports(statements),
       ...this.imports.generateImportsFromSymbols(symbols),
     ]);
+
     if (imports.length) {
       base.text.imports.push(null, ...imports); // spacer
     }
@@ -173,6 +195,10 @@ export class Martok {
     let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
+    } else {
+      throw new Error(
+        `${file.fileName} is not within the given source root, it can't be included in this project.`
+      );
     }
     return `${this.config.package}${relativePath.replace(/\//g, ".")}`;
   }

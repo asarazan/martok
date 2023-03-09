@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "special": "ts-node src/index.ts tests/comparisons/single/tagged6.d.ts -i -a -s -t -o ./schema/martok --package net.sarazan.martok",
+    "special": "ts-node src/index.ts tests/errors/imports/expandWithImport.d.ts -i -a -s -t --experimentalTypeExpanding true -o ./schema/martok --package net.sarazan.martok",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
@@ -34,6 +34,7 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
+    "@typescript/vfs": "^1.4.0",
     "glob": "^7.2.0",
     "indent-string": "^4.0.0",
     "lodash": "^4.17.21",
