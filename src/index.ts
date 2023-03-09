@@ -8,7 +8,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { MartokConfig } from "./martok/MartokConfig";
 import { Martok } from "./martok/Martok";
-import { MartokOptions } from "./martok/MartokOptions";
 
 const args = yargs
   .scriptName("martok")
@@ -50,7 +49,6 @@ const args = yargs
     describe: "Just throw in an import kotlinx.serialization.*",
   })
   .option("experimentalTypeExpanding", {
-    alias: "f",
     type: "boolean",
     default: false,
     describe: "Experimental feature that will flatten computed types",

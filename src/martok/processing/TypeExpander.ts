@@ -85,7 +85,6 @@ export class TypeExpander {
         .replace(/import\(["']/g, "")
         .replace(/["']\)/g, "");
       const typeName = match.replace(importStatement, "").replace(".", "");
-      console.log("MATCH FOUND: ", match);
 
       if (!imports[fileName]) imports[fileName] = new Set();
       imports[fileName].add(typeName);
@@ -168,11 +167,6 @@ export class TypeExpander {
       const source = this.martok.program.getSourceFile(fileName);
       if (!source) throw new Error(`Failed to get source file ${fileName}`);
       const expandedFile = this.getExpandedFile(source);
-
-      // if (expandedFile.fileString.trim().includes("GameSession")) {
-      //   console.log(expandedFile.fileString);
-      // }
-
       fs.set(expandedFile.fileName, expandedFile.fileString);
       docs.set(expandedFile.fileName, expandedFile.docs);
     });
