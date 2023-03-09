@@ -18,7 +18,6 @@ import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames } from "./processing/SanitizeNames";
-import { VirtualTypeScriptEnvironment } from "@typescript/vfs";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
 
@@ -35,6 +34,8 @@ export class Martok {
   public readonly compiler = new TsCompiler(this.config);
 
   public readonly declarations;
+
+  public readonly imports;
 
   public get checker(): TypeChecker {
     return this.program.getTypeChecker();
@@ -53,7 +54,6 @@ export class Martok {
   }
 
   private readonly storage;
-  private readonly imports;
   private readonly formatter;
 
   public constructor(public readonly config: MartokConfig) {
@@ -70,6 +70,7 @@ export class Martok {
 
     // Create initial program
     this.program = this.compiler.compileFiles(fsMap);
+    this.imports = new ImportGenerator(this);
 
     if (this.config.options?.experimentalTypeExpanding) {
       this.program = new TypeExpander(this).expand();
@@ -77,7 +78,6 @@ export class Martok {
 
     this.declarations = new DeclarationGenerator(this);
     this.storage = new AsyncLocalStorage<MartokState>();
-    this.imports = new ImportGenerator(this);
     this.formatter = new MartokFormatter(this.config);
   }
 

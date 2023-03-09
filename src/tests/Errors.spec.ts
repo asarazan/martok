@@ -1,8 +1,6 @@
 import { glob } from "glob";
 import { Martok } from "../martok/Martok";
 import * as path from "path";
-import { title } from "../martok/NameGenerators";
-import fs from "fs";
 
 const PACKAGE = "net.sarazan.martok";
 const ROOT = path.resolve("./tests/errors");

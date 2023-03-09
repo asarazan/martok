@@ -1,6 +1,3 @@
-/**
- * @ignore
- */
 import { ImportableFooWithInternal } from "../../importables/importables";
 
 /**

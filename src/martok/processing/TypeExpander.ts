@@ -1,13 +1,7 @@
-import { VirtualTypeScriptEnvironment } from "@typescript/vfs";
 import ts, { SourceFile, Statement, getJSDocTags } from "typescript";
 import { hasTypeArguments } from "../../typescript/utils";
 import { Martok } from "../Martok";
 import { extractJsDocs, insertJsDocs, JsDocProperty } from "./Comments";
-
-type ExpandResponse = {
-  fs: Map<string, string>;
-  program: ts.Program;
-};
 
 type ExpandFile = {
   fileName: string;
@@ -23,19 +17,28 @@ type ExpandStatementWithImports = {
 export class TypeExpander {
   public constructor(private martok: Martok) {}
 
-  private shouldIgnore(node: ts.Node): boolean {
-    return (
-      getJSDocTags(node).find((value) => {
+  private shouldIgnore(statement: Statement): boolean {
+    const hasIgnoreTag =
+      getJSDocTags(statement).find((value) => {
         return value.tagName.text.toLowerCase() === "ignore";
-      }) !== undefined
-    );
+      }) !== undefined;
+
+    if (hasIgnoreTag) return true;
+
+    try {
+      this.martok.imports.generateImports([statement]);
+    } catch (e) {
+      return true;
+    }
+
+    return false;
   }
 
-  private shouldExpand(node: ts.Node): boolean {
-    if (!ts.isTypeAliasDeclaration(node)) return false;
+  private shouldExpand(statement: Statement): boolean {
+    if (!ts.isTypeAliasDeclaration(statement)) return false;
 
     const hasFlattenTag =
-      getJSDocTags(node).find((value) => {
+      getJSDocTags(statement).find((value) => {
         return value.tagName.text.toLowerCase() === "expand";
       }) !== undefined;
 
@@ -52,10 +55,10 @@ export class TypeExpander {
       return false;
     };
 
-    if (!hasFlattenTag && checkGenericsRecursively(node)) {
+    if (!hasFlattenTag && checkGenericsRecursively(statement)) {
       //If computed type or has computed type, throw an error because we are forced to expand
       throw new Error(
-        `Type ${node.name.getText()} is using computed types. Please add @expand to the type to expand it. If you wish to ignore this type, use @ignore.`
+        `Type ${statement.name.getText()} is using computed types. Please add @expand to the type to expand it. If you wish to ignore this type, use @ignore.`
       );
     }
 
