@@ -32,10 +32,6 @@ type MartokState = {
 export class Martok {
   public readonly program: ts.Program;
 
-  public readonly env: VirtualTypeScriptEnvironment;
-
-  public readonly fsMap = new Map<string, string>();
-
   public readonly compiler = new TsCompiler(this.config);
 
   public readonly declarations;
@@ -58,32 +54,25 @@ export class Martok {
 
   private readonly storage;
   private readonly imports;
-  private readonly expander;
   private readonly formatter;
 
   public constructor(public readonly config: MartokConfig) {
+    const fsMap = new Map<string, string>();
     // Get all file raw text
     for (const file of this.config.files) {
       try {
         const result = fs.readFileSync(file, "utf-8");
-        this.fsMap.set(file, result);
+        fsMap.set(file, result);
       } catch (e) {
         console.error(`Failed to read file ${file}: `, e);
       }
     }
 
     // Create initial program
-    const { program, env } = this.compiler.compileFiles(this.fsMap);
-    this.env = env;
-    this.program = program;
-
-    this.expander = new TypeExpander(this);
+    this.program = this.compiler.compileFiles(fsMap);
 
     if (this.config.options?.experimentalTypeExpanding) {
-      const { program, fs, env } = this.expander.expand();
-      this.fsMap = fs;
-      this.env = env;
-      this.program = program;
+      this.program = new TypeExpander(this).expand();
     }
 
     this.declarations = new DeclarationGenerator(this);
