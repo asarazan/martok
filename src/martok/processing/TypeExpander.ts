@@ -18,20 +18,11 @@ export class TypeExpander {
   public constructor(private martok: Martok) {}
 
   private shouldIgnore(statement: Statement): boolean {
-    const hasIgnoreTag =
+    return (
       getJSDocTags(statement).find((value) => {
         return value.tagName.text.toLowerCase() === "ignore";
-      }) !== undefined;
-
-    if (hasIgnoreTag) return true;
-
-    try {
-      this.martok.imports.generateImports([statement]);
-    } catch (e) {
-      return true;
-    }
-
-    return false;
+      }) !== undefined
+    );
   }
 
   private shouldExpand(statement: Statement): boolean {

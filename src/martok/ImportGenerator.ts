@@ -27,7 +27,6 @@ export class ImportGenerator {
       .map((value) => {
         const decl = _.first(value.declarations)!;
         if (!decl) throw new Error(`No declaration for symbol ${value.name}`);
-
         const source = decl.getSourceFile();
         const pkg = this.martok.getFilePackage(source);
         return `import ${pkg}.${value.getEscapedName().toString()}`;
