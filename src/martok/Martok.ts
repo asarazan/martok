@@ -54,7 +54,6 @@ export class Martok {
 
   private readonly storage;
   private readonly imports;
-  private readonly expander;
   private readonly formatter;
 
   public constructor(public readonly config: MartokConfig) {
@@ -72,10 +71,8 @@ export class Martok {
     // Create initial program
     this.program = this.compiler.compileFiles(fsMap);
 
-    this.expander = new TypeExpander(this);
-
     if (this.config.options?.experimentalTypeExpanding) {
-      this.program = this.expander.expand();
+      this.program = new TypeExpander(this).expand();
     }
 
     this.declarations = new DeclarationGenerator(this);
