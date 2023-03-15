@@ -23,6 +23,7 @@ import { title } from "../NameGenerators";
 import { getValName, symbolHasParent } from "../../typescript/EnumHelpers";
 import Klass = kotlin.Klass;
 import EnumValue = kotlin.EnumValue;
+import { getPropertyName } from "../processing/PropertyName";
 
 type TagMappings = {
   name: string;
@@ -105,7 +106,7 @@ export class TaggedUnionGenerator {
         name,
         tag,
         result,
-        commonMembers.map((value) => value.name?.getText() ?? "")
+        commonMembers.map((value) => getPropertyName(value.name) ?? "")
       )
     );
     return result;
@@ -116,7 +117,7 @@ export class TaggedUnionGenerator {
     const members1 = getMembers(type1, this.martok, false);
     // if (!isTypeLiteralNode(type1)) return undefined;
     outer: for (const prop1 of members1) {
-      const name = prop1.name?.getText();
+      const name = getPropertyName(prop1.name);
       if (!name) continue;
       const k = this.getTagValue(prop1);
       // We've found a candidate for our tag discriminator.
@@ -135,7 +136,9 @@ export class TaggedUnionGenerator {
       for (const type2 of others) {
         // if (!isTypeLiteralNode(type2)) continue outer;
         const members2 = getMembers(type2, this.martok, false);
-        const prop2 = members2.find((value) => value.name?.getText() === name);
+        const prop2 = members2.find(
+          (value) => getPropertyName(value.name) === name
+        );
         if (!prop2?.name) continue outer;
         const k2 = this.getTagValue(prop2);
         if (!k2) continue outer;

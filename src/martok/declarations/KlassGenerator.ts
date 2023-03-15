@@ -30,6 +30,7 @@ import { EnumGenerator } from "./EnumGenerator";
 import { TaggedUnionGenerator } from "./TaggedUnionGenerator";
 import { extractComment } from "../processing/Comments";
 import { sanitizeName } from "../processing/SanitizeNames";
+import { getPropertyName } from "../processing/PropertyName";
 
 export type SupportedDeclaration =
   | TypeAliasDeclaration
@@ -169,7 +170,7 @@ export class KlassGenerator {
     property: PropertySignature,
     options?: MemberOptions
   ): Klass {
-    const name = title(property.name!.getText());
+    const name = title(getPropertyName(property.name) ?? "");
     const type = property.type!;
     return this.generate(type, {
       ...options,
@@ -181,7 +182,7 @@ export class KlassGenerator {
     node: TypeElement,
     options?: MemberOptions
   ): ConstructorParameter {
-    const name = node.name!.getText();
+    const name = getPropertyName(node.name) ?? "";
     const annotations: string[] = [];
     const memberType = getMemberType(this.martok, node, {
       followReferences: options?.followReferences ?? false,
@@ -238,7 +239,7 @@ export class KlassGenerator {
   ): Klass[] {
     const anonymousTypes = members.filter((value) => {
       const memberType = getMemberType(this.martok, value);
-      const name = value.name?.getText() ?? "";
+      const name = getPropertyName(value.name) ?? "";
       if (excludeAnonymousTypes?.includes(name)) return false;
       return (
         memberType.type === InternalSymbolName.Type ||

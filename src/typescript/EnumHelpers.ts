@@ -10,13 +10,14 @@ import {
   Symbol,
 } from "typescript";
 import { pascalToSnake } from "../martok/NameGenerators";
+import { getPropertyName } from "../martok/processing/PropertyName";
 
 export function getEnumName(
   checker: TypeChecker,
   value: TypeNode | EnumMember
 ): string {
   if (isEnumMember(value)) {
-    return getValName(value.name.getText()!);
+    return getValName(getPropertyName(value.name)!);
   } else {
     const type = checker.getTypeFromTypeNode(value);
     if (type.isStringLiteral()) {

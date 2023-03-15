@@ -19,7 +19,8 @@ import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames } from "./processing/SanitizeNames";
 import { TypeExpander } from "./processing/TypeExpander";
-import { TsCompiler } from "./TsCompiler";
+import { compilerOptions, TsCompiler } from "./TsCompiler";
+import { MapTransformer } from "./processing/MergeTypes";
 
 type MartokState = {
   nameScope: string[];
@@ -55,6 +56,7 @@ export class Martok {
 
   private readonly storage;
   private readonly formatter;
+  private readonly mapTransformer;
 
   public constructor(public readonly config: MartokConfig) {
     const fsMap = new Map<string, string>();
@@ -76,6 +78,7 @@ export class Martok {
     this.declarations = new DeclarationGenerator(this);
     this.storage = new AsyncLocalStorage<MartokState>();
     this.formatter = new MartokFormatter(this.config);
+    this.mapTransformer = MapTransformer(this);
   }
 
   public async writeKotlinFiles(outPath: string) {
@@ -110,6 +113,15 @@ export class Martok {
     return result;
   }
 
+  public getTransformedSourceFile(fileName: string): ts.SourceFile {
+    const res = ts.transform<ts.SourceFile>(
+      this.program.getSourceFile(fileName)!,
+      [this.mapTransformer],
+      compilerOptions
+    );
+    return res.transformed[0];
+  }
+
   public generateOutput(): MartokOutFile[] {
     const state: MartokState = {
       nameScope: [],
@@ -119,7 +131,7 @@ export class Martok {
     };
     return this.storage.run(state, () => {
       const result = _(this.config.files)
-        .map((value) => this.processFile(this.program.getSourceFile(value)!))
+        .map((value) => this.processFile(this.getTransformedSourceFile(value)!))
         .compact()
         .value();
       if (this.config.options?.dedupeTaggedUnions ?? false) {

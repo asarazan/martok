@@ -41,8 +41,15 @@ export class ImportGenerator {
     if (isNamedImports(bindings)) {
       for (const element of bindings.elements) {
         let symbol = this.checker.getSymbolAtLocation(element.name)!;
-        symbol = this.checker.getAliasedSymbol(symbol) ?? symbol;
-        if (symbol.name === "unknown") {
+        try {
+          symbol = this.checker.getAliasedSymbol(symbol) ?? symbol;
+        } catch (e) {
+          /* Ignore */
+        }
+        if (
+          this.checker.isUnknownSymbol(symbol) ||
+          this.checker.isUndefinedSymbol(symbol)
+        ) {
           throw new Error(
             `Could not find symbol ${element.name.getText()} imported from ${imp.moduleSpecifier.getText()}`
           );

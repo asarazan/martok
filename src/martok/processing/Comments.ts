@@ -11,6 +11,8 @@ import Komment = kotlin.Komment;
 import { convertCommentText } from "../../kotlin/Komments";
 import _ from "lodash";
 import { Martok } from "../Martok";
+import { areNodesEqual } from "./NodeEquality";
+import { getPropertyName } from "./PropertyName";
 
 export function extractComment(node: ts.Node): Komment | undefined {
   const jsdoc = (node as any).jsDoc?.[0] as JSDoc | undefined;
@@ -68,7 +70,7 @@ export function extractJsDocs(
     if (jsdoc) {
       if (ts.isPropertySignature(node) || ts.isTypeAliasDeclaration(node)) {
         docs.push({
-          name: node.name.getText(),
+          name: getPropertyName(node.name) ?? "",
           jsdoc,
           node,
         });
@@ -113,25 +115,4 @@ export function insertJsDocs(
       (node as any).jsDoc = doc.jsdoc;
     }
   }
-}
-
-/**
- * Checks node equality by compairing normalized versions of the node text.
- * A potentially better solution would be to recursively parse the AST and check types,
- * but this solution does the trick for now.
- */
-export function areNodesEqual(martok: Martok, a: ts.Node, b: ts.Node): boolean {
-  const getTypeString = (node: ts.Node) => {
-    return martok.checker
-      .typeToString(
-        martok.checker.getTypeAtLocation(node),
-        node,
-        ts.TypeFormatFlags.InTypeAlias |
-          ts.TypeFormatFlags.NoTypeReduction |
-          ts.TypeFormatFlags.NoTruncation
-      )
-      .replace(/[\s \n]/g, "")
-      .trim();
-  };
-  return getTypeString(a) === getTypeString(b);
 }

@@ -5,7 +5,7 @@ import {
 import ts from "typescript";
 import { MartokConfig } from "./MartokConfig";
 
-const compilerOptions: ts.CompilerOptions = {
+export const compilerOptions: ts.CompilerOptions = {
   noEmitOnError: true,
   noImplicitAny: true,
   target: ts.ScriptTarget.ES5,
@@ -16,13 +16,17 @@ const compilerOptions: ts.CompilerOptions = {
 export class TsCompiler {
   constructor(private config: MartokConfig) {}
 
-  public compileFiles(files: Map<string, string>) {
+  public compileFiles(
+    files: Map<string, string>,
+    transformers?: ts.CustomTransformers
+  ) {
     const system = createFSBackedSystem(files, this.config.sourceRoot, ts);
     const env = createVirtualTypeScriptEnvironment(
       system,
       [...files.keys()],
       ts,
-      compilerOptions
+      compilerOptions,
+      transformers
     );
     const program = env.languageService.getProgram();
     if (!program) throw new Error("Failed to create program");

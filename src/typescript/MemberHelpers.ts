@@ -27,6 +27,7 @@ import { Martok } from "../martok/Martok";
 import { startCase } from "lodash";
 import { kotlin } from "../kotlin/Klass";
 import KotlinNumber = kotlin.KotlinNumber;
+import { getEntityName } from "../martok/processing/PropertyName";
 
 const QUESTION_TOKEN = factory.createToken(SyntaxKind.QuestionToken);
 
@@ -64,7 +65,7 @@ export function getMemberType(
 
   if (isTypeReferenceNode(type)) {
     if (options?.followReferences === false) {
-      const ref = type.typeName.getText();
+      const ref = getEntityName(type.typeName);
       if (ref)
         return {
           type: ref,

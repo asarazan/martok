@@ -4,6 +4,7 @@ import { TaggedUnionError } from "../errors/TaggedUnionError";
 import { all } from "./utils";
 import path from "path";
 import { Martok } from "../martok/Martok";
+import { getPropertyName } from "../martok/processing/PropertyName";
 
 /**
  * @throws TaggedUnionError
@@ -29,7 +30,7 @@ export function dedupeUnion(
         throw new TaggedUnionError(filename, node.getText());
       }
     } else {
-      const name = value.name!.getText();
+      const name = getPropertyName(value.name)!;
       if (!seen.has(name)) {
         seen.add(name);
         return true;
@@ -44,8 +45,8 @@ function typesAreCompatible(
   value2: TypeElement,
   martok: Martok
 ): boolean {
-  const name1 = value1.name!.getText();
-  const name2 = value2.name!.getText();
+  const name1 = getPropertyName(value1.name)!;
+  const name2 = getPropertyName(value2.name)!;
   if (name1 !== name2) return true;
   const memberType1 = getMemberType(martok, value1);
   const memberType2 = getMemberType(martok, value2);
