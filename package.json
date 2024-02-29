@@ -2,9 +2,9 @@
   "name": "martok",
   "version": "1.8.3",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "bin": {
-    "martok": "dist/index.js"
+    "martok": "dist/src/index.js"
   },
   "scripts": {
     "build": "tsc",
