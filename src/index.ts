@@ -69,9 +69,8 @@ async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
   const getFiles = util.promisify(glob);
   const isDir = (await fs.promises.lstat(args.path)).isDirectory();
-  let files = isDir
-    ? await getFiles(`${args.path}/**/*.{ts,d.ts}`)
-    : [args.path];
+  const pattern = isDir ? `${args.path}/**/*.{ts,d.ts}` : args.path;
+  let files = await getFiles(pattern);
   const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
   // Needed for relative imports to work when flattening
   files = files.map((file) => path.resolve(file));
