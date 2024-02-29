@@ -8,6 +8,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { MartokConfig } from "./martok/MartokConfig";
 import { Martok } from "./martok/Martok";
+import { resolveFiles } from "./typescript/utils";
 
 const args = yargs
   .scriptName("martok")
@@ -67,13 +68,7 @@ export type TranspileSingleArgs = {
 
 async function transpile(args: TranspileSingleArgs) {
   console.log(`Transpile: `, args);
-  const getFiles = util.promisify(glob);
-  const isDir = (await fs.promises.lstat(args.path)).isDirectory();
-  const pattern = isDir ? `${args.path}/**/*.{ts,d.ts}` : args.path;
-  let files = await getFiles(pattern);
-  const rootDir = path.resolve(isDir ? args.path : path.dirname(args.path));
-  // Needed for relative imports to work when flattening
-  files = files.map((file) => path.resolve(file));
+  const resolve = await resolveFiles(args);
   const {
     dedupeTaggedUnions,
     snakeToCamelCase,
@@ -81,9 +76,9 @@ async function transpile(args: TranspileSingleArgs) {
     importStar,
   } = args;
   const config: MartokConfig = {
-    files,
+    files: resolve.files,
     package: args.package,
-    sourceRoot: rootDir,
+    sourceRoot: resolve.rootDir,
     options: {
       dedupeTaggedUnions,
       snakeToCamelCase,
