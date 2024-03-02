@@ -55,7 +55,6 @@ npm install -g martok
 martok ./someFile.d.ts -o Schema.kt --package example
 martok ./someDirectory -o BigSchema.kt
 martok ./someDirectory -o ./outputDirectory # produce lots of little files.
-martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts]
 ```
 
 ### SUPPORTS
@@ -67,7 +66,7 @@ martok ./someDirectory -o WithDates.kt --datePattern standard # [see Patterns.ts
 * Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
-* Infer kotlinx.datetime from certain naming patterns _(See [Patterns.ts](src/typescript/Patterns.ts) or pass --datePattern standard)_
+* kotlinx.datetime.Instant and kotlinx.datetime.Localdate _(When annotated with @Date or @DateTime. See [HERE](https://github.com/asarazan/martok/blob/main/tests/comparisons/special/DateTime.d.ts) for examples)_
 * Custom package name
 * Enums
 * optional fields
