@@ -66,7 +66,7 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * Anonymous types
 * Cross-references to other types
 * kotlinx.serializable
-* kotlinx.datetime.Instant and kotlinx.datetime.Localdate _(When annotated with @Date or @DateTime. See [HERE](https://github.com/asarazan/martok/blob/main/tests/comparisons/special/DateTime.d.ts) for examples)_
+* kotlinx.datetime _(When annotated with `@Date` or `@DateTime`. See [HERE](https://github.com/asarazan/martok/blob/main/tests/comparisons/special/DateTime.d.ts) for examples)_
 * Custom package name
 * Enums
 * optional fields
