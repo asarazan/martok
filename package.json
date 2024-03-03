@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "special": "ts-node src/index.ts 'tests/globs/declarations/**/*.d.ts' -i -a -s -t -o ./schema/martok --package net.sarazan.martok",
+    "special": "ts-node src/index.ts '../../bankshift/bankshift-platform/src/**/*.d.ts' -i -t -o ./schema/Api",
+    "special2": "ts-node src/index.ts '../../personal/Tangent-Mobile/api/entities/*.d.ts' -i -t -o ./schema/Tangent",
+    "special3": "ts-node src/index.ts 'tests/comparisons/**/*.d.ts' -i -t -o ./schema/Tests/",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
