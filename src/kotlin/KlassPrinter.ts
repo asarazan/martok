@@ -2,7 +2,7 @@ import { kotlin } from "./Klass";
 import Klass = kotlin.Klass;
 import ConstructorParameter = kotlin.ConstructorParameter;
 import Mutability = kotlin.Mutability;
-import { rest, split } from "lodash";
+import { split } from "lodash";
 import { MartokOptions } from "../martok/MartokOptions";
 import { sanitizeKlassOutput, sanitizeKlassString } from "./KlassSanitizer";
 
