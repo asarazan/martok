@@ -4,6 +4,7 @@ import ConstructorParameter = kotlin.ConstructorParameter;
 import Mutability = kotlin.Mutability;
 import { split } from "lodash";
 import { MartokOptions } from "../martok/MartokOptions";
+import { sanitizeKlassOutput, sanitizeKlassString } from "./KlassSanitizer";
 
 export class KlassPrinter {
   public static readonly instance = new KlassPrinter();
@@ -14,7 +15,7 @@ export class KlassPrinter {
     options?: MartokOptions
   ): string {
     if (typeof klass === "string") return klass;
-    const result = [] as string[];
+    let result = [] as string[];
 
     // Comments
     if (klass.comment) {
@@ -48,11 +49,6 @@ export class KlassPrinter {
     if (klass.ctor.length) {
       result.push("(");
 
-      // Small QoL improvement for single-arg classes, so they don't format weird.
-      if (klass.ctor.length > 1) {
-        result.push("\n");
-      }
-
       indent++;
       this.push(
         result,
@@ -60,7 +56,7 @@ export class KlassPrinter {
           this.printParameter(value, undefined, options)
         ),
         indent,
-        ",\n"
+        ","
       );
       indent--;
       result.push("\n");
@@ -131,8 +127,10 @@ export class KlassPrinter {
       this.push(result, ["}"], indent);
     }
     result.push("\n");
-
-    return result.join("");
+    result = sanitizeKlassOutput(result);
+    let resultStr = result.join("");
+    resultStr = sanitizeKlassString(resultStr);
+    return resultStr;
   }
 
   private push(
@@ -172,6 +170,7 @@ export class KlassPrinter {
 
     if (param.comment) {
       const text = param.comment.value;
+      result.push("\n");
       result.push("/**\n");
       for (const line of split(text, "\n")) {
         result.push(` * ${line}\n`);
