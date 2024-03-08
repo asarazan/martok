@@ -17,7 +17,7 @@ import { title } from "./NameGenerators";
 import { AsyncLocalStorage } from "async_hooks";
 import { TypeReplacer } from "./processing/TypeReplacer";
 import { processSnakeCase } from "./processing/SnakeCase";
-import { processOldNames } from "./processing/SanitizeNames";
+import { processOldNames, sanitizeName } from "./processing/SanitizeNames";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
 
@@ -200,6 +200,8 @@ export class Martok {
         `${file.fileName} is not within the given source root, it can't be included in this project.`
       );
     }
-    return `${this.config.package}${relativePath.replace(/\//g, ".")}`;
+    return sanitizeName(
+      `${this.config.package}${relativePath.replace(/\//g, ".")}`
+    );
   }
 }

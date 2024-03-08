@@ -5,6 +5,7 @@ import { MartokOutFile } from "../MartokOutFile";
 
 export function processSnakeCase(files: MartokOutFile[]) {
   for (const file of files) {
+    file.pkg = snakeToCamel(file.pkg);
     for (const klass of file.text.declarations) {
       if (!(klass instanceof Klass)) continue;
       processKlass(klass);
