@@ -11,6 +11,8 @@
     "test": "jest",
     "special": "ts-node src/index.ts '../../personal/Tangent-Mobile/api/entities/*.d.ts' -i -t -o ./schema/Tangent",
     "special2": "ts-node src/index.ts 'tests/comparisons/**/*.d.ts' -i -t -o ./schema/Tests/",
+    "special3": "ts-node src/index.ts 'tests/comparisons/single/generics.d.ts' -i -t -o ./schema/Tests/Generics.kt",
+    "special4": "ts-node src/index.ts 'tests/comparisons/single/genericInterfaces.d.ts' -i -t -o ./schema/Tests/Generics.kt",
     "lint": "eslint . --ext .ts"
   },
   "author": "aaron@sarazan.net",
