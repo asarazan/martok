@@ -3,7 +3,7 @@ import Klass = kotlin.Klass;
 import { MartokOutFile } from "../MartokOutFile";
 
 export function sanitizeName(name: string): string {
-  return name.replace(/:/g, "_").replace(/"/g, "");
+  return name.replace(/:/g, "_").replace(/"/g, "").replace(/-/g, "_");
 }
 
 export function processOldNames(files: MartokOutFile[]) {
