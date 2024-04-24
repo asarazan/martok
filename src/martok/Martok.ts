@@ -5,7 +5,7 @@ import _ from "lodash";
 import { TsHelper } from "../typescript/TsHelper";
 import {
   StandardKotlinImportList,
-  StarKotlinImport,
+  StarKotlinImportList,
 } from "../kotlin/StandardKotlinImports";
 import { ImportGenerator } from "./ImportGenerator";
 import { DeclarationGenerator } from "./declarations/DeclarationGenerator";
@@ -167,7 +167,7 @@ export class Martok {
         package: `package ${pkg}`,
         imports: [
           ...(this.config.options?.importStar
-            ? [StarKotlinImport]
+            ? StarKotlinImportList
             : StandardKotlinImportList),
         ],
         declarations: [],
