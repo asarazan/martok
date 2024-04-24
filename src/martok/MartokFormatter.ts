@@ -1,7 +1,8 @@
 import { MartokOutFile } from "./MartokOutFile";
 import {
   StandardKotlinImports,
-  StarKotlinImport,
+  StarKotlinImportList,
+  StarKotlinImports,
 } from "../kotlin/StandardKotlinImports";
 import { MartokConfig } from "./MartokConfig";
 import { KlassPrinter } from "../kotlin/KlassPrinter";
@@ -27,7 +28,7 @@ ${file.text.declarations
     return `${StandardFileHeader}
 package ${this.config.package}
 
-${this.config.options?.importStar ? StarKotlinImport : StandardKotlinImports}
+${this.config.options?.importStar ? StarKotlinImports : StandardKotlinImports}
 
 ${files
   .flatMap((value) =>
