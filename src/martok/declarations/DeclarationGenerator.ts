@@ -11,9 +11,9 @@ export class DeclarationGenerator {
 
   public constructor(private readonly martok: Martok) {}
 
-  public generateDeclarations(file: SourceFile): (Klass | string)[] {
+  public generateDeclarations(statements: Statement[]): (Klass | string)[] {
     return _.compact(
-      file.statements.flatMap((value) => this.generateDeclaration(value))
+      statements.flatMap((value) => this.generateDeclaration(value))
     );
   }
 

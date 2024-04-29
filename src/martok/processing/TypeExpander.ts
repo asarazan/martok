@@ -2,6 +2,7 @@ import ts, { SourceFile, Statement, getJSDocTags } from "typescript";
 import { hasTypeArguments } from "../../typescript/utils";
 import { Martok } from "../Martok";
 import { extractJsDocs, insertJsDocs, JsDocProperty } from "./Comments";
+import { ZodProcessor } from "./ZodProcessor";
 
 type ExpandFile = {
   fileName: string;
@@ -15,7 +16,10 @@ type ExpandStatementWithImports = {
 };
 
 export class TypeExpander {
-  public constructor(private martok: Martok) {}
+  private zodProcessor: ZodProcessor;
+  public constructor(private martok: Martok) {
+    this.zodProcessor = new ZodProcessor(martok);
+  }
 
   private shouldIgnore(statement: Statement): boolean {
     return (
@@ -26,6 +30,7 @@ export class TypeExpander {
   }
 
   private shouldExpand(statement: Statement): boolean {
+    if (this.zodProcessor.shouldExpand(statement)) return true;
     if (!ts.isTypeAliasDeclaration(statement)) return false;
 
     const hasFlattenTag =
@@ -106,8 +111,11 @@ export class TypeExpander {
     if (this.shouldIgnore(statement)) return "";
     if (!this.shouldExpand(statement)) return statement.getFullText();
 
+    const type =
+      this.zodProcessor.getType(statement) ??
+      this.martok.checker.getTypeAtLocation(statement);
     const newExpandedType = this.martok.checker.typeToString(
-      this.martok.checker.getTypeAtLocation(statement),
+      type,
       statement,
       ts.TypeFormatFlags.InTypeAlias |
         ts.TypeFormatFlags.NoTypeReduction |
