@@ -20,6 +20,7 @@ import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames, sanitizeName } from "./processing/SanitizeNames";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
+import { ZodProcessor } from "./processing/ZodProcessor";
 
 type MartokState = {
   nameScope: string[];
@@ -195,7 +196,7 @@ export class Martok {
     let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
-    } else {
+    } else if (!ZodProcessor.allowImportThrough(file)) {
       throw new Error(
         `${file.fileName} is not within the given source root, it can't be included in this project.`
       );
