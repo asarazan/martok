@@ -38,6 +38,8 @@ export class Martok {
 
   public readonly imports;
 
+  public readonly zodProcessor: ZodProcessor;
+
   public get checker(): TypeChecker {
     return this.program.getTypeChecker();
   }
@@ -73,6 +75,7 @@ export class Martok {
     this.program = this.compiler.compileFiles(fsMap);
     this.program = new TypeExpander(this).expand();
     this.imports = new ImportGenerator(this);
+    this.zodProcessor = new ZodProcessor(this);
 
     this.declarations = new DeclarationGenerator(this);
     this.storage = new AsyncLocalStorage<MartokState>();
@@ -196,7 +199,7 @@ export class Martok {
     let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
-    } else if (!ZodProcessor.allowImportThrough(file)) {
+    } else if (!this.zodProcessor.allowImportThrough(file)) {
       throw new Error(
         `${file.fileName} is not within the given source root, it can't be included in this project.`
       );
