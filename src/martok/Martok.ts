@@ -20,12 +20,14 @@ import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames, sanitizeName } from "./processing/SanitizeNames";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
+import { ZodProcessor } from "./processing/ZodProcessor";
 
 type MartokState = {
   nameScope: string[];
   externalStatements: ts.Symbol[];
   additionalDeclarations: string[];
   typeReplacer: TypeReplacer;
+  zodProcessor: ZodProcessor;
 };
 
 export class Martok {
@@ -51,6 +53,9 @@ export class Martok {
   }
   public get typeReplacer(): TypeReplacer {
     return this.storage.getStore()!.typeReplacer;
+  }
+  public get zodProcessor(): ZodProcessor {
+    return this.storage.getStore()!.zodProcessor;
   }
 
   private readonly storage;
@@ -116,6 +121,7 @@ export class Martok {
       externalStatements: [],
       additionalDeclarations: [],
       typeReplacer: new TypeReplacer(this),
+      zodProcessor: new ZodProcessor(this),
     };
     return this.storage.run(state, () => {
       const result = _(this.config.files)
@@ -195,7 +201,7 @@ export class Martok {
     let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
-    } else {
+    } else if (!this.zodProcessor.isZodImport(file)) {
       throw new Error(
         `${file.fileName} is not within the given source root, it can't be included in this project.`
       );
