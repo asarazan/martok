@@ -1,4 +1,4 @@
-import ts from "typescript";
+import ts, { isVariableStatement } from "typescript";
 import { Martok } from "../Martok";
 
 export class ZodProcessor {
@@ -8,7 +8,7 @@ export class ZodProcessor {
     return file.fileName.includes("/martok/node_modules/zod/lib/");
   }
 
-  public isZodDeclaration(): boolean {
-    return true;
+  public isZodStatement(node: ts.Node): boolean {
+    return true; // TODO
   }
 }

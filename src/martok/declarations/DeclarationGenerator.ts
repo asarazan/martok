@@ -19,7 +19,7 @@ export class DeclarationGenerator {
 
   private generateDeclaration(node: Statement): (Klass | string)[] {
     try {
-      if (!KlassGenerator.isSupportedDeclaration(node)) {
+      if (!this.klasses.isSupportedDeclaration(node)) {
         return [];
       }
       const result = [this.klasses.generate(node)];

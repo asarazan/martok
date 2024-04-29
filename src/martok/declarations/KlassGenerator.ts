@@ -54,9 +54,7 @@ export class KlassGenerator {
     this.tagged = new TaggedUnionGenerator(this.martok);
   }
 
-  public static isSupportedDeclaration(
-    node: Node
-  ): node is SupportedDeclaration {
+  public isSupportedDeclaration(node: Node): node is SupportedDeclaration {
     return (
       isTypeAliasDeclaration(node) ||
       isInterfaceDeclaration(node) ||
@@ -96,7 +94,7 @@ export class KlassGenerator {
     }
     try {
       let name = options?.forceName;
-      if (!name && KlassGenerator.isSupportedDeclaration(node)) {
+      if (!name && this.isSupportedDeclaration(node)) {
         name = node.name.escapedText.toString()!;
       }
       if (!name) {
@@ -250,7 +248,7 @@ export class KlassGenerator {
       if (isPropertySignature(value)) {
         return this.generateProperty(value);
       }
-      if (KlassGenerator.isSupportedDeclaration(value)) {
+      if (this.isSupportedDeclaration(value)) {
         return this.generate(value) as Klass;
       }
       throw new Error(`Can't handle inner type ${value.kind}`);
