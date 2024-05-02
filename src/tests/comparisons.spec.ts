@@ -24,6 +24,7 @@ describe("Single File Comparisons", () => {
         sourceRoot: root,
         options: {
           dedupeTaggedUnions: true,
+          experimentalZodSupport: true,
         },
       });
       const out = sanitizeComparison(martok.generateMultiFile());

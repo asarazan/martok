@@ -20,6 +20,7 @@ import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames, sanitizeName } from "./processing/SanitizeNames";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
+import { ZodProcessor } from "./processing/zod/ZodProcessor";
 
 type MartokState = {
   nameScope: string[];
@@ -36,6 +37,8 @@ export class Martok {
   public readonly declarations;
 
   public readonly imports;
+
+  public readonly zodProcessor: ZodProcessor;
 
   public get checker(): TypeChecker {
     return this.program.getTypeChecker();
@@ -70,6 +73,10 @@ export class Martok {
 
     // Create initial program
     this.program = this.compiler.compileFiles(fsMap);
+
+    this.zodProcessor = new ZodProcessor(this);
+    this.program = this.zodProcessor.modifyProgram();
+
     this.program = new TypeExpander(this).expand();
     this.imports = new ImportGenerator(this);
 
@@ -157,12 +164,14 @@ export class Martok {
 
   private processFile(file: SourceFile): MartokOutFile {
     console.log(`Process File: ${file.fileName}...`);
+    // file = this.zodProcessor.processFile(file);
     const name = TsHelper.getBaseFileName(file.fileName);
     const pkg = this.getFilePackage(file);
     this.pushNameScope(pkg);
     const base: MartokOutFile = {
       name,
       pkg,
+      file,
       text: {
         package: `package ${pkg}`,
         imports: [
@@ -195,7 +204,7 @@ export class Martok {
     let relativePath = path.resolve(path.dirname(file.fileName));
     if (relativePath.startsWith(this.config.sourceRoot)) {
       relativePath = relativePath.slice(this.config.sourceRoot.length);
-    } else {
+    } else if (!this.zodProcessor.allowImportThrough(file)) {
       throw new Error(
         `${file.fileName} is not within the given source root, it can't be included in this project.`
       );
