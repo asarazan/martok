@@ -20,7 +20,7 @@ import { processSnakeCase } from "./processing/SnakeCase";
 import { processOldNames, sanitizeName } from "./processing/SanitizeNames";
 import { TypeExpander } from "./processing/TypeExpander";
 import { TsCompiler } from "./TsCompiler";
-import { ZodProcessor } from "./processing/ZodProcessor";
+import { ZodProcessor } from "./processing/zod/ZodProcessor";
 
 type MartokState = {
   nameScope: string[];
@@ -73,9 +73,12 @@ export class Martok {
 
     // Create initial program
     this.program = this.compiler.compileFiles(fsMap);
+
+    this.zodProcessor = new ZodProcessor(this);
+    this.program = this.zodProcessor.modifyProgram();
+
     this.program = new TypeExpander(this).expand();
     this.imports = new ImportGenerator(this);
-    this.zodProcessor = new ZodProcessor(this);
 
     this.declarations = new DeclarationGenerator(this);
     this.storage = new AsyncLocalStorage<MartokState>();
@@ -161,12 +164,14 @@ export class Martok {
 
   private processFile(file: SourceFile): MartokOutFile {
     console.log(`Process File: ${file.fileName}...`);
+    // file = this.zodProcessor.processFile(file);
     const name = TsHelper.getBaseFileName(file.fileName);
     const pkg = this.getFilePackage(file);
     this.pushNameScope(pkg);
     const base: MartokOutFile = {
       name,
       pkg,
+      file,
       text: {
         package: `package ${pkg}`,
         imports: [

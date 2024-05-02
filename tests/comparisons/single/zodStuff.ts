@@ -7,8 +7,3 @@ export const FormData = z.object({
   email: z.string().email(),
   url: z.string().url().optional(),
 });
-
-/**
- * @expand
- */
-export type FormData = z.infer<typeof FormData>;
