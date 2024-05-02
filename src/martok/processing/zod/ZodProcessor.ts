@@ -52,10 +52,10 @@ export class ZodProcessor {
     const fullText = zod.fullText;
     const renamed = fullText.replace(zod.identifier, `__${zod.identifier}`);
     return `${renamed}
-/** 
- * @expand 
- **/ 
-export ${zod.identifier} = z.infer<typeof __${zod.identifier}>`;
+/**
+ * @expand
+ */
+export type ${zod.identifier} = z.infer<typeof __${zod.identifier}>;`;
   }
 
   private getText(file: SourceFile): string {
