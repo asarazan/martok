@@ -2,7 +2,7 @@ Martok - Glory To Your Schema!
 ==
 
 ![Build Status](https://github.com/asarazan/martok/actions/workflows/ci.yaml/badge.svg)
-[![codecov](https://codecov.io/gh/asarazan/martok/graph/badge.svg?token=AAIV2Q9PRS)](https://codecov.io/gh/asarazan/martok)
+[![codecov](https://codecov.io/gh/asarazan/martok/branch/main/graph/badge.svg?token=AAIV2Q9PRS)](https://codecov.io/gh/asarazan/martok)
 
 ![image](https://user-images.githubusercontent.com/542872/141661639-3dc8c2e3-d44d-4e56-bed5-7aea1c1f4cb8.png)
 
