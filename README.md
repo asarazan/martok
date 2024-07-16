@@ -72,6 +72,7 @@ martok ./someDirectory -o ./outputDirectory # produce lots of little files.
 * Configurable numeric precision via the `@precision` jsdoc tag
 
 ### TODO
+* [Zod](https://github.com/asarazan/martok/pull/81) (this is so hard - PRs accepted!)
 * Fully discriminated/disagreeing unions
 * documentation
 * Intended for `.d.ts` files. Work on safer execution for `.ts` 
