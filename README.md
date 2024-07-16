@@ -6,8 +6,6 @@ Martok - Glory To Your Schema!
 
 ![image](https://user-images.githubusercontent.com/542872/141661639-3dc8c2e3-d44d-4e56-bed5-7aea1c1f4cb8.png)
 
-<sub>_(Want to get paid to build cool stuff on Kotlin Multiplatform? [We're Hiring!](https://www.volleythat.com/careers))_</sub>
-
 Martok is built for one thing and one thing only: converting Typescript schemas into 
 [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) 
 schemas. *It's the brutal and chaotic rival to [Dukat](https://github.com/Kotlin/dukat).*
