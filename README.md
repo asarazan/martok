@@ -13,7 +13,7 @@ Martok is built for one thing and one thing only: converting Typescript schemas 
 schemas. *It's the brutal and chaotic rival to [Dukat](https://github.com/Kotlin/dukat).*
 
 ### Why Kotlin? Why Typescript?
-Here at [Volley](https://www.volleythat.com/careers), we're big believers in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
+We've always been big believers in [Kotlin Multiplatform for Mobile](https://kotlinlang.org/lp/mobile/) --
 but also recognize the (well-earned) dominance of Node on the backend. Martok creates an automated schema pipeline from the
 Typescript in your backend codebase to the Kotlin data layer in your Android & iOS apps.
 
