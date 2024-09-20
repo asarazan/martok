@@ -20,9 +20,7 @@ QuickType has gotten quite old and difficult to develop. The PRs have mostly sta
 we currently cannot find a way to successfully build the project, so we've moved on.
 
 ### Can I see some example output?
-Sure! Check out the comparison files we use for our automated tests [HERE](tests/comparisons/single).
-
-_For a quick example:_
+Sure! _For a quick example:_
 ```typescript
 export type Unions = {
   foo: { bar: string } | { baz: string };
@@ -41,6 +39,37 @@ data class Unions(
     )
 }
 ```
+_Or this one:_
+```typescript
+export type AnonList = {
+  foo: {
+    bar: string;
+    baz: "one" | "two";
+  }[];
+};
+```
+_...which would translate to:_
+```kotlin
+@Serializable
+data class AnonList(
+    val foo: List<FooItem>
+) {
+    @Serializable
+    data class FooItem(
+        val bar: String,
+        val baz: Baz
+    ) {
+        @Serializable
+        enum class Baz(
+            val serialName: String
+        ) {
+            @SerialName("one") ONE("one"),
+            @SerialName("two") TWO("two");
+        }
+    }
+}
+```
+For more examples, check out the comparison files we use for our automated tests [HERE](tests/comparisons/single).
 
 ### Installation
 ```shell
