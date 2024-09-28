@@ -49,6 +49,13 @@ const args = yargs
     default: false,
     describe: "Just throw in an import kotlinx.serialization.*",
   })
+  .option("experimentalZodSupport", {
+    alias: "z",
+    type: "boolean",
+    default: false,
+    describe:
+      "WIP support for Zod transpilations. Need to manually infer and expand",
+  })
   .showHelpOnFail(true)
   .help()
   .strict()
@@ -64,6 +71,7 @@ export type TranspileSingleArgs = {
   snakeToCamelCase: boolean;
   annotationNewLines: boolean;
   importStar: boolean;
+  experimentalZodSupport: boolean;
 };
 
 async function transpile(args: TranspileSingleArgs) {
@@ -74,6 +82,7 @@ async function transpile(args: TranspileSingleArgs) {
     snakeToCamelCase,
     annotationNewLines,
     importStar,
+    experimentalZodSupport,
   } = args;
   const config: MartokConfig = {
     files: resolve.files,
@@ -84,6 +93,7 @@ async function transpile(args: TranspileSingleArgs) {
       snakeToCamelCase,
       annotationNewLines,
       importStar,
+      experimentalZodSupport,
     },
   };
   const martok = new Martok(config);
